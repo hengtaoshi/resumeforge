@@ -201,14 +201,6 @@ const PersonalRenderer = ({ section, onUpdate }: RendererProps) => {
   const c = section.content
   const set = (key: string, value: string) => onUpdate(section.id, { [key]: value })
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => set('avatar', reader.result as string)
-    reader.readAsDataURL(file)
-  }
-
   const fields: { key: string; label: string; placeholder: string; colSpan?: boolean }[] = [
     { key: 'name', label: '姓名', placeholder: '请输入姓名' },
     { key: 'title', label: '求职意向', placeholder: '例如：高级前端工程师' },
@@ -219,26 +211,6 @@ const PersonalRenderer = ({ section, onUpdate }: RendererProps) => {
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      {/* 一寸照片 */}
-      <div className="col-span-2 flex items-center gap-4 mb-1">
-        <div className="w-[96px] h-[120px] bg-gray-50 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 rounded">
-          {c.avatar ? (
-            <img src={c.avatar} alt="照片" className="w-full h-full object-cover" />
-          ) : (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          )}
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-            上传照片
-          </label>
-          <span className="text-[11px] text-gray-400">建议 1 寸近期免冠照片</span>
-          {c.avatar && (
-            <button onClick={() => set('avatar', '')} className="text-xs text-red-400 hover:text-red-500 text-left mt-1">删除照片</button>
-          )}
-        </div>
-      </div>
       {fields.map((f) => (
         <div key={f.key} className={f.colSpan ? 'col-span-2' : ''}>
           <label className="block text-xs text-gray-500 mb-1">{f.label}</label>
@@ -885,51 +857,19 @@ const Editor = () => {
   // ── Export handlers ──
   const handleExport = useCallback(
     async (format: string) => {
-      if (!activeResume) return
-
-      // Client-side JSON export (no electronAPI.exportJSON)
-      if (format === 'JSON') {
-        try {
-          const json = JSON.stringify(activeResume, null, 2)
-          const blob = new Blob([json], { type: 'application/json' })
-          const url = URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url
-          a.download = `${activeResume.title.replace(/\s+/g, '_')}.json`
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
-          URL.revokeObjectURL(url)
-          toast.success('导出 JSON 成功')
-        } catch {
-          toast.error('导出 JSON 失败')
-        }
-        return
-      }
-
-      if (!window.electronAPI) {
+      if (!activeResume || !window.electronAPI) {
         toast.warning('导出功能仅在桌面客户端可用')
         return
       }
-
       const key = `export${format}` as keyof typeof window.electronAPI
       const fn = window.electronAPI[key]
-      if (typeof fn !== 'function') {
-        toast.warning(`不支持导出 ${format} 格式`)
-        return
-      }
-
+      if (typeof fn !== 'function') return
       try {
         const result = await (fn as (data: unknown) => Promise<any>)(activeResume)
-        if (result.success) {
-          toast.success(`导出 ${format} 成功`)
-        } else if (result.error) {
-          toast.error(result.error)
-        }
+        if (result.success) toast.success(`导出 ${format} 成功`)
+        else if (result.error) toast.error(result.error)
       } catch (err) {
-        toast.error(
-          `导出 ${format} 失败: ${err instanceof Error ? err.message : String(err)}`,
-        )
+        toast.error(`导出 ${format} 失败: ${err instanceof Error ? err.message : String(err)}`)
       }
     },
     [activeResume],
@@ -1177,22 +1117,39 @@ const Editor = () => {
             .map((section) => (
               <div
                 key={section.id}
-                className={`${SECTION_BG_COLORS[section.type]} rounded-xl p-5`}
+                className={`${SECTION_BG_COLORS[section.type]} rounded-xl ${section.type === 'personal' ? 'px-5 pb-5 pt-0' : 'p-5'} relative`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i
-                      className={`ph-light ${SECTION_ICONS[section.type]} text-lg text-gray-600`}
-                    ></i>
-                    <h4 className="font-semibold text-gray-700">
-                      {SECTION_LABELS[section.type]}
-                    </h4>
-                  </div>
-                  {section.type === 'personal' && section.content.avatar && (
-                    <div style={{ width: 96, height: 120, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden', background: 'white', flexShrink: 0 }}>
-                      <img src={section.content.avatar} alt="照片" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {section.type === 'personal' && (() => {
+                  const ps = sortedSections.find(s => s.type === 'personal' && s.isVisible);
+                  const av = ps?.content?.avatar;
+                  return (
+                    <div className="absolute top-0 right-5 z-10">
+                      {av ? (
+                        <div className="relative group">
+                          <img src={av} alt="照片" className="w-[96px] h-[120px] border border-gray-200 shadow-sm object-cover" />
+                          <button onClick={() => updateSectionContent(ps!.id, { avatar: '' } as any)} className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="删除照片">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer w-[96px] h-[120px] border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center gap-1 hover:border-teal-400 hover:bg-teal-50/30 transition-colors">
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file || !ps) return;
+                            const r = new FileReader();
+                            r.onload = () => updateSectionContent(ps.id, { avatar: r.result as string } as any);
+                            r.readAsDataURL(file);
+                          }} />
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <span className="text-[10px] text-gray-400">一寸照片</span>
+                        </label>
+                      )}
                     </div>
-                  )}
+                  );
+                })()}
+                <div className={`flex items-center gap-2 ${section.type === 'personal' ? 'mb-[98px]' : 'mb-4'}`}>
+                  <i className={`ph-light ${SECTION_ICONS[section.type]} text-lg text-gray-600`}></i>
+                  <h4 className="font-semibold text-gray-700">{SECTION_LABELS[section.type]}</h4>
                 </div>
                 <SectionContentEditor
                   section={section}
@@ -1327,25 +1284,13 @@ const Editor = () => {
               导出简历
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {['PDF', 'DOCX', 'TXT', 'HTML', 'JSON'].map((format) => (
+              {['PDF', 'DOCX'].map((format) => (
                 <button
                   key={format}
                   onClick={() => handleExport(format)}
                   className="flex items-center justify-center gap-1 px-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
                 >
-                  <i
-                    className={`ph-light text-sm ${
-                      format === 'PDF'
-                        ? 'ph-file-pdf'
-                        : format === 'DOCX'
-                          ? 'ph-file'
-                          : format === 'TXT'
-                            ? 'ph-file-text'
-                            : format === 'HTML'
-                              ? 'ph-code'
-                              : 'ph-file-code'
-                    }`}
-                  ></i>
+                  <i className={`ph-light text-sm ${format === 'PDF' ? 'ph-file-pdf' : 'ph-file'}`}></i>
                   {format}
                 </button>
               ))}
