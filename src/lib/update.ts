@@ -1,7 +1,7 @@
 // ponytail: checks GitHub Releases API for newer versions
 
 const REPO = 'hengtaoshi/resumeforge'
-const CURRENT_VERSION = '1.0.0'
+const CURRENT_VERSION = '1.1.0'
 
 export interface UpdateInfo {
   hasUpdate: boolean
