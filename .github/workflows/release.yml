@@ -70,7 +70,7 @@ jobs:
         run: npm run build
 
       - name: Package NSIS installer
-        run: npx electron-builder --win
+        run: npx electron-builder --win --publish=never
         env:
           GH_TOKEN: ${{ github.token }}
 

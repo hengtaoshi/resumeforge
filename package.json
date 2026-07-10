@@ -42,6 +42,7 @@
     "directories": {
       "output": "release"
     },
+    "electronDist": "electron-bin",
     "files": [
       "dist/**/*",
       "dist-electron/**/*"
