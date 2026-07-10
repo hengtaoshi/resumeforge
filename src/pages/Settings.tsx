@@ -87,7 +87,7 @@ const Settings: React.FC = () => {
             {providerOrder.map(p => (
               <button key={p} onClick={() => setProvider(p)}
                 className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
-                  aiProvider === p ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'
+                  aiProvider === p ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'
                 }`}>{PROVIDER_LABELS[p]}</button>
             ))}
           </div>

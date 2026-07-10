@@ -201,6 +201,14 @@ const PersonalRenderer = ({ section, onUpdate }: RendererProps) => {
   const c = section.content
   const set = (key: string, value: string) => onUpdate(section.id, { [key]: value })
 
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => set('avatar', reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
   const fields: { key: string; label: string; placeholder: string; colSpan?: boolean }[] = [
     { key: 'name', label: '姓名', placeholder: '请输入姓名' },
     { key: 'title', label: '求职意向', placeholder: '例如：高级前端工程师' },
@@ -211,6 +219,26 @@ const PersonalRenderer = ({ section, onUpdate }: RendererProps) => {
 
   return (
     <div className="grid grid-cols-2 gap-3">
+      {/* 一寸照片 */}
+      <div className="col-span-2 flex items-center gap-4 mb-1">
+        <div className="w-[96px] h-[120px] bg-gray-50 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 rounded">
+          {c.avatar ? (
+            <img src={c.avatar} alt="照片" className="w-full h-full object-cover" />
+          ) : (
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            上传照片
+          </label>
+          <span className="text-[11px] text-gray-400">建议 1 寸近期免冠照片</span>
+          {c.avatar && (
+            <button onClick={() => set('avatar', '')} className="text-xs text-red-400 hover:text-red-500 text-left mt-1">删除照片</button>
+          )}
+        </div>
+      </div>
       {fields.map((f) => (
         <div key={f.key} className={f.colSpan ? 'col-span-2' : ''}>
           <label className="block text-xs text-gray-500 mb-1">{f.label}</label>
@@ -264,13 +292,13 @@ const ExperienceRenderer = ({ section, onUpdate }: RendererProps) => {
   return (
     <div className="space-y-4">
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="relative border rounded-lg p-3 pt-2 space-y-2">
+        <div key={idx} className="relative border rounded-lg pt-6 p-3 space-y-2">
           <button
             onClick={() => removeItem(idx)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+            className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="删除此项"
           >
-            <i className="ph-light ph-x text-base"></i>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -285,18 +313,24 @@ const ExperienceRenderer = ({ section, onUpdate }: RendererProps) => {
               onChange={(e) => updateItem(idx, 'role', e.target.value)}
               placeholder="职位"
             />
-            <input
-              className="border rounded px-2 py-1.5 text-sm"
-              value={item.startDate || ''}
-              onChange={(e) => updateItem(idx, 'startDate', e.target.value)}
-              placeholder="开始日期"
-            />
-            <input
-              className="border rounded px-2 py-1.5 text-sm"
-              value={item.endDate || ''}
-              onChange={(e) => updateItem(idx, 'endDate', e.target.value)}
-              placeholder="结束日期"
-            />
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">开始时间</label>
+              <input
+                type="date"
+                className="w-full border rounded px-2 py-1.5 text-sm"
+                value={item.startDate || ''}
+                onChange={(e) => updateItem(idx, 'startDate', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">结束时间</label>
+              <input
+                type="date"
+                className="w-full border rounded px-2 py-1.5 text-sm"
+                value={item.endDate || ''}
+                onChange={(e) => updateItem(idx, 'endDate', e.target.value)}
+              />
+            </div>
           </div>
           <textarea
             className="w-full border rounded px-2 py-1.5 text-sm min-h-[60px] resize-y"
@@ -341,13 +375,13 @@ const EducationRenderer = ({ section, onUpdate }: RendererProps) => {
   return (
     <div className="space-y-4">
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="relative border rounded-lg p-3 pt-2 space-y-2">
+        <div key={idx} className="relative border rounded-lg pt-6 p-3 space-y-2">
           <button
             onClick={() => removeItem(idx)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+            className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="删除此项"
           >
-            <i className="ph-light ph-x text-base"></i>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -356,30 +390,42 @@ const EducationRenderer = ({ section, onUpdate }: RendererProps) => {
               onChange={(e) => updateItem(idx, 'school', e.target.value)}
               placeholder="学校名称"
             />
-            <input
-              className="border rounded px-2 py-1.5 text-sm"
+            <select
               value={item.degree || ''}
               onChange={(e) => updateItem(idx, 'degree', e.target.value)}
-              placeholder="学历 (本科/硕士/博士)"
-            />
-            <input
-              className="border rounded px-2 py-1.5 text-sm"
-              value={item.major || ''}
-              onChange={(e) => updateItem(idx, 'major', e.target.value)}
-              placeholder="专业"
-            />
-            <div className="flex gap-2">
+              className="border rounded px-2 py-1.5 text-sm bg-white"
+            >
+              <option value="">选择学历</option>
+              <option value="博士">博士</option>
+              <option value="硕士">硕士</option>
+              <option value="本科">本科</option>
+              <option value="大专">大专</option>
+              <option value="高中">高中</option>
+            </select>
+          </div>
+          <input
+            className="w-full border rounded px-2 py-1.5 text-sm"
+            value={item.major || ''}
+            onChange={(e) => updateItem(idx, 'major', e.target.value)}
+            placeholder="专业"
+          />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="block text-xs text-gray-400 mb-1">开始时间</label>
               <input
-                className="flex-1 border rounded px-2 py-1.5 text-sm"
+                type="date"
+                className="w-full border rounded px-2 py-1.5 text-sm"
                 value={item.startDate || ''}
                 onChange={(e) => updateItem(idx, 'startDate', e.target.value)}
-                placeholder="开始"
               />
+            </div>
+            <div className="flex-1">
+              <label className="block text-xs text-gray-400 mb-1">结束时间</label>
               <input
-                className="flex-1 border rounded px-2 py-1.5 text-sm"
+                type="date"
+                className="w-full border rounded px-2 py-1.5 text-sm"
                 value={item.endDate || ''}
                 onChange={(e) => updateItem(idx, 'endDate', e.target.value)}
-                placeholder="结束"
               />
             </div>
           </div>
@@ -480,13 +526,13 @@ const ProjectsRenderer = ({ section, onUpdate }: RendererProps) => {
   return (
     <div className="space-y-4">
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="relative border rounded-lg p-3 pt-2 space-y-2">
+        <div key={idx} className="relative border rounded-lg pt-6 p-3 space-y-2">
           <button
             onClick={() => removeItem(idx)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+            className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="删除此项"
           >
-            <i className="ph-light ph-x text-base"></i>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -557,13 +603,13 @@ const CertificationsRenderer = ({ section, onUpdate }: RendererProps) => {
   return (
     <div className="space-y-3">
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="relative border rounded-lg p-3 pt-2 space-y-2">
+        <div key={idx} className="relative border rounded-lg pt-6 p-3 space-y-2">
           <button
             onClick={() => removeItem(idx)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+            className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="删除此项"
           >
-            <i className="ph-light ph-x text-base"></i>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -579,10 +625,10 @@ const CertificationsRenderer = ({ section, onUpdate }: RendererProps) => {
               placeholder="颁发机构"
             />
             <input
+              type="date"
               className="border rounded px-2 py-1.5 text-sm"
               value={item.date || ''}
               onChange={(e) => updateItem(idx, 'date', e.target.value)}
-              placeholder="获得日期"
             />
           </div>
         </div>
@@ -659,6 +705,8 @@ const Editor = () => {
   // ── Local UI state ──
   const [deleteMode, setDeleteMode] = useState(false)
   const [selectedForDelete, setSelectedForDelete] = useState<string[]>([])
+  const [resumeDeleteMode, setResumeDeleteMode] = useState(false)
+  const [selectedResumes, setSelectedResumes] = useState<string[]>([])
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [showAddDropdown, setShowAddDropdown] = useState(false)
@@ -729,7 +777,12 @@ const Editor = () => {
   }, [selectedForDelete])
 
   const confirmDelete = useCallback(() => {
-    if (pendingDeleteId) {
+    if (pendingDeleteId === 'batch') {
+      for (const id of selectedResumes) deleteResume(id)
+      toast.success(`已删除 ${selectedResumes.length} 份简历`)
+      setSelectedResumes([])
+      setResumeDeleteMode(false)
+    } else if (pendingDeleteId) {
       deleteResume(pendingDeleteId)
       toast.success('简历已删除')
       setPendingDeleteId(null)
@@ -739,7 +792,7 @@ const Editor = () => {
     setSelectedForDelete([])
     setDeleteMode(false)
     setShowDeleteConfirm(false)
-  }, [selectedForDelete, removeSection, pendingDeleteId, deleteResume])
+  }, [selectedForDelete, removeSection, pendingDeleteId, deleteResume, selectedResumes])
 
   // ── Grammar check ──
   const handleGrammarCheck = useCallback(async () => {
@@ -890,39 +943,50 @@ const Editor = () => {
       <div className="flex h-full">
         {/* Resume list sidebar */}
         <div className="w-64 min-w-[256px] border-r bg-gray-50 flex flex-col">
-          <div className="p-4 border-b bg-white">
+          <div className="p-4 border-b bg-white flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">我的简历</h2>
+            {resumes.length > 0 && (
+              <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }}
+                className={`text-xs px-2 py-1 rounded transition-colors ${resumeDeleteMode ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-gray-600'}`}>
+                {resumeDeleteMode ? '完成' : '批量删除'}
+              </button>
+            )}
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-1">
             {resumes.map((r) => (
               <div key={r.id}
-                onClick={() => setActiveResume(r.id)}
-                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white hover:shadow-sm transition-all group"
+                onClick={() => { if (!resumeDeleteMode) setActiveResume(r.id) }}
+                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all group ${resumeDeleteMode ? (selectedResumes.includes(r.id) ? 'bg-red-50' : 'hover:bg-gray-100') : 'hover:bg-white hover:shadow-sm'}`}
               >
-                <i className="ph-light ph-file-text text-base text-teal-500"></i>
+                {resumeDeleteMode ? (
+                  <input type="checkbox" checked={selectedResumes.includes(r.id)}
+                    onChange={() => setSelectedResumes(prev => prev.includes(r.id) ? prev.filter(id => id !== r.id) : [...prev, r.id])}
+                    className="w-4 h-4 rounded border-gray-300 text-red-500 focus:ring-red-400" />
+                ) : (
+                  <i className="ph-light ph-file-text text-base text-teal-500"></i>
+                )}
                 <span className="flex-1 text-sm text-gray-700 truncate">{r.title}</span>
-                <button onClick={(e) => { e.stopPropagation(); setPendingDeleteId(r.id); setShowDeleteConfirm(true) }}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all">
-                  <i className="ph-light ph-trash text-sm"></i>
-                </button>
+                {!resumeDeleteMode && (
+                  <button onClick={(e) => { e.stopPropagation(); setPendingDeleteId(r.id); setShowDeleteConfirm(true) }}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all">
+                    <i className="ph-light ph-trash text-sm"></i>
+                  </button>
+                )}
               </div>
             ))}
             {resumes.length === 0 && (
               <p className="text-xs text-gray-400 text-center py-8">暂无简历</p>
             )}
           </div>
-          <div className="p-3 border-t">
-            <button
-              onClick={async () => {
-                const r = await createResume()
-                if (r) toast.success('已创建新简历')
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm"
-            >
-              <i className="ph-light ph-plus text-base"></i>
-              创建新简历
-            </button>
-          </div>
+          {resumeDeleteMode && selectedResumes.length > 0 && (
+            <div className="p-3 border-t">
+              <button onClick={() => { setPendingDeleteId('batch'); setShowDeleteConfirm(true) }}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                删除选中 ({selectedResumes.length})
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Empty state */}
@@ -952,7 +1016,7 @@ const Editor = () => {
                 <h3 className="text-lg font-semibold text-gray-800">确认删除</h3>
               </div>
               <p className="text-sm text-gray-600 mb-1">
-                {pendingDeleteId ? '确定要删除这份简历吗？' : `确定要删除以下 ${selectedForDelete.length} 个版块吗？`}
+                {pendingDeleteId === 'batch' ? `确定要删除选中的 ${selectedResumes.length} 份简历吗？` : pendingDeleteId ? '确定要删除这份简历吗？' : `确定要删除以下 ${selectedForDelete.length} 个版块吗？`}
               </p>
               <p className="text-xs text-gray-400 mb-4">
                 此操作不可撤销。
@@ -992,7 +1056,12 @@ const Editor = () => {
       <div className="w-[260px] min-w-[260px] border-r bg-white flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h3 className="font-semibold text-gray-800 text-sm">版块列表</h3>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setActiveResume(null)} className="p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors" title="返回简历列表">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </button>
+            <h3 className="font-semibold text-gray-800 text-sm">版块列表</h3>
+          </div>
           <button
             onClick={() => {
               setDeleteMode(!deleteMode)
@@ -1110,13 +1179,20 @@ const Editor = () => {
                 key={section.id}
                 className={`${SECTION_BG_COLORS[section.type]} rounded-xl p-5`}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <i
-                    className={`ph-light ${SECTION_ICONS[section.type]} text-lg text-gray-600`}
-                  ></i>
-                  <h4 className="font-semibold text-gray-700">
-                    {SECTION_LABELS[section.type]}
-                  </h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <i
+                      className={`ph-light ${SECTION_ICONS[section.type]} text-lg text-gray-600`}
+                    ></i>
+                    <h4 className="font-semibold text-gray-700">
+                      {SECTION_LABELS[section.type]}
+                    </h4>
+                  </div>
+                  {section.type === 'personal' && section.content.avatar && (
+                    <div style={{ width: 96, height: 120, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden', background: 'white', flexShrink: 0 }}>
+                      <img src={section.content.avatar} alt="照片" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
                 </div>
                 <SectionContentEditor
                   section={section}
@@ -1153,6 +1229,21 @@ const Editor = () => {
               placeholder="简历标题"
             />
           </div>
+
+          {/* 保存按钮 */}
+          <button
+            onClick={() => {
+              updateResume(activeResume.id, {})
+              toast.success('简历已保存')
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200"
+            style={{ backgroundColor: '#14b8a6' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            保存简历
+          </button>
+
+          <div className="border-t" />
 
           {/* Theme color swatches */}
           <div>
@@ -1329,7 +1420,7 @@ const Editor = () => {
               <h3 className="text-lg font-semibold text-gray-800">确认删除</h3>
             </div>
             <p className="text-sm text-gray-600 mb-1">
-              {pendingDeleteId ? '确定要删除这份简历吗？' : `确定要删除以下 ${selectedForDelete.length} 个版块吗？`}
+              {pendingDeleteId === 'batch' ? `确定要删除选中的 ${selectedResumes.length} 份简历吗？` : pendingDeleteId ? '确定要删除这份简历吗？' : `确定要删除以下 ${selectedForDelete.length} 个版块吗？`}
             </p>
             <p className="text-xs text-gray-400 mb-4">
               此操作不可撤销。
