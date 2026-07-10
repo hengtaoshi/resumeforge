@@ -1,5 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { checkForUpdate } from '@/lib/update';
+import type { UpdateInfo } from '@/lib/update';
 
 const trafficLights = [
   { color: '#EF4444', label: '关闭', action: 'close' as const },
@@ -10,6 +12,11 @@ const trafficLights = [
 export default function TitleBar() {
   const apiKeys = useSettingsStore((s) => s.apiKeys);
   const hasAI = Object.values(apiKeys).some(k => k?.length > 0);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+
+  useEffect(() => {
+    checkForUpdate().then(setUpdateInfo);
+  }, []);
 
   const handleTrafficLight = useCallback((action: 'minimize' | 'maximize' | 'close') => {
     window.electronAPI?.[action]();
@@ -77,7 +84,20 @@ export default function TitleBar() {
       </div>
 
       {/* Right: Status indicator */}
-      <div className="flex items-center gap-2 pr-5" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+      <div className="flex items-center gap-3 pr-5" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+        {updateInfo?.hasUpdate && (
+          <button
+            onClick={() => window.electronAPI?.openExternal(updateInfo.releaseUrl)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs font-medium transition-colors"
+            title={`新版本 ${updateInfo.latestVersion} 可用`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+              <polyline points="17 6 23 6 23 12" />
+            </svg>
+            v{updateInfo.latestVersion}
+          </button>
+        )}
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="relative flex h-2 w-2">
             {hasAI && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />}
