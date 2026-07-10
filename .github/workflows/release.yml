@@ -69,8 +69,8 @@ jobs:
       - name: Build app
         run: npm run build
 
-      - name: Package portable exe
-        run: npx electron-builder --win portable
+      - name: Package NSIS installer
+        run: npx electron-builder --win
         env:
           GH_TOKEN: ${{ github.token }}
 

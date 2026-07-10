@@ -48,10 +48,25 @@
     "win": {
       "target": [
         {
-          "target": "portable",
+          "target": "nsis",
           "arch": ["x64"]
         }
-      ]
+      ],
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ResumeForge"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hengtaoshi",
+      "repo": "resumeforge",
+      "releaseType": "release"
+    }
     }
   }
 }
