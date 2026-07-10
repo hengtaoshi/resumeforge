@@ -47,8 +47,16 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   fetchResumes: async () => {
     set({ loading: true })
     try {
-      const data = api() ? await api()!.getResumes() : []
-      set({ resumes: (data || []) as Resume[], loading: false })
+      const rows = api() ? await api()!.getResumes() : []
+      const resumes: Resume[] = (rows || []).map((row: any) => {
+        // DB rows have {id, title, created_at, updated_at, theme, version, data: ResumeJSON}
+        // Transform to proper Resume shape using the data field
+        if (row.data && typeof row.data === 'object') {
+          return { ...row.data } as Resume
+        }
+        return row as Resume
+      })
+      set({ resumes, loading: false })
     } catch { set({ loading: false }) }
   },
 
