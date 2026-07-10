@@ -124,13 +124,13 @@ ipcMain.handle('db:deleteResume', (_e, id: string) => {
 })
 
 app.whenReady().then(async () => {
-  // Content Security Policy
+  // Content Security Policy — allow Vite dev server inline scripts + HMR WebSocket
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:;"
+          "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' ws: wss: https:;"
         ],
       },
     })

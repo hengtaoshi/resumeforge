@@ -934,6 +934,46 @@ const Editor = () => {
             }}
           />
         </div>
+
+        {/* ─── Delete Confirm Modal ─── */}
+        {showDeleteConfirm && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <div
+              className="bg-white rounded-xl p-6 w-80 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <i className="ph-light ph-warning-circle text-xl text-red-500"></i>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">确认删除</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-1">
+                {pendingDeleteId ? '确定要删除这份简历吗？' : `确定要删除以下 ${selectedForDelete.length} 个版块吗？`}
+              </p>
+              <p className="text-xs text-gray-400 mb-4">
+                此操作不可撤销。
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+                >
+                  删除
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
