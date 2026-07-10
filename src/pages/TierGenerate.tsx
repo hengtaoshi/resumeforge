@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import type { ResumeVersion } from '@/types/resume';
+import React, { useState, useEffect, useRef } from 'react';
+import type { ResumeVersion, Resume } from '@/types/resume';
 import { useResumeStore } from '@/stores/resumeStore';
 import { buildTierPrompt } from '@/lib/ai/prompts';
 import { streamAI, isAIConfigured } from '@/lib/ai/stream';
@@ -71,109 +71,85 @@ const TierGenerate: React.FC = () => {
   });
   const [showOverlay, setShowOverlay] = useState(false);
   const [activeOverlayTier, setActiveOverlayTier] = useState<ResumeVersion | null>(null);
+  const [showResumePicker, setShowResumePicker] = useState(false);
+  const pendingTierRef = useRef<ResumeVersion | null>(null);
 
   const resumes = useResumeStore((s) => s.resumes);
+  const fetchResumes = useResumeStore((s) => s.fetchResumes);
   const activeResumeId = useResumeStore((s) => s.activeResumeId);
+  const setActiveResume = useResumeStore((s) => s.setActiveResume);
   const createResume = useResumeStore((s) => s.createResume);
   const updateResume = useResumeStore((s) => s.updateResume);
 
   const activeResume = resumes.find((r) => r.id === activeResumeId);
 
-  const handleGenerate = async (id: ResumeVersion) => {
+  useEffect(() => { fetchResumes() }, [fetchResumes]);
+
+  const handleGenerate = (id: ResumeVersion) => {
     if (tierStates[id].status !== 'idle') return;
+    if (!isAIConfigured()) { toast.warning('请先在「设置」页面配置 AI 提供商和 API 密钥。'); return; }
+    if (!activeResume) { pendingTierRef.current = id; setShowResumePicker(true); return; }
+    doGenerate(activeResume, id);
+  };
 
-    if (!isAIConfigured()) {
-      toast.warning('请先在「设置」页面配置 AI 提供商和 API 密钥。');
-      return;
-    }
-
-    if (!activeResume) {
-      toast.warning('请先在编辑器中创建或选择一份简历。');
-      return;
-    }
-
-    setTierStates((prev) => ({
-      ...prev,
-      [id]: { status: 'generating', streamingText: '', resultStats: null },
-    }));
+  const doGenerate = (resume: Resume, id: ResumeVersion) => {
+    setTierStates((prev) => ({ ...prev, [id]: { status: 'generating', streamingText: '', resultStats: null } }));
     setActiveOverlayTier(id);
     setShowOverlay(true);
 
-    const { system, messages } = buildTierPrompt(activeResume, id);
-    const aiMessages = [
-      { role: 'system' as const, content: system },
-      ...messages,
-    ];
-
-    let fullText = '';
-
-    streamAI(aiMessages, {
-      onToken: (token) => {
-        fullText += token;
-        setTierStates((prev) => ({
-          ...prev,
-          [id]: { ...prev[id], streamingText: fullText },
-        }));
-      },
+    const { system, messages } = buildTierPrompt(resume, id);
+    streamAI([{ role: 'system' as const, content: system }, ...messages], {
+      onToken: () => {},
       onDone: async (text) => {
-        const parsed = extractJSON<{
-          title?: string;
-          sections?: Array<{ type: string; content: Record<string, unknown> }>;
-          stats?: { matchRate: number; pages: number; keyExperience: string };
-        }>(text);
-
-        if (parsed?.sections && parsed.sections.length > 0) {
-          // Create a new resume with the generated content
-          const newResume = await createResume(parsed.title || `${tierCards.find((c) => c.id === id)?.label || ''}简历`);
-          if (newResume) {
-            // Update the version and sections
-            await updateResume(newResume.id, {
-              version: id,
-              sections: parsed.sections.map((s, i) => ({
-                id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 9)}`,
-                type: s.type as any,
-                sortOrder: i,
-                content: s.content,
-                isVisible: true,
-              })),
-            });
-
-            setTierStates((prev) => ({
-              ...prev,
-              [id]: {
-                status: 'done',
-                streamingText: fullText,
-                resultStats: parsed.stats || null,
-              },
-            }));
-            toast.success(`${tierCards.find((c) => c.id === id)?.label} 简历已生成并保存。`);
-          } else {
-            toast.error('创建简历失败，请重试。');
-            setTierStates((prev) => ({
-              ...prev,
-              [id]: { status: 'idle', streamingText: '', resultStats: null },
-            }));
+        // Parse AI response: sections marked with [section_name]
+        const sections = resume.sections.map(sec => {
+          if (sec.type === 'personal' || sec.type === 'education') return sec // keep as-is
+          if (sec.type === 'summary') {
+            const m = text.match(/\[summary\]([\s\S]*?)(?=\[|\n*$)/)
+            if (m) return { ...sec, content: { ...sec.content, text: m[1].trim() } }
           }
+          if (sec.type === 'experience') {
+            const items: any[] = (sec.content.items || []).map((item: any, i: number) => {
+              const m = text.match(new RegExp(`\\[experience_${i}\\][\\s\\S]*?描述: ([\\s\\S]*?)(?=\\[|$)`))
+              if (m) return { ...item, description: m[1].trim() }
+              return item
+            })
+            return { ...sec, content: { ...sec.content, items } }
+          }
+          if (sec.type === 'skills') {
+            const m = text.match(/\[skills\]([\s\S]*?)(?=\[|\n*$)/)
+            if (m) return { ...sec, content: { ...sec.content, skills: m[1].trim().split(/[,，、]/).map((s: string) => s.trim()).filter(Boolean) } }
+          }
+          if (sec.type === 'projects') {
+            const items: any[] = (sec.content.items || []).map((item: any, i: number) => {
+              const m = text.match(new RegExp(`\\[projects_${i}\\][\\s\\S]*?描述: ([\\s\\S]*?)(?=\\[|$)`))
+              if (m) return { ...item, description: m[1].trim() }
+              return item
+            })
+            return { ...sec, content: { ...sec.content, items } }
+          }
+          return sec
+        })
+
+        const newResume = await createResume(`${tierCards.find(c => c.id === id)?.label || ''}简历`)
+        if (newResume) {
+          await updateResume(newResume.id, { version: id, sections: sections.map((s, i) => ({ ...s, id: `${Date.now()}-${i}`, sortOrder: i, isVisible: true })) })
+          setTierStates(prev => ({ ...prev, [id]: { status: 'done', streamingText: '', resultStats: null } }))
+          toast.success(`${tierCards.find(c => c.id === id)?.label} 简历已生成并保存。`)
         } else {
-          toast.error('AI 返回格式异常，请重试。');
-          setTierStates((prev) => ({
-            ...prev,
-            [id]: { status: 'idle', streamingText: '', resultStats: null },
-          }));
+          toast.error('创建简历失败')
+          setTierStates(prev => ({ ...prev, [id]: { status: 'idle', streamingText: '', resultStats: null } }))
         }
-        setShowOverlay(false);
-        setActiveOverlayTier(null);
+        setShowOverlay(false)
+        setActiveOverlayTier(null)
       },
       onError: (err) => {
-        toast.error(err.message || '生成失败，请检查 AI 配置后重试。');
-        setTierStates((prev) => ({
-          ...prev,
-          [id]: { status: 'idle', streamingText: '', resultStats: null },
-        }));
-        setShowOverlay(false);
-        setActiveOverlayTier(null);
+        toast.error(err.message || '生成失败，请检查 AI 配置后重试。')
+        setTierStates(prev => ({ ...prev, [id]: { status: 'idle', streamingText: '', resultStats: null } }))
+        setShowOverlay(false)
+        setActiveOverlayTier(null)
       },
-    });
+    })
   };
 
   const handleCardClick = (id: ResumeVersion) => {
@@ -232,7 +208,7 @@ const TierGenerate: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">
@@ -246,6 +222,33 @@ const TierGenerate: React.FC = () => {
           根据你的原始经历，一键生成多个梯度的简历版本，AI 自动调整措辞和详略，匹配不同层次的岗位要求。
         </p>
       </div>
+
+      {/* Resume picker overlay */}
+      {showResumePicker && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowResumePicker(false)}>
+          <div className="bg-white rounded-xl shadow-xl p-6 w-96" onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-semibold mb-4">选择要生成的简历</h3>
+            {resumes.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-sm text-slate-400 mb-3">还没有简历</p>
+                <button onClick={async () => { const r = await createResume(); if (r) { setActiveResume(r.id); setShowResumePicker(false); doGenerate(r, pendingTierRef.current!) } }}
+                  className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600">创建新简历</button>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {resumes.map(r => (
+                  <div key={r.id} onClick={() => { setActiveResume(r.id); setShowResumePicker(false); doGenerate(r, pendingTierRef.current!) }}
+                    className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span className="text-sm text-slate-700">{r.title}</span>
+                    <span className="text-xs text-teal-600 font-medium">使用此简历</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setShowResumePicker(false)} className="w-full mt-3 py-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">取消</button>
+          </div>
+        </div>
+      )}
 
       {/* Tier grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -327,15 +330,14 @@ const TierGenerate: React.FC = () => {
                 正在生成{tierCards.find((c) => c.id === activeOverlayTier)?.label || ''}简历...
               </h3>
             </div>
-            <div
-              className="bg-slate-50 rounded-lg p-4 max-h-60 overflow-y-auto text-sm text-slate-600 whitespace-pre-wrap font-mono leading-relaxed"
-              style={{ minHeight: '120px' }}
-            >
-              {tierStates[activeOverlayTier]?.streamingText || '正在连接 AI 服务...'}
+            <div className="flex flex-col items-center gap-3 py-6">
+              <div className="flex gap-2">
+                <span className="w-3 h-3 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-3 h-3 rounded-full bg-teal-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-3 h-3 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <p className="text-sm text-slate-500">AI 正在优化简历内容...</p>
             </div>
-            <p className="text-xs text-slate-400 mt-3 text-center">
-              AI 正在根据你的原始简历进行优化，请耐心等待...
-            </p>
           </div>
         </div>
       )}

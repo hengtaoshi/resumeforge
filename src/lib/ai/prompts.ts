@@ -103,35 +103,65 @@ const TIER_INSTRUCTIONS: Record<ResumeVersion, string> = {
 };
 
 export function buildTierPrompt(resume: Resume, tier: ResumeVersion): { system: string; messages: { role: 'user' | 'assistant'; content: string }[] } {
-  const system = `你是一位资深简历优化专家。请严格按照以下指令调整简历，并以 **纯 JSON 格式** 返回结果，不要包含任何 markdown 包裹或其他说明文字。
-
-返回格式:
-{
-  "title": "优化后的简历标题",
-  "sections": [
-    {
-      "type": "section类型 (personal, summary, experience, education, skills, projects, certifications ...)",
-      "content": { ... 字段键值对 ... }
-    }
-  ],
-  "stats": {
-    "matchRate": 针对该层级的预计匹配度 (0-100 数字),
-    "pages": 预计页数 (数字),
-    "keyExperience": "重点经验标签"
-  }
-}`;
-
   const instruction = TIER_INSTRUCTIONS[tier];
-  const resumeText = serializeResume(resume);
 
-  const userMessage = `请根据以下原始简历内容，生成「${tier === 'big' ? '大厂适用版' : tier === 'mid' ? '中厂适用版' : '小厂适用版'}」的简历。
+  // Only extract fields that need optimization
+  const parts: string[] = []
+  for (const section of resume.sections) {
+    if (!section.isVisible) continue
+    switch (section.type) {
+      case 'summary':
+        parts.push(`[summary]\n${section.content.text || ''}`)
+        break
+      case 'experience': {
+        const items: any[] = section.content.items || []
+        items.forEach((item, i) => {
+          parts.push(`[experience_${i}]\n公司: ${item.company || ''} | 职位: ${item.role || ''}\n描述: ${item.description || ''}`)
+        })
+        break
+      }
+      case 'skills':
+        parts.push(`[skills]\n${(section.content.skills || []).join(', ')}`)
+        break
+      case 'projects': {
+        const items: any[] = section.content.items || []
+        items.forEach((item, i) => {
+          parts.push(`[projects_${i}]\n项目: ${item.name || ''} | 角色: ${item.role || ''}\n描述: ${item.description || ''}`)
+        })
+        break
+      }
+    }
+  }
 
-原始简历:
-${resumeText}
+  const system = `你是一位简历优化专家。根据给定的层级要求，优化以下简历内容。
 
 ${instruction}
 
-请严格按照 JSON 格式返回，不要包含 markdown 包裹。`;
+规则：
+- 专业技能：只保留与工作/技术相关的技能，不相关的（如兴趣爱好类）直接去掉
+- 工作/项目经历：用STAR法则优化描述，数据量化
+- 个人简介：突出核心竞争力和职业方向
+
+请按以下格式返回优化后的内容（用 [section] 标记区分各个部分），只返回内容，不要额外说明：
+
+[summary]
+优化后的个人简介
+
+[experience_0]
+优化后的工作经历描述
+
+[skills]
+优化后的技能列表，只保留技术/工作相关
+
+[projects_0]
+优化后的项目描述`;
+
+  const userMessage = `请优化为「${tier === 'big' ? '大厂适用版' : tier === 'mid' ? '中厂适用版' : '小厂适用版'}」。
+
+需要优化的内容:
+${parts.join('\n\n')}
+
+按照要求的格式返回优化后的内容。`;
 
   return { system, messages: [{ role: 'user', content: userMessage }] };
 }

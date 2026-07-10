@@ -820,6 +820,69 @@ const Editor = () => {
     }
   }, [activeResume])
 
+  // ── Import Resume ──
+  const handleImportResume = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!isAIConfigured()) { toast.warning('请先在设置中配置 AI 服务'); return }
+    if (file.size > 5 * 1024 * 1024) { toast.warning('文件过大，请选择小于 5MB 的文件'); return }
+
+    toast.info('正在解析简历文件...')
+
+    const extractText = (f: File): Promise<string> => {
+      return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
+    }
+
+    const text = await extractText(file)
+    if (!text.trim()) { toast.error('无法读取文件内容'); return }
+
+    try {
+      const res = await askAI([
+        { role: 'system', content: `你是一位简历解析专家。从以下文本中提取简历信息，返回纯 JSON（不要 markdown）：
+
+{
+  "title": "简历标题",
+  "personal": {"name":"","title":"","email":"","phone":"","location":""},
+  "summary": {"text":""},
+  "experience": {"items":[{"company":"","role":"","startDate":"","endDate":"","description":""}]},
+  "education": {"items":[{"school":"","degree":"","major":"","startDate":"","endDate":""}]},
+  "skills": {"skills":[]},
+  "projects": {"items":[{"name":"","role":"","tech":"","description":""}]},
+  "certifications": {"items":[{"name":"","issuer":"","date":""}]}
+}
+
+没有的字段填空数组或空字符串。` },
+        { role: 'user', content: text.slice(0, 30000) },
+      ])
+      const parsed = extractJSON<any>(res)
+      if (!parsed) { toast.error('AI 解析失败，请重试'); return }
+
+      const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+      const sectionData: [string, string, Record<string, any>][] = [
+        ['personal', '个人信息', parsed.personal || {}],
+        ['summary', '个人简介', parsed.summary || { text: '' }],
+        ['experience', '工作经历', parsed.experience || { items: [] }],
+        ['education', '教育背景', parsed.education || { items: [] }],
+        ['skills', '专业技能', parsed.skills || { skills: [] }],
+        ['projects', '项目/作品经验', parsed.projects || { items: [] }],
+        ['certifications', '证书资质', parsed.certifications || { items: [] }],
+      ]
+
+      const resume = await createResume(parsed.title || '导入的简历')
+      if (resume) {
+        await updateResume(resume.id, {
+          sections: sectionData.map(([type, _label, content], i) => ({
+            id: genId(), type: type as any, sortOrder: i, content, isVisible: true,
+          })),
+        })
+        toast.success('简历导入成功')
+      }
+    } catch (err) {
+      toast.error('解析失败: ' + (err instanceof Error ? err.message : String(err)))
+    }
+    e.target.value = ''
+  }, [createResume, updateResume, isAIConfigured])
+
   // ── Translation ──
   const handleTranslate = useCallback(async () => {
     if (!activeResume) return
@@ -885,12 +948,18 @@ const Editor = () => {
         <div className="w-64 min-w-[256px] border-r bg-gray-50 flex flex-col">
           <div className="p-4 border-b bg-white flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">我的简历</h2>
-            {resumes.length > 0 && (
-              <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }}
-                className={`text-xs px-2 py-1 rounded transition-colors ${resumeDeleteMode ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-gray-600'}`}>
-                {resumeDeleteMode ? '完成' : '批量删除'}
-              </button>
-            )}
+            <div className="flex items-center gap-1">
+              <label className="cursor-pointer text-xs px-2 py-1 rounded text-gray-400 hover:text-teal-600 hover:bg-teal-50 transition-colors" title="导入简历">
+                <input type="file" accept=".txt,.docx,.pdf" className="hidden" onChange={handleImportResume} />
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </label>
+              {resumes.length > 0 && (
+                <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }}
+                  className={`text-xs px-2 py-1 rounded transition-colors ${resumeDeleteMode ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-gray-600'}`}>
+                  {resumeDeleteMode ? '完成' : '批量删除'}
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-1">
             {resumes.map((r) => (
@@ -1147,7 +1216,7 @@ const Editor = () => {
                     </div>
                   );
                 })()}
-                <div className={`flex items-center gap-2 ${section.type === 'personal' ? 'mb-[98px]' : 'mb-4'}`}>
+                <div className={`flex items-center gap-2 ${section.type === 'personal' ? 'pt-[40px] mb-[58px]' : 'mb-4'}`}>
                   <i className={`ph-light ${SECTION_ICONS[section.type]} text-lg text-gray-600`}></i>
                   <h4 className="font-semibold text-gray-700">{SECTION_LABELS[section.type]}</h4>
                 </div>
@@ -1281,20 +1350,15 @@ const Editor = () => {
           {/* Export buttons */}
           <div>
             <label className="block text-xs text-gray-500 mb-1.5 font-medium">
-              导出简历
+              导出
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {['PDF', 'DOCX'].map((format) => (
-                <button
-                  key={format}
-                  onClick={() => handleExport(format)}
-                  className="flex items-center justify-center gap-1 px-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
-                >
-                  <i className={`ph-light text-sm ${format === 'PDF' ? 'ph-file-pdf' : 'ph-file'}`}></i>
-                  {format}
-                </button>
-              ))}
-            </div>
+              <button
+                onClick={() => handleExport('PDF')}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                导出
+              </button>
           </div>
 
           {/* AI tools */}

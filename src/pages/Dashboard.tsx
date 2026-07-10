@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useResumeStore } from '@/stores/resumeStore';
 
 interface StatCardProps {
@@ -63,8 +63,11 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   const resumes = useResumeStore((s) => s.resumes);
+  const fetchResumes = useResumeStore((s) => s.fetchResumes);
   const createResume = useResumeStore((s) => s.createResume);
   const setActiveResume = useResumeStore((s) => s.setActiveResume);
+
+  useEffect(() => { fetchResumes() }, [fetchResumes]);
 
   const resumeCount = resumes.length;
 
@@ -74,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">

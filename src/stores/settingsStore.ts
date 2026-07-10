@@ -54,7 +54,7 @@ export const useSettingsStore = create<SettingsState>()(
       language: 'zh-CN',
       defaultTemplate: 'modern',
       autoSave: true,
-      exportLimit: false,
+      exportLimit: 1,
       setApiKey: (provider, key) => set((s) => ({ apiKeys: { ...s.apiKeys, [provider]: key } })),
       setProvider: (p) => set(() => ({ aiProvider: p, model: MODEL_MAP[p] || '' })),
       setModel: (model) => set({ model }),
@@ -66,6 +66,11 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'resumeforge-settings',
+      version: 1,
+      migrate: (persisted: any) => {
+        if (persisted?.exportLimit === false) persisted.exportLimit = 1
+        return persisted
+      },
       partialize: (state) => ({
         aiProvider: state.aiProvider, apiKeys: state.apiKeys, model: state.model,
         theme: state.theme, language: state.language, defaultTemplate: state.defaultTemplate,

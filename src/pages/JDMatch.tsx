@@ -237,7 +237,7 @@ const JDMatch: React.FC = () => {
   const matchCounts = result?.matchCounts ?? { good: 0, partial: 0, missing: 0 };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-50 text-sky-600 mb-3">
@@ -264,8 +264,8 @@ const JDMatch: React.FC = () => {
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               placeholder="请将职位描述粘贴到这里..."
-              className="w-full h-64 p-4 rounded-lg border border-slate-200 resize-none text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200"
-              style={{ color: '#1E293B', backgroundColor: '#F8F7F4' }}
+              className="w-full h-64 p-4 rounded-lg border border-slate-200 resize-none text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
+             
             />
 
             <div className="flex items-center gap-3 mt-4">
@@ -293,7 +293,7 @@ const JDMatch: React.FC = () => {
 
               <button
                 onClick={handleFileUpload}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
                 style={{ color: '#1E293B' }}
               >
                 <i className="ph-light ph-upload text-base" />
@@ -530,7 +530,7 @@ const JDMatch: React.FC = () => {
                   </div>
 
                   {/* Summary */}
-                  <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: '#F8F7F4' }}>
+                  <div className="p-3 rounded-lg mb-4 bg-[#F8F7F4] dark:bg-slate-900">
                     <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                       {atsResult.summary}
                     </p>

@@ -217,7 +217,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
   /* ----- render ----- */
 
   return (
-    <div className="flex-1 h-full overflow-hidden" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex-1 h-full overflow-hidden bg-[#F8F7F4] dark:bg-slate-900">
       <div className="flex h-full gap-6 p-8">
         {/* ============ LEFT PANEL: Import ============ */}
         <div className="w-[440px] flex-shrink-0 flex flex-col">

@@ -45,7 +45,7 @@ const CareerTools: React.FC<CareerToolsProps> = ({ onPageChange }) => {
     }
   };
   return (
-    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 mb-3">

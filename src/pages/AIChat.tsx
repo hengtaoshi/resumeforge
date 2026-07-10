@@ -39,13 +39,12 @@ const AIChat: React.FC = () => {
     const p = getPendingChatPrompt()
     if (p) {
       setInputText(p)
-      if (p.includes('模拟面试')) setShowInterviewPanel(true)
+      /* panel always visible */
     }
   }, [])
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Interview mode state
-  const [showInterviewPanel, setShowInterviewPanel] = useState(false);
   const [selectedRole, setSelectedRole] = useState<InterviewRole | null>(null);
   const [questionCount, setQuestionCount] = useState(0);
 
@@ -200,7 +199,7 @@ const AIChat: React.FC = () => {
 
     // If not already in interview mode, detect "模拟面试" intent
     if (!selectedRole && text.includes('模拟面试')) {
-      setShowInterviewPanel(true);
+      /* panel always visible */;
       setInputText('');
       return;
     }
@@ -213,7 +212,7 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   const handleRoleSelect = (role: InterviewRole) => {
     setSelectedRole(role);
-    setShowInterviewPanel(true);
+    /* panel always visible */;
     sendMessage(`开始${ROLE_LABELS[role]}模拟面试`, { interviewRole: role });
   };
 
@@ -224,7 +223,7 @@ const AIChat: React.FC = () => {
 
   const endInterview = () => {
     setSelectedRole(null);
-    setShowInterviewPanel(false);
+    /* panel always visible */
     setQuestionCount(0);
   };
 
@@ -233,7 +232,7 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   const handleSuggestion = (text: string) => {
     if (text === '模拟面试') {
-      setShowInterviewPanel(true);
+      /* panel always visible */;
       return;
     }
     const suggestionTexts: Record<string, string> = {
@@ -269,11 +268,9 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   return (
     <div
-      className="flex-1 p-8 overflow-y-auto flex gap-6"
-      style={{ backgroundColor: '#F8F7F4' }}
+      className="flex-1 p-8 overflow-y-auto flex gap-6 bg-[#F8F7F4] dark:bg-slate-900"
     >
       {/* ── Interview Panel ── */}
-      {showInterviewPanel && (
         <div className="w-60 flex-shrink-0">
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sticky top-0">
             {/* Panel header */}
@@ -360,8 +357,7 @@ const AIChat: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      )}
+          </div>
 
       {/* ── Main Chat Area ── */}
       <div className="flex-1 min-w-0">
@@ -514,8 +510,8 @@ const AIChat: React.FC = () => {
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="输入你的问题..."
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200"
-                style={{ color: '#1E293B', backgroundColor: '#F8F7F4' }}
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
+                style={{ color: '#1E293B' }}
               />
             </div>
             <button

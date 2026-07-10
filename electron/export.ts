@@ -33,21 +33,18 @@ const LABELS: Record<string, string> = {
 function buildResumeHTML(data: ResumeData): string {
   const personalSection = data.sections.find(s => s.type === 'personal' && s.isVisible)
   const photoHtml = personalSection?.content?.avatar
-    ? `<div style="position:absolute;top:0;right:0;z-index:10"><img src="${personalSection.content.avatar}" style="width:96px;height:120px;object-fit:cover;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.1)"/></div>`
+    ? `<div style="position:absolute;top:0;right:20px;z-index:10"><img src="${personalSection.content.avatar}" style="width:96px;height:120px;object-fit:cover;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.1)"/></div>`
     : ''
 
   const sectionsHTML = data.sections.filter(s => s.isVisible).sort((a, b) => a.sortOrder - b.sortOrder).map(section => {
     const c = SECTION_COLORS[section.type] || { bg: '#f8fafc', border: '#e2e8f0' }
     const label = LABELS[section.type] || section.type
-    const icon = { personal: '👤', summary: '📄', experience: '💼', education: '📚', skills: '⚡', projects: '📂', certifications: '🏅' }[section.type] || '📋'
-
     let content = renderContent(section)
     if (!content) return ''
 
-    return `<div style="background:${c.bg};border:1px solid ${c.border};border-radius:12px;padding:20px;margin-bottom:16px;position:relative">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${section.type === 'personal' ? '98px' : '16px'}">
-        <span style="font-size:14px;color:#64748b">${icon}</span>
-        <h4 style="margin:0;font-size:14px;font-weight:600;color:#374151">${label}</h4>
+    return `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e2e8f0">
+      <div style="${section.type === 'personal' ? 'padding-top:40px;' : ''}margin-bottom:${section.type === 'personal' ? '58px' : '12px'}">
+        <h4 style="margin:0;font-size:16px;font-weight:700;color:#1e293b;letter-spacing:0.5px">${label}</h4>
       </div>
       ${content}
     </div>`
@@ -68,7 +65,7 @@ function renderContent(section: ResumeSection): string {
       ].filter(([, v]) => v)
       if (!fields.length) return ''
       return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${fields.map(([k, v]) =>
-        `<div${k === '地址' ? ' style="grid-column:1/-1"' : ''}><div style="font-size:9pt;color:#94a3b8;margin-bottom:2px">${k}</div><div style="font-size:10pt;color:#1e293b;padding:6px 10px;background:white;border-radius:6px;border:1px solid #e2e8f0">${esc(v as string)}</div></div>`
+        `<div${k === '地址' ? ' style="grid-column:1/-1"' : ''}><div style="font-size:8pt;color:#94a3b8;margin-bottom:2px">${k}</div><div style="font-size:10pt;color:#1e293b">${esc(v as string)}</div></div>`
       ).join('')}</div>`
     }
     case 'summary':
@@ -104,30 +101,25 @@ function renderContent(section: ResumeSection): string {
   }
 }
 
-async function doExport(data: ResumeData, ext: string, filterName: string): Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }> {
+async function doExport(data: ResumeData): Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }> {
   try {
     const html = buildResumeHTML(data)
     const result = await dialog.showSaveDialog({
-      title: `导出 ${ext.toUpperCase()}`,
-      defaultPath: `${data.title || 'resume'}.${ext}`,
-      filters: [{ name: filterName, extensions: [ext] }],
+      title: '导出 PDF',
+      defaultPath: `${data.title || 'resume'}.pdf`,
+      filters: [{ name: 'PDF', extensions: ['pdf'] }],
     })
     if (result.canceled || !result.filePath) return { success: false, canceled: true }
 
-    if (ext === 'pdf') {
-      const win = new BrowserWindow({ show: false, width: 800, height: 1100, webPreferences: { contextIsolation: true, nodeIntegration: false } })
-      await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
-      const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
-      win.close()
-      fs.writeFileSync(result.filePath, pdfBuffer)
-    } else {
-      fs.writeFileSync(result.filePath, html, 'utf-8')
-    }
+    const win = new BrowserWindow({ show: false, width: 800, height: 1100, webPreferences: { contextIsolation: true, nodeIntegration: false } })
+    await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+    const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
+    win.close()
+    fs.writeFileSync(result.filePath, pdfBuffer)
     return { success: true, filePath: result.filePath }
   } catch (err: any) {
     return { success: false, error: err.message }
   }
 }
 
-ipcMain.handle('export:pdf', async (_event, data: ResumeData) => doExport(data, 'pdf', 'PDF'))
-ipcMain.handle('export:docx', async (_event, data: ResumeData) => doExport(data, 'docx', 'Word Document'))
+ipcMain.handle('export:pdf', async (_event, data: ResumeData) => doExport(data))
