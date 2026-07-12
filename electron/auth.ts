@@ -152,7 +152,13 @@ export function registerAuthHandlers() {
     return body.user
   })
   ipcMain.handle('auth:getUser', async () => {
-    try { return await authedApi('/api/auth/me') } catch { return null }
+    try { return await authedApi('/api/auth/me') } catch (e: any) {
+      const msg = e.message || ''
+      // 401 / 未授权 → token 无效，需要重新登录
+      if (msg.includes('401') || msg.includes('unauthorized')) return null
+      // 网络错误 → 保留现有登录状态
+      return { _networkError: true }
+    }
   })
   ipcMain.handle('auth:isLoggedIn', () => loadTokens() !== null)
   ipcMain.handle('auth:logout', async () => {

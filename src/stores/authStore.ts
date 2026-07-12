@@ -38,8 +38,14 @@ export const useAuthStore = create<AuthState>()(
           const loggedIn = await window.electronAPI.isLoggedIn()
           if (!loggedIn) { set({ loading: false, user: null }); return }
           const user = await window.electronAPI.getUser()
-          set({ user: user ?? null, loading: false })
-        } catch { set({ loading: false, user: null }) }
+          if (!user) { set({ loading: false, user: null }); return }
+          // 网络错误时保留已有用户状态，不退出登录
+          if ((user as any)._networkError) {
+            set((s) => ({ loading: false, user: s.user }))
+            return
+          }
+          set({ user, loading: false })
+        } catch { set((s) => ({ loading: false, user: s.user })) }
       },
 
       sendCode: async (email) => {
