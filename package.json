@@ -66,10 +66,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "ResumeForge",
-      "compression": "maximum"
+      "shortcutName": "ResumeForge"
     },
-    "removePackageScripts": true,
     "publish": {
       "provider": "github",
       "owner": "hengtaoshi",
