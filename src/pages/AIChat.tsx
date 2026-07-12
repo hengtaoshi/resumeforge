@@ -25,7 +25,7 @@ interface ChatMessage {
   id: string;
 }
 
-const suggestions = ['优化项目描述', 'JD匹配建议', '语法检查', '翻译', '生成求职信'];
+const suggestions = ['优化项目描述', 'JD匹配建议', '语法检查', '翻译'];
 
 const AIChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -43,6 +43,7 @@ const AIChat: React.FC = () => {
     }
   }, [])
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Interview mode state
   const [selectedRole, setSelectedRole] = useState<InterviewRole | null>(null);
@@ -240,7 +241,6 @@ const AIChat: React.FC = () => {
       'JD匹配建议': '请帮我分析当前简历与目标职位的匹配度。',
       '语法检查': '请帮我检查简历中的语法和措辞问题。',
       '翻译': '请将我的简历翻译成英文。',
-      '生成求职信': '请根据我的简历和当前求职方向生成一封求职信。',
     };
     setInputText(suggestionTexts[text] || text);
   };
@@ -501,7 +501,22 @@ const AIChat: React.FC = () => {
 
           {/* Input bar */}
           <div className="p-4 flex items-center gap-3">
-            <button className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 flex-shrink-0">
+            <input ref={fileInputRef} type="file" accept=".txt,.docx,.pdf" className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                if (file.size > 2 * 1024 * 1024) { toast.warning('文件过大，请选择小于 2MB 的文件'); return }
+                try {
+                  const text = await file.text()
+                  const suffix = file.name.endsWith('.txt') ? '' : `\n\n（已附加文件: ${file.name}，请根据内容处理）`
+                  setInputText((prev) => (prev ? prev + '\n\n' : '') + text + suffix)
+                  toast.success(`已读取: ${file.name}`)
+                } catch { toast.error('无法读取文件内容') }
+                e.target.value = ''
+              }} />
+            <button onClick={() => fileInputRef.current?.click()}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 flex-shrink-0"
+              title="附加文件">
               <i className="ph-light ph-paperclip text-lg" />
             </button>
             <div className="flex-1 relative">
