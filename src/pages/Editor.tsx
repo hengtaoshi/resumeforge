@@ -949,9 +949,10 @@ const Editor = () => {
           <div className="p-4 border-b bg-white flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">我的简历</h2>
             <div className="flex items-center gap-1">
-              <label className="cursor-pointer text-xs px-2 py-1 rounded text-gray-400 hover:text-teal-600 hover:bg-teal-50 transition-colors" title="导入简历">
+              <label className="cursor-pointer flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 transition-colors" title="导入简历文件">
                 <input type="file" accept=".txt,.docx,.pdf" className="hidden" onChange={handleImportResume} />
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                导入
               </label>
               {resumes.length > 0 && (
                 <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }}
