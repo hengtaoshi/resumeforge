@@ -201,7 +201,11 @@ app.whenReady().then(async () => {
   // ══ 3. 窗口 + 更新 ══
   createWindow()
   setupAutoUpdater()
-  if (app.isPackaged) autoUpdater.checkForUpdates()
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates()
+    // 每小时自动检查一次（不影响性能，仅一个轻量 HTTP 请求）
+    setInterval(() => autoUpdater.checkForUpdates(), 60 * 60 * 1000)
+  }
 })
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
