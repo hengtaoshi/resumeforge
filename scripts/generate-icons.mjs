@@ -1,9 +1,7 @@
 import sharp from 'sharp'
-import { writeFileSync, mkdirSync } from 'fs'
+import { mkdirSync } from 'fs'
 
-const SIZES = {
-  png: [16, 24, 32, 48, 64, 96, 128, 256],
-}
+const SIZES = [16, 24, 32, 48, 64, 96, 128, 256]
 
 // ── SVG icon: document + wand/sparkle (AI resume enhancement) ──
 function svgIcon(size) {
@@ -40,21 +38,16 @@ async function generate() {
   mkdirSync('build', { recursive: true })
 
   // Generate each PNG size
-  for (const size of SIZES.png) {
+  for (const size of SIZES) {
     const svg = svgIcon(size)
     await sharp(Buffer.from(svg)).png().toFile(`build/icon-${size}.png`)
     console.log(`  ✓ build/icon-${size}.png`)
   }
 
-  // Primary 256×256
+  // Primary 256×256 (electron-builder uses this to generate .ico automatically)
   const svg256 = svgIcon(256)
   await sharp(Buffer.from(svg256)).png().toFile('build/icon.png')
   console.log('  ✓ build/icon.png')
-
-  // Windows .ico (write raw PNG as .ico — electron-builder accepts PNG)
-  const icoBuf = await sharp(Buffer.from(svg256)).png().toBuffer()
-  writeFileSync('build/icon.ico', icoBuf)
-  console.log('  ✓ build/icon.ico')
 
   // Favicon for HTML
   const svg32 = svgIcon(32)
