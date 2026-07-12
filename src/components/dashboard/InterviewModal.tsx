@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import toast from '@/lib/toast'
+import { askAI, isAIConfigured } from '@/lib/ai/stream'
+import { buildReviewPrompt } from '@/lib/ai/prompts/review'
 
-interface Interview { id: string; company: string; role: string; type: string; note: string | null; created_at: string }
+interface Interview { id: string; company: string; role: string; type: string; note: string | null; review: string | null; created_at: string }
 
 interface Props { onClose: () => void; onUpdate: () => void }
 
@@ -20,6 +22,22 @@ const ENCOURAGEMENTS = [
 
 const CONFETTI_COLORS = ['#14b8a6', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
+// ponytail: minimal markdown renderer for review result
+function RenderMarkdown({ text }: { text: string }) {
+  const lines = text.split('\n')
+  const els: React.ReactNode[] = []
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i]
+    if (l.startsWith('### ')) els.push(<h3 key={i} className="text-base font-semibold mt-4 mb-2" style={{ color: '#0f172a' }}>{l.slice(4)}</h3>)
+    else if (l.startsWith('## ')) els.push(<h2 key={i} className="text-lg font-bold mt-5 mb-2" style={{ color: '#0f172a' }}>{l.slice(3)}</h2>)
+    else if (l.startsWith('- ')) els.push(<li key={i} className="text-sm ml-4 text-slate-600">{l.slice(2)}</li>)
+    else if (/^[1-3]\. /.test(l)) els.push(<li key={i} className="text-sm ml-4 text-slate-600">{l}</li>)
+    else if (l.trim() === '') els.push(<div key={i} className="h-2" />)
+    else els.push(<p key={i} className="text-sm text-slate-600 leading-relaxed">{l}</p>)
+  }
+  return <div className="prose prose-sm max-w-none" style={{ color: '#1E293B' }}>{els}</div>
+}
+
 export default function InterviewModal({ onClose, onUpdate }: Props) {
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [company, setCompany] = useState('')
@@ -28,6 +46,10 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
   const [note, setNote] = useState('')
   const [adding, setAdding] = useState(false)
   const [celebrate, setCelebrate] = useState<string | null>(null)
+  const [reviewingId, setReviewingId] = useState<string | null>(null)
+  const [reviewNotes, setReviewNotes] = useState('')
+  const [reviewResult, setReviewResult] = useState<string | null>(null)
+  const [reviewing, setReviewing] = useState(false)
 
   const load = () => window.electronAPI!.getInterviews().then(setInterviews)
 
@@ -53,6 +75,31 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
     await window.electronAPI!.deleteInterview(id)
     await load()
     onUpdate()
+  }
+
+  const startReview = (iv: Interview) => {
+    setReviewingId(iv.id)
+    setReviewNotes(iv.review ? '' : '')  // if already reviewed, start fresh
+    setReviewResult(iv.review)
+  }
+
+  const submitReview = async () => {
+    if (!reviewingId || !reviewNotes.trim()) return toast.warning('请填写面试复盘笔记')
+    if (!isAIConfigured()) return toast.warning('请先在设置中配置 AI 服务')
+    setReviewing(true)
+    setReviewResult(null)
+    try {
+      const iv = interviews.find(i => i.id === reviewingId)
+      if (!iv) return
+      const { system, messages } = buildReviewPrompt(iv.company, iv.role, iv.type, reviewNotes)
+      const text = await askAI([{ role: 'system', content: system }, ...messages])
+      setReviewResult(text)
+      await window.electronAPI!.saveReview(reviewingId, text)
+      toast.success('复盘完成 ✅')
+    } catch (err: any) {
+      toast.error('复盘失败: ' + (err.message || String(err)))
+    }
+    setReviewing(false)
   }
 
   return (
@@ -110,6 +157,10 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
                   {new Date(iv.created_at).toLocaleDateString('zh-CN')}
                 </p>
                 {iv.note && <p className="text-xs text-slate-400 mt-0.5">{iv.note}</p>}
+                <button onClick={() => startReview(iv)}
+                  className={`mt-1.5 text-xs px-2 py-0.5 rounded-full border transition-colors ${iv.review ? 'bg-teal-50 text-teal-600 border-teal-200 hover:bg-teal-100' : 'text-slate-400 border-slate-200 hover:border-teal-300 hover:text-teal-500'}`}>
+                  <i className="ph-light ph-arrows-clockwise text-xs mr-0.5" />复盘
+                </button>
               </div>
               <button onClick={() => handleDelete(iv.id)} className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded hover:bg-red-50 flex items-center justify-center text-slate-300 hover:text-red-400 transition-all">
                 <i className="ph-light ph-trash text-sm" />
@@ -118,6 +169,46 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
           ))}
         </div>
       </div>
+
+      {/* ── Review Panel ── */}
+      {reviewingId && (
+        <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/30" onClick={() => setReviewingId(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-[600px] max-h-[85vh] flex flex-col mx-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h2 className="text-lg font-semibold" style={{ color: '#1E293B' }}>📋 面试复盘</h2>
+              <button onClick={() => setReviewingId(null)} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400">
+                <i className="ph-light ph-x text-lg" />
+              </button>
+            </div>
+
+            {reviewResult ? (
+              /* ── Review Result ── */
+              <div className="flex-1 overflow-y-auto p-6">
+                <RenderMarkdown text={reviewResult} />
+                <button onClick={() => { setReviewingId(null); setReviewResult(null) }}
+                  className="mt-4 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 transition-colors">
+                  返回面试记录
+                </button>
+              </div>
+            ) : (
+              /* ── Review Form ── */
+              <div className="flex-1 overflow-y-auto p-6">
+                <p className="text-sm text-slate-500 mb-4">
+                  详细描述你的面试过程：面试官问了哪些问题？你是如何回答的？哪些地方感觉好、哪些感觉不好？描述越详细，复盘分析越有针对性。
+                </p>
+                <textarea value={reviewNotes} onChange={e => setReviewNotes(e.target.value)}
+                  placeholder="例如：面试官先让我做了自我介绍，然后问了一个系统设计题…\n我回答的时候感觉在XXX方面不够好…\n面试官追问了XXX，我当时没答上来…"
+                  className="w-full h-48 px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors resize-none"
+                  style={{ color: '#1E293B' }} />
+                <button onClick={submitReview} disabled={reviewing || !reviewNotes.trim()}
+                  className="mt-3 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 disabled:opacity-50 transition-colors">
+                  {reviewing ? '🤔 AI 正在分析...' : '🚀 提交复盘'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Confetti + 鼓励语（情绪价值彩蛋） ── */}
       {celebrate && (

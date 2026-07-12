@@ -116,6 +116,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportDOCX: (data: unknown) => ipcRenderer.invoke('export:docx', data),
   exportTXT: (data: unknown) => ipcRenderer.invoke('export:txt', data),
   exportHTML: (data: unknown) => ipcRenderer.invoke('export:html', data),
+  exportStyledPDF: (html: string) => ipcRenderer.invoke('export:styled-pdf', html),
+  exportStyledHTML: (html: string) => ipcRenderer.invoke('export:styled-html', html),
 
   // Scanner (ATS provider integration via IPC)
   scanProviders: () => ipcRenderer.invoke('scan:providers'),
@@ -155,4 +157,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addInterview: (data: { company: string; role: string; type?: string; note?: string }) => ipcRenderer.invoke('tracking:addInterview', data),
   getInterviews: () => ipcRenderer.invoke('tracking:getInterviews'),
   deleteInterview: (id: string) => ipcRenderer.invoke('tracking:deleteInterview', id),
+  saveReview: (id: string, review: string) => ipcRenderer.invoke('tracking:saveReview', id, review),
 })

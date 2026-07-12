@@ -13,49 +13,6 @@ interface AIProviderInfo {
   models: string[]
 }
 
-interface ElectronAPI {
-  minimize: () => Promise<void>
-  maximize: () => Promise<void>
-  close: () => Promise<void>
-  getResumes: () => Promise<unknown[]>
-  getResume: (id: string) => Promise<unknown>
-  saveResume: (data: unknown) => Promise<{ id: string; created?: boolean; updated?: boolean }>
-  deleteResume: (id: string) => Promise<{ success: boolean }>
-
-  /** Start an AI streaming generation. Returns an async iterable of text chunks. */
-  generateStream: (params: AIGenerateParams) => AsyncIterable<string>
-
-  /** List available AI providers and their models. */
-  getProviders: () => Promise<AIProviderInfo[]>
-
-  /** Open URL in the default system browser. */
-  openExternal: (url: string) => void
-
-  /** Export resume as PDF */
-  exportPDF: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
-
-  /** Export resume as DOCX (HTML-based, Word-compatible) */
-  exportDOCX: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
-
-  /** Export resume as plain text */
-  exportTXT: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
-
-  /** Export resume as standalone HTML */
-  exportHTML: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
-
-  /** Test AI provider connection via main process (avoids CORS from file://) */
-  testConnection: (opts: { provider: string; apiKey: string; model: string }) => Promise<boolean>
-
-  /** List available ATS scanner provider names */
-  scanProviders: () => Promise<string[]>
-
-  /** Search jobs on a provider platform by keyword */
-  searchJobs: (params: { provider: string; keyword: string }) => Promise<ScannedJobResult[]>
-
-  /** Analyze a job description for keyword extraction and match scoring (runs in main process) */
-  analyzeJob: (params: { jobText: string; jobTitle: string }) => Promise<AnalyzeJobResult>
-}
-
 /** A job listing result from an ATS provider search */
 interface ScannedJobResult {
   title: string
@@ -94,6 +51,23 @@ interface UpdateStatusPayload {
   releaseNotes?: string
   releaseDate?: string
   message?: string
+}
+
+// ── Kanban types ────────────────────────────────────────────
+
+type DeliveryStatus = 'applied' | 'interviewing' | 'offer' | 'rejected'
+
+interface DeliveryItem {
+  id: string
+  company: string
+  role: string
+  url: string | null
+  status: DeliveryStatus
+  interview_at: string | null
+  offer_at: string | null
+  rejected_at: string | null
+  note: string | null
+  created_at: string
 }
 
 interface ElectronAPI {
@@ -156,15 +130,23 @@ interface ElectronAPI {
   logout: () => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
 
+  /** Export resume as styled PDF using templates */
+  exportStyledPDF: (html: string) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+  /** Export resume as styled HTML using templates */
+  exportStyledHTML: (html: string) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+
   // ── Dashboard tracking ──
   getTrackingStats: () => Promise<{ atsScore: number | null; deliveryCount: number; interviewCount: number }>
   saveATS: (score: number) => Promise<{ ok: boolean }>
-  addDelivery: (data: { company: string; role: string; url?: string }) => Promise<{ id: string }>
-  getDeliveries: () => Promise<Array<{ id: string; company: string; role: string; url: string | null; created_at: string }>>
+  addDelivery: (data: { company: string; role: string; url?: string; note?: string }) => Promise<{ id: string }>
+  getDeliveries: () => Promise<DeliveryItem[]>
+  updateDelivery: (id: string, data: { company?: string; role?: string; url?: string | null; note?: string | null }) => Promise<{ ok: boolean }>
+  updateDeliveryStatus: (id: string, status: string) => Promise<{ ok: boolean }>
   deleteDelivery: (id: string) => Promise<{ ok: boolean }>
   addInterview: (data: { company: string; role: string; type?: string; note?: string }) => Promise<{ id: string }>
-  getInterviews: () => Promise<Array<{ id: string; company: string; role: string; type: string; note: string | null; created_at: string }>>
+  getInterviews: () => Promise<Array<{ id: string; company: string; role: string; type: string; note: string | null; review: string | null; created_at: string }>>
   deleteInterview: (id: string) => Promise<{ ok: boolean }>
+  saveReview: (id: string, review: string) => Promise<{ ok: boolean }>
 }
 
 interface Window {

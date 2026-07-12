@@ -33,7 +33,7 @@ const LABELS: Record<string, string> = {
 function buildResumeHTML(data: ResumeData): string {
   const personalSection = data.sections.find(s => s.type === 'personal' && s.isVisible)
   const photoHtml = personalSection?.content?.avatar
-    ? `<div style="position:absolute;top:0;right:20px;z-index:10"><img src="${personalSection.content.avatar}" style="width:96px;height:120px;object-fit:cover;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.1)"/></div>`
+    ? `<div style="position:absolute;top:0;right:20px;z-index:10"><img src="${esc(personalSection.content.avatar)}" style="width:96px;height:120px;object-fit:cover;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.1)"/></div>`
     : ''
 
   const sectionsHTML = data.sections.filter(s => s.isVisible).sort((a, b) => a.sortOrder - b.sortOrder).map(section => {
@@ -123,3 +123,43 @@ async function doExport(data: ResumeData): Promise<{ success: boolean; filePath?
 }
 
 ipcMain.handle('export:pdf', async (_event, data: ResumeData) => doExport(data))
+
+// ── Styled export (receives pre-rendered HTML from renderer) ─────────────────
+
+async function doStyledExport(
+  html: string,
+  format: 'pdf' | 'html',
+): Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }> {
+  try {
+    const ext = format === 'pdf' ? 'pdf' : 'html'
+    const result = await dialog.showSaveDialog({
+      title: format === 'pdf' ? '导出 PDF' : '导出 HTML',
+      defaultPath: `resume.${ext}`,
+      filters: format === 'pdf'
+        ? [{ name: 'PDF', extensions: ['pdf'] }]
+        : [{ name: 'HTML', extensions: ['html'] }],
+    })
+    if (result.canceled || !result.filePath) return { success: false, canceled: true }
+
+    if (format === 'html') {
+      fs.writeFileSync(result.filePath, html, 'utf-8')
+      return { success: true, filePath: result.filePath }
+    }
+
+    // PDF — render in headless BrowserWindow
+    const win = new BrowserWindow({
+      show: false, width: 800, height: 1100,
+      webPreferences: { contextIsolation: true, nodeIntegration: false },
+    })
+    await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+    const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
+    win.close()
+    fs.writeFileSync(result.filePath, pdfBuffer)
+    return { success: true, filePath: result.filePath }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+ipcMain.handle('export:styled-pdf', async (_event, html: string) => doStyledExport(html, 'pdf'))
+ipcMain.handle('export:styled-html', async (_event, html: string) => doStyledExport(html, 'html'))

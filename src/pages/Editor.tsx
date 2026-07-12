@@ -20,6 +20,8 @@ import { buildGrammarCheckPrompt, buildTranslationPrompt } from '@/lib/ai/prompt
 import type { GrammarCheckResult } from '@/lib/ai/prompts'
 import { extractJSON } from '@/lib/ai/provider'
 import toast from '@/lib/toast'
+import ResumePreview from '@/components/editor/ResumePreview'
+import ImportReviewModal, { type ParsedResumeData } from '@/components/editor/ImportReviewModal'
 
 // ─── Inline SVG Trash Icon ──────────────────────────────────────────────────
 
@@ -689,6 +691,8 @@ const Editor = () => {
   const [translationLoading, setTranslationLoading] = useState(false)
   const [translationResult, setTranslationResult] = useState<string | null>(null)
   const [showTranslationResult, setShowTranslationResult] = useState(false)
+  const [rightPanelMode, setRightPanelMode] = useState<'properties' | 'preview'>('properties')
+  const [importReviewData, setImportReviewData] = useState<ParsedResumeData | null>(null)
 
   // ── DnD sensors ──
   const sensors = useSensors(
@@ -826,6 +830,11 @@ const Editor = () => {
     if (!file) return
     if (!isAIConfigured()) { toast.warning('请先在设置中配置 AI 服务'); return }
     if (file.size > 5 * 1024 * 1024) { toast.warning('文件过大，请选择小于 5MB 的文件'); return }
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    if (!['txt', 'docx', 'pdf'].includes(ext || '') && !allowedTypes.includes(file.type)) {
+      toast.warning('仅支持 .txt、.docx、.pdf 格式'); return
+    }
 
     toast.info('正在解析简历文件...')
 
@@ -873,31 +882,46 @@ const Editor = () => {
       const parsed = extractJSON<any>(res)
       if (!parsed) { toast.error('AI 解析失败，请重试'); return }
 
-      const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      const sectionData: [string, string, Record<string, any>][] = [
-        ['personal', '个人信息', parsed.personal || {}],
-        ['summary', '个人简介', parsed.summary || { text: '' }],
-        ['experience', '工作经历', parsed.experience || { items: [] }],
-        ['education', '教育背景', parsed.education || { items: [] }],
-        ['skills', '专业技能', parsed.skills || { skills: [] }],
-        ['projects', '项目/作品经验', parsed.projects || { items: [] }],
-        ['certifications', '证书资质', parsed.certifications || { items: [] }],
-      ]
-
-      const resume = await createResume(parsed.title || '导入的简历')
-      if (resume) {
-        await updateResume(resume.id, {
-          sections: sectionData.map(([type, _label, content], i) => ({
-            id: genId(), type: type as any, sortOrder: i, content, isVisible: true,
-          })),
-        })
-        toast.success('简历导入成功')
-      }
+      // Show review modal instead of creating directly
+      setImportReviewData({
+        title: parsed.title || '导入的简历',
+        personal: parsed.personal || {},
+        summary: { text: parsed.summary?.text || parsed.summary?.summary || '' },
+        experience: { items: parsed.experience?.items || [] },
+        education: { items: parsed.education?.items || [] },
+        skills: { skills: parsed.skills?.skills || [] },
+        projects: { items: parsed.projects?.items || [] },
+        certifications: { items: parsed.certifications?.items || [] },
+      })
     } catch (err) {
       toast.error('解析失败: ' + (err instanceof Error ? err.message : String(err)))
     }
     e.target.value = ''
   }, [createResume, updateResume, isAIConfigured])
+
+  // ── Import review confirm ──
+  const handleImportConfirm = useCallback(async (data: ParsedResumeData) => {
+    setImportReviewData(null)
+    const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const sectionData: [string, Record<string, any>][] = [
+      ['personal', data.personal],
+      ['summary', { text: data.summary.text }],
+      ['experience', data.experience],
+      ['education', data.education],
+      ['skills', data.skills],
+      ['projects', data.projects],
+      ['certifications', data.certifications],
+    ]
+    const resume = await createResume(data.title || '导入的简历')
+    if (resume) {
+      await updateResume(resume.id, {
+        sections: sectionData.map(([type, content], i) => ({
+          id: genId(), type: type as any, sortOrder: i, content, isVisible: true,
+        })),
+      })
+      toast.success('简历导入成功')
+    }
+  }, [createResume, updateResume])
 
   // ── Translation ──
   const handleTranslate = useCallback(async () => {
@@ -1063,6 +1087,15 @@ const Editor = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* ─── Import Review Modal ─── */}
+        {importReviewData && (
+          <ImportReviewModal
+            data={importReviewData}
+            onConfirm={handleImportConfirm}
+            onCancel={() => setImportReviewData(null)}
+          />
         )}
       </div>
     )
@@ -1255,9 +1288,34 @@ const Editor = () => {
         </div>
       </div>
 
-      {/* ─── RIGHT PANEL: PropertiesPanel (280px) ──────────────────────── */}
-      <div className="w-[280px] min-w-[280px] border-l bg-white overflow-y-auto">
-        <div className="p-4 space-y-5">
+      {/* ─── RIGHT PANEL (280px) ──────────────────────────────────────── */}
+      <div className="w-[280px] min-w-[280px] border-l bg-white flex flex-col">
+        {/* Tabs */}
+        <div className="flex border-b shrink-0">
+          <button
+            onClick={() => setRightPanelMode('properties')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+              rightPanelMode === 'properties'
+                ? 'text-teal-600 border-b-2 border-teal-500'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            属性
+          </button>
+          <button
+            onClick={() => setRightPanelMode('preview')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+              rightPanelMode === 'preview'
+                ? 'text-teal-600 border-b-2 border-teal-500'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            预览
+          </button>
+        </div>
+
+        {rightPanelMode === 'properties' ? (
+        <div className="p-4 space-y-5 overflow-y-auto flex-1">
           {/* Resume title */}
           <div>
             <label className="block text-xs text-gray-500 mb-1.5 font-medium">
@@ -1426,6 +1484,11 @@ const Editor = () => {
             </div>
           </div>
         </div>
+        ) : (
+          <div className="flex-1 overflow-hidden">
+            <ResumePreview resume={activeResume} />
+          </div>
+        )}
       </div>
 
 

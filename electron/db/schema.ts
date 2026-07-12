@@ -96,12 +96,23 @@ export async function initDB(): Promise<void> {
       role TEXT NOT NULL,
       type TEXT NOT NULL DEFAULT 'tech',
       note TEXT,
+      review TEXT,
       created_at TEXT NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS idx_sections_resume ON resume_sections(resume_id);
     CREATE INDEX IF NOT EXISTS idx_chat_session ON chat_messages(session_id);
   `)
+
+  // ── Migrate deliveries: add status columns if missing ──
+  const cols = db.exec('PRAGMA table_info(deliveries)')[0]?.values.map((v: any) => v[1]) || []
+  if (!cols.includes('status')) {
+    db.run("ALTER TABLE deliveries ADD COLUMN status TEXT NOT NULL DEFAULT 'applied'")
+    db.run('ALTER TABLE deliveries ADD COLUMN interview_at TEXT')
+    db.run('ALTER TABLE deliveries ADD COLUMN offer_at TEXT')
+    db.run('ALTER TABLE deliveries ADD COLUMN rejected_at TEXT')
+    db.run('ALTER TABLE deliveries ADD COLUMN note TEXT')
+  }
 
   saveDB()
 }

@@ -10,6 +10,7 @@ import JDMatch from './pages/JDMatch'
 import AIChat from './pages/AIChat'
 import CareerTools from './pages/CareerTools'
 import JobScanner from './pages/JobScanner'
+import Kanban from './pages/Kanban'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -21,7 +22,7 @@ export default function App() {
     checkAuth().finally(() => setInitDone(true))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!initDone) return <div className="h-full bg-[#F8F7F4]" /> // 初始化，不闪屏
+  if (!initDone) return <div className="h-full bg-[#F8F7F4]" />
 
   if (!user) return <LoginPage />
 
@@ -38,6 +39,7 @@ function MainApp() {
     jd: <JDMatch />,
     chat: <AIChat />,
     tools: <CareerTools onPageChange={(p) => setActivePage(p as PageKey)} />,
+    kanban: <Kanban />,
     scanner: <JobScanner onPageChange={(p) => setActivePage(p as PageKey)} />,
     settings: <Settings />,
   }

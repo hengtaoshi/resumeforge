@@ -506,26 +506,33 @@ const AIChat: React.FC = () => {
                 const file = e.target.files?.[0]
                 if (!file) return
                 if (file.size > 2 * 1024 * 1024) { toast.warning('文件过大，请选择小于 2MB 的文件'); return }
+                const ext = file.name.split('.').pop()?.toLowerCase()
+                const allowedExts = ['txt', 'docx', 'pdf']
+                const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+                if (!allowedExts.includes(ext || '') && !allowedTypes.includes(file.type)) {
+                  toast.warning('仅支持 .txt、.docx、.pdf 格式'); return
+                }
                 try {
-                  let text = await file.text()
-                  // PDF 需要用 pdfjs-dist 提取文本
-                  if (file.name.toLowerCase().endsWith('.pdf')) {
+                  let text: string
+                  if (ext === 'pdf') {
                     const pdfjsLib = await import('pdfjs-dist')
                     pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
                     const buf = await file.arrayBuffer()
                     const pdf = await pdfjsLib.getDocument({ data: buf }).promise
-                    const pages: string[] = []
+                    const lines: string[] = []
                     for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i)
                       const tc = await page.getTextContent()
-                      pages.push(tc.items.map((item: any) => item.str).join(' '))
+                      lines.push(tc.items.map((item: any) => item.str).join(' '))
                     }
-                    text = pages.join('\n')
+                    text = lines.join('\n')
+                  } else {
+                    text = await file.text()
                   }
                   const suffix = file.name.endsWith('.txt') ? '' : `\n\n（已附加文件: ${file.name}，请根据内容处理）`
                   setInputText((prev) => (prev ? prev + '\n\n' : '') + text + suffix)
                   toast.success(`已读取: ${file.name}`)
-                } catch { toast.error('无法读取文件内容') }
+                } catch (err) { toast.error('无法读取文件内容: ' + (err instanceof Error ? err.message : String(err))) }
                 e.target.value = ''
               }} />
             <button onClick={() => fileInputRef.current?.click()}

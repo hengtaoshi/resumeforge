@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import TitleBar from './TitleBar';
 import Sidebar from './Sidebar';
 
-export type PageKey = 'dashboard' | 'editor' | 'tiers' | 'jd' | 'chat' | 'tools' | 'scanner' | 'settings';
+export type PageKey = 'dashboard' | 'editor' | 'tiers' | 'jd' | 'chat' | 'tools' | 'kanban' | 'scanner' | 'settings';
 
 interface MainLayoutProps {
   children: ReactNode;
