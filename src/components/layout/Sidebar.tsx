@@ -35,7 +35,7 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
               </svg>
             </button>
             <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap pointer-events-none z-50">
-              {({ dashboard: '概览', editor: '编辑器', tiers: '生成简历', jd: 'JD匹配', chat: 'AI助手', tools: '求职工具', scanner: '职位扫描', settings: '设置' } as Record<string, string>)[key]}
+              {({ dashboard: '概览', editor: '打造简历', tiers: '生成简历', jd: 'JD匹配', chat: 'AI助手', tools: '求职工具', scanner: '职位扫描', settings: '设置' } as Record<string, string>)[key]}
               <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-slate-800 rotate-45" />
             </div>
           </div>
