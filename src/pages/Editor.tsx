@@ -829,7 +829,23 @@ const Editor = () => {
 
     toast.info('正在解析简历文件...')
 
-    const extractText = (f: File): Promise<string> => {
+    const extractText = async (f: File): Promise<string> => {
+      const ext = f.name.split('.').pop()?.toLowerCase()
+      // PDF — 使用 pdfjs-dist 提取文本
+      if (ext === 'pdf') {
+        const pdfjsLib = await import('pdfjs-dist')
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
+        const buf = await f.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        const pages: string[] = []
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const tc = await page.getTextContent()
+          pages.push(tc.items.map((item: any) => item.str).join(' '))
+        }
+        return pages.join('\n')
+      }
+      // .docx / 纯文本 — 直接读
       return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
     }
 
