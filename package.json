@@ -1,12 +1,12 @@
 {
   "name": "resumeforge",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "ResumeForge - 简历优化与求职辅助桌面应用",
   "author": "hengtaoshi",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"tsc -w -p tsconfig.electron.json\" \"electron .\"",
+    "dev": "concurrently \"vite\" \"tsc -w -p tsconfig.electron.json\" \"cross-env HTTPS_PROXY=http://127.0.0.1:7897 HTTP_PROXY=http://127.0.0.1:7897 NO_PROXY=localhost,127.0.0.1 electron .\"",
     "build": "tsc -p tsconfig.electron.json && vite build",
     "build:electron": "electron-builder",
     "preview": "vite preview"
@@ -16,6 +16,8 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.0",
     "clsx": "^2.1.1",
+    "electron-updater": "^6.8.9",
+    "https-proxy-agent": "^9.1.0",
     "pdfjs-dist": "^6.1.200",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -29,6 +31,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.0",
     "concurrently": "^9.0.0",
+    "cross-env": "^10.1.0",
     "electron": "^33.0.0",
     "electron-builder": "^26.15.3",
     "postcss": "^8.4.0",

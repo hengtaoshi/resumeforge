@@ -80,6 +80,83 @@ interface AnalyzeJobResult {
   }>
 }
 
+// ── Auto-updater types ──────────────────────────────────────
+
+type UpdateStatusType = 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error'
+
+interface UpdateStatusPayload {
+  status: UpdateStatusType
+  version?: string
+  percent?: number
+  bytesPerSecond?: number
+  transferred?: number
+  total?: number
+  releaseNotes?: string
+  releaseDate?: string
+  message?: string
+}
+
+interface ElectronAPI {
+  minimize: () => Promise<void>
+  maximize: () => Promise<void>
+  close: () => Promise<void>
+  getResumes: () => Promise<unknown[]>
+  getResume: (id: string) => Promise<unknown>
+  saveResume: (data: unknown) => Promise<{ id: string; created?: boolean; updated?: boolean }>
+  deleteResume: (id: string) => Promise<{ success: boolean }>
+
+  /** Start an AI streaming generation. Returns an async iterable of text chunks. */
+  generateStream: (params: AIGenerateParams) => AsyncIterable<string>
+
+  /** List available AI providers and their models. */
+  getProviders: () => Promise<AIProviderInfo[]>
+
+  /** Open URL in the default system browser. */
+  openExternal: (url: string) => void
+
+  /** Export resume as PDF */
+  exportPDF: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+
+  /** Export resume as DOCX (HTML-based, Word-compatible) */
+  exportDOCX: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+
+  /** Export resume as plain text */
+  exportTXT: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+
+  /** Export resume as standalone HTML */
+  exportHTML: (data: unknown) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
+
+  /** Test AI provider connection via main process (avoids CORS from file://) */
+  testConnection: (opts: { provider: string; apiKey: string; model: string }) => Promise<boolean>
+
+  /** List available ATS scanner provider names */
+  scanProviders: () => Promise<string[]>
+
+  /** Search jobs on a provider platform by keyword */
+  searchJobs: (params: { provider: string; keyword: string }) => Promise<ScannedJobResult[]>
+
+  /** Analyze a job description for keyword extraction and match scoring (runs in main process) */
+  analyzeJob: (params: { jobText: string; jobTitle: string }) => Promise<AnalyzeJobResult>
+
+  // ── App version ──
+  getVersion: () => Promise<string>
+
+  // ── Auto-updater ──
+  onUpdateStatus: (callback: (status: UpdateStatusPayload) => void) => () => void
+  checkForUpdates: () => Promise<void>
+  downloadUpdate: () => Promise<void>
+  installUpdate: () => Promise<void>
+
+  // ── Auth ──
+  sendCode: (email: string) => Promise<void>
+  register: (email: string, code: string, password: string) => Promise<{ id: string; email: string; nickname: string; avatar: string }>
+  login: (email: string, password: string) => Promise<{ id: string; email: string; nickname: string; avatar: string }>
+  getUser: () => Promise<any>
+  isLoggedIn: () => Promise<boolean>
+  logout: () => Promise<void>
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
+}
+
 interface Window {
   electronAPI: ElectronAPI
 }

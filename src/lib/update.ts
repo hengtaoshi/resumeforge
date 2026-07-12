@@ -1,40 +1,47 @@
-// ponytail: checks GitHub Releases API for newer versions
+import { useState, useEffect, useCallback } from 'react'
 
-const REPO = 'hengtaoshi/resumeforge'
-const CURRENT_VERSION = '1.0.0'
+export type UpdateStatus =
+  | { type: 'idle' }
+  | { type: 'checking' }
+  | { type: 'available'; version: string; releaseNotes?: string; releaseDate?: string }
+  | { type: 'not-available' }
+  | { type: 'downloading'; percent: number }
+  | { type: 'downloaded'; version: string }
+  | { type: 'error'; message: string }
 
-export interface UpdateInfo {
-  hasUpdate: boolean
-  latestVersion: string
-  downloadUrl: string
-  releaseUrl: string
-  releaseNotes?: string
-}
+export function useUpdate() {
+  const [status, setStatus] = useState<UpdateStatus>({ type: 'idle' })
 
-export async function checkForUpdate(): Promise<UpdateInfo | null> {
-  const current = CURRENT_VERSION.replace(/^v/, '')
-  try {
-    const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { signal: AbortSignal.timeout(5000) })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    const latestTag = (data.tag_name || '').replace(/^v/, '')
-    if (latestTag === current) return { hasUpdate: false, latestVersion: latestTag, downloadUrl: '', releaseUrl: data.html_url || '' }
-    const asset = (data.assets || []).find((a: any) => a.name?.endsWith('.exe') || a.name?.endsWith('.Setup'))
-    return { hasUpdate: true, latestVersion: latestTag, downloadUrl: asset?.browser_download_url || data.html_url || '', releaseUrl: data.html_url || '', releaseNotes: data.body || '' }
-  } catch {
-    // Fallback: list all releases
-    try {
-      const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=5`, { signal: AbortSignal.timeout(5000) })
-      if (!res.ok) return null
-      const list = await res.json()
-      if (!Array.isArray(list) || !list.length) return null
-      const latest = list[0]
-      const latestTag = (latest.tag_name || '').replace(/^v/, '')
-      if (latestTag === current || !latestTag) return { hasUpdate: false, latestVersion: latestTag, downloadUrl: '', releaseUrl: '' }
-      const asset = (latest.assets || []).find((a: any) => a.name?.endsWith('.exe') || a.name?.endsWith('.Setup'))
-      return { hasUpdate: true, latestVersion: latestTag, downloadUrl: asset?.browser_download_url || '', releaseUrl: latest.html_url || '', releaseNotes: latest.body || '' }
-    } catch {
-      return null
-    }
-  }
+  useEffect(() => {
+    if (!window.electronAPI) return
+    const cleanup = window.electronAPI.onUpdateStatus((payload) => {
+      switch (payload.status) {
+        case 'checking':
+          setStatus({ type: 'checking' })
+          break
+        case 'available':
+          setStatus({ type: 'available', version: payload.version ?? '', releaseNotes: payload.releaseNotes, releaseDate: payload.releaseDate })
+          break
+        case 'not-available':
+          setStatus({ type: 'not-available' })
+          break
+        case 'downloading':
+          setStatus({ type: 'downloading', percent: payload.percent ?? 0 })
+          break
+        case 'downloaded':
+          setStatus({ type: 'downloaded', version: payload.version ?? '' })
+          break
+        case 'error':
+          setStatus({ type: 'error', message: payload.message ?? '未知错误' })
+          break
+      }
+    })
+    return cleanup
+  }, [])
+
+  const check = useCallback(() => window.electronAPI?.checkForUpdates(), [])
+  const download = useCallback(() => window.electronAPI?.downloadUpdate(), [])
+  const install = useCallback(() => window.electronAPI?.installUpdate(), [])
+
+  return { status, check, download, install }
 }

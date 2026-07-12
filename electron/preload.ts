@@ -1,5 +1,17 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+interface UpdateStatusPayload {
+  status: string
+  version?: string
+  percent?: number
+  bytesPerSecond?: number
+  transferred?: number
+  total?: number
+  releaseNotes?: string
+  releaseDate?: string
+  message?: string
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
   minimize: () => ipcRenderer.invoke('win-minimize'),
@@ -111,4 +123,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('scan:search', params),
   analyzeJob: (params: { jobText: string; jobTitle: string }) =>
     ipcRenderer.invoke('scan:analyze', params),
+
+  // ── App version ────────────────────────────────────────────
+  getVersion: () => ipcRenderer.invoke('app:version'),
+
+  // ── Auto-updater ───────────────────────────────────────────
+  onUpdateStatus: (callback: (status: UpdateStatusPayload) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: UpdateStatusPayload) => callback(data)
+    ipcRenderer.on('update-status', handler)
+    return () => ipcRenderer.removeListener('update-status', handler)
+  },
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+
+  // ── Auth ────────────────────────────────────────────────────
+  sendCode: (email: string) => ipcRenderer.invoke('auth:sendCode', email),
+  register: (email: string, code: string, password: string) => ipcRenderer.invoke('auth:register', email, code, password),
+  login: (email: string, password: string) => ipcRenderer.invoke('auth:login', email, password),
+  getUser: () => ipcRenderer.invoke('auth:getUser'),
+  isLoggedIn: () => ipcRenderer.invoke('auth:isLoggedIn'),
+  logout: () => ipcRenderer.invoke('auth:logout'),
+  changePassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke('auth:changePassword', oldPassword, newPassword),
 })

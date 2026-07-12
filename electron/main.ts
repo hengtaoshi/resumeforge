@@ -1,11 +1,66 @@
 import { app, BrowserWindow, ipcMain, shell, session } from 'electron'
 import path from 'path'
+import { autoUpdater } from 'electron-updater'
 import { initDB, getDB, persistDB } from './db/schema'
 import { registerAIHandlers } from './ipc/ai'
 import { registerScannerHandlers } from './scanner'
+import { registerAuthHandlers } from './auth'
 import './export'
 
 let mainWindow: BrowserWindow | null = null
+
+// ── autoUpdater ──────────────────────────────────────────────
+autoUpdater.autoDownload = false         // 只检测，等用户确认后再下载
+autoUpdater.autoInstallOnAppQuit = false // 由用户主动触发安装
+
+function sendUpdateStatus(status: string, payload?: unknown) {
+  mainWindow?.webContents.send('update-status', { status, ...(payload as Record<string, unknown>) })
+}
+
+function setupAutoUpdater() {
+  autoUpdater.on('checking-for-update', () => sendUpdateStatus('checking'))
+
+  autoUpdater.on('update-available', (info) => {
+    sendUpdateStatus('available', {
+      version: info.version,
+      releaseNotes: info.releaseNotes,
+      releaseDate: info.releaseDate,
+    })
+  })
+
+  autoUpdater.on('update-not-available', () => sendUpdateStatus('not-available'))
+
+  autoUpdater.on('download-progress', (progress) => {
+    sendUpdateStatus('downloading', {
+      percent: Math.round(progress.percent),
+      bytesPerSecond: progress.bytesPerSecond,
+      transferred: progress.transferred,
+      total: progress.total,
+    })
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    sendUpdateStatus('downloaded', { version: info.version })
+  })
+
+  autoUpdater.on('error', (err) => {
+    sendUpdateStatus('error', { message: err?.message ?? String(err) })
+  })
+}
+
+ipcMain.handle('update:check', () => {
+  autoUpdater.checkForUpdates()
+})
+
+ipcMain.handle('update:download', () => {
+  autoUpdater.downloadUpdate()
+})
+
+ipcMain.handle('update:install', () => {
+  autoUpdater.quitAndInstall()
+})
+
+ipcMain.handle('app:version', () => app.getVersion())
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -139,7 +194,10 @@ app.whenReady().then(async () => {
   await initDB()
   registerAIHandlers()
   registerScannerHandlers()
+  registerAuthHandlers()
   createWindow()
+  setupAutoUpdater()
+  if (app.isPackaged) autoUpdater.checkForUpdates()
 })
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })

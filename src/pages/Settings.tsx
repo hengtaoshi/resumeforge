@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useAuthStore } from '@/stores/authStore';
 import type { AIProviderType } from '@/stores/settingsStore';
 // ponytail: test connection goes through IPC to avoid CORS from file://
 async function testConnectionIPC(opts: { provider: string; apiKey: string; model: string }) {
@@ -170,10 +171,69 @@ const Settings: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {/* 账户安全 */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 mt-6">
+            <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              账户安全
+            </h2>
+            <ChangePassword />
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+function ChangePassword() {
+  const { changePassword } = useAuthStore()
+  const [oldPw, setOldPw] = useState('')
+  const [newPw, setNewPw] = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  const handleSave = async () => {
+    if (!oldPw) { setMsg('请输入当前密码'); return }
+    if (newPw.length < 8 || !/[a-zA-Z]/.test(newPw) || !/[0-9]/.test(newPw)) { setMsg('新密码需至少8位，包含字母和数字'); return }
+    if (newPw !== confirmPw) { setMsg('两次密码不一致'); return }
+    setSaving(true); setMsg('')
+    try {
+      await changePassword(oldPw, newPw)
+      setMsg('密码修改成功')
+      setOldPw(''); setNewPw(''); setConfirmPw('')
+    } catch (e: any) { setMsg(e?.message || '修改失败') }
+    setSaving(false)
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="block text-xs text-slate-500 mb-1">当前密码</label>
+        <input type="password" value={oldPw} onChange={e => setOldPw(e.target.value)}
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+      </div>
+      <div>
+        <label className="block text-xs text-slate-500 mb-1">新密码</label>
+        <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+        <p className="text-[11px] text-slate-400 mt-1">至少8位，需包含字母和数字</p>
+      </div>
+      <div>
+        <label className="block text-xs text-slate-500 mb-1">确认新密码</label>
+        <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+      </div>
+      {msg && <p className={`text-xs ${msg.includes('成功') ? 'text-green-600' : 'text-red-500'}`}>{msg}</p>}
+      <button onClick={handleSave} disabled={saving}
+        className="px-4 py-2 bg-sky-500 text-white rounded-lg text-sm font-medium hover:bg-sky-600 disabled:opacity-50 transition-colors">
+        {saving ? '修改中...' : '修改密码'}
+      </button>
+    </div>
+  )
+}
 
 export default Settings;
