@@ -9,48 +9,6 @@ import './export'
 
 let mainWindow: BrowserWindow | null = null
 
-// ── 代理检测（在 app.whenReady 之前同步执行） ────────────────
-// electron-updater 底层使用 Electron net.request (Chromium 网络栈)，
-// 需要 --proxy-server 命令行开关才能走代理。必须在 Chromium 初始化前设置。
-function detectProxySync() {
-  // 1. HTTPS_PROXY 环境变量（开发模式 npm run dev 已设，也可设系统环境变量）
-  const envProxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-  if (envProxy) {
-    const host = envProxy.replace(/^https?:\/\//, '')
-    app.commandLine.appendSwitch('proxy-server', host)
-    console.log('[updater] proxy from env:', host)
-    return true
-  }
-
-  // 2. Windows 系统代理（Clash/V2Ray/mihomo 开启"系统代理"时注册表有值）
-  if (process.platform === 'win32') {
-    try {
-      const { execSync } = require('child_process')
-      const out = execSync(
-        'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable',
-        { stdio: 'pipe', timeout: 2000, encoding: 'utf-8' }
-      )
-      if (out.includes('0x1')) {
-        const srv = execSync(
-          'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer',
-          { stdio: 'pipe', timeout: 2000, encoding: 'utf-8' }
-        )
-        const m = srv.match(/ProxyServer\s+REG_SZ\s+(\S+)/)
-        if (m) {
-          const host = m[1].trim().replace(/^https?:\/\//, '')
-          app.commandLine.appendSwitch('proxy-server', host)
-          console.log('[updater] proxy from Windows registry:', host)
-          return true
-        }
-      }
-    } catch {}
-  }
-  return false
-}
-
-// 模块加载时同步检测代理（在 Chromium 初始化之前）
-detectProxySync()
-
 // ── autoUpdater ──────────────────────────────────────────────
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
