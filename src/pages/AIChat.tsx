@@ -507,7 +507,21 @@ const AIChat: React.FC = () => {
                 if (!file) return
                 if (file.size > 2 * 1024 * 1024) { toast.warning('文件过大，请选择小于 2MB 的文件'); return }
                 try {
-                  const text = await file.text()
+                  let text = await file.text()
+                  // PDF 需要用 pdfjs-dist 提取文本
+                  if (file.name.toLowerCase().endsWith('.pdf')) {
+                    const pdfjsLib = await import('pdfjs-dist')
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
+                    const buf = await file.arrayBuffer()
+                    const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+                    const pages: string[] = []
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                      const page = await pdf.getPage(i)
+                      const tc = await page.getTextContent()
+                      pages.push(tc.items.map((item: any) => item.str).join(' '))
+                    }
+                    text = pages.join('\n')
+                  }
                   const suffix = file.name.endsWith('.txt') ? '' : `\n\n（已附加文件: ${file.name}，请根据内容处理）`
                   setInputText((prev) => (prev ? prev + '\n\n' : '') + text + suffix)
                   toast.success(`已读取: ${file.name}`)
