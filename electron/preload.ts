@@ -145,4 +145,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isLoggedIn: () => ipcRenderer.invoke('auth:isLoggedIn'),
   logout: () => ipcRenderer.invoke('auth:logout'),
   changePassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke('auth:changePassword', oldPassword, newPassword),
+
+  // ── Dashboard tracking ─────────────────────────────────────
+  getTrackingStats: () => ipcRenderer.invoke('tracking:getStats'),
+  saveATS: (score: number) => ipcRenderer.invoke('tracking:saveATS', score),
+  addDelivery: (data: { company: string; role: string; url?: string }) => ipcRenderer.invoke('tracking:addDelivery', data),
+  getDeliveries: () => ipcRenderer.invoke('tracking:getDeliveries'),
+  deleteDelivery: (id: string) => ipcRenderer.invoke('tracking:deleteDelivery', id),
+  addInterview: (data: { company: string; role: string; type?: string; note?: string }) => ipcRenderer.invoke('tracking:addInterview', data),
+  getInterviews: () => ipcRenderer.invoke('tracking:getInterviews'),
+  deleteInterview: (id: string) => ipcRenderer.invoke('tracking:deleteInterview', id),
 })

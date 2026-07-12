@@ -155,6 +155,16 @@ interface ElectronAPI {
   isLoggedIn: () => Promise<boolean>
   logout: () => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
+
+  // ── Dashboard tracking ──
+  getTrackingStats: () => Promise<{ atsScore: number | null; deliveryCount: number; interviewCount: number }>
+  saveATS: (score: number) => Promise<{ ok: boolean }>
+  addDelivery: (data: { company: string; role: string; url?: string }) => Promise<{ id: string }>
+  getDeliveries: () => Promise<Array<{ id: string; company: string; role: string; url: string | null; created_at: string }>>
+  deleteDelivery: (id: string) => Promise<{ ok: boolean }>
+  addInterview: (data: { company: string; role: string; type?: string; note?: string }) => Promise<{ id: string }>
+  getInterviews: () => Promise<Array<{ id: string; company: string; role: string; type: string; note: string | null; created_at: string }>>
+  deleteInterview: (id: string) => Promise<{ ok: boolean }>
 }
 
 interface Window {

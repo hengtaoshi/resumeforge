@@ -194,6 +194,7 @@ const JDMatch: React.FC = () => {
         const parsed = extractJSON<ATSEvalResult>(text);
         if (parsed && parsed.scores && parsed.overall !== undefined) {
           setAtsResult(parsed);
+          window.electronAPI?.saveATS(parsed.overall).catch(() => {});
         } else {
           toast.error('ATS 评估返回格式异常，请重试。');
         }

@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useResumeStore } from '@/stores/resumeStore';
+import DeliveryModal from '@/components/dashboard/DeliveryModal';
+import InterviewModal from '@/components/dashboard/InterviewModal';
 
 interface StatCardProps {
   icon: string;
@@ -67,7 +69,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   const createResume = useResumeStore((s) => s.createResume);
   const setActiveResume = useResumeStore((s) => s.setActiveResume);
 
-  useEffect(() => { fetchResumes() }, [fetchResumes]);
+  const [atsScore, setAtsScore] = useState<number | null>(null)
+  const [deliveryCount, setDeliveryCount] = useState(0)
+  const [interviewCount, setInterviewCount] = useState(0)
+  const [showDelivery, setShowDelivery] = useState(false)
+  const [showInterview, setShowInterview] = useState(false)
+
+  const loadStats = () => {
+    window.electronAPI?.getTrackingStats().then(s => {
+      if (s) { setAtsScore(s.atsScore); setDeliveryCount(s.deliveryCount); setInterviewCount(s.interviewCount) }
+    }).catch(() => {})
+  }
+
+  useEffect(() => { fetchResumes(); loadStats() }, [fetchResumes]);
 
   const resumeCount = resumes.length;
 
@@ -110,21 +124,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
             <StatCard
               icon="ph-gauge"
               label="ATS评分"
-              value={0}
+              value={atsScore ?? '-'}
               color="bg-sky-50 text-sky-500"
             />
-            <StatCard
-              icon="ph-paper-plane"
-              label="投递次数"
-              value={0}
-              color="bg-violet-50 text-violet-500"
-            />
-            <StatCard
-              icon="ph-video-camera"
-              label="面试机会"
-              value={0}
-              color="bg-amber-50 text-amber-500"
-            />
+            <div onClick={() => setShowDelivery(true)} className="cursor-pointer">
+              <StatCard
+                icon="ph-paper-plane"
+                label="投递次数"
+                value={deliveryCount}
+                color="bg-violet-50 text-violet-500"
+              />
+            </div>
+            <div onClick={() => setShowInterview(true)} className="cursor-pointer">
+              <StatCard
+                icon="ph-video-camera"
+                label="面试机会"
+                value={interviewCount}
+                color="bg-amber-50 text-amber-500"
+              />
+            </div>
           </div>
 
           {/* Resume section */}
@@ -196,6 +214,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
           </div>
         </div>
       </div>
+
+      {showDelivery && <DeliveryModal onClose={() => setShowDelivery(false)} onUpdate={loadStats} />}
+      {showInterview && <InterviewModal onClose={() => setShowInterview(false)} onUpdate={loadStats} />}
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { initDB, getDB, persistDB } from './db/schema'
 import { registerAIHandlers } from './ipc/ai'
 import { registerScannerHandlers } from './scanner'
 import { registerAuthHandlers } from './auth'
+import { registerTrackingHandlers } from './tracking'
 import './export'
 
 let mainWindow: BrowserWindow | null = null
@@ -197,6 +198,7 @@ app.whenReady().then(async () => {
   registerAIHandlers()
   registerScannerHandlers()
   registerAuthHandlers()
+  registerTrackingHandlers()
 
   // ══ 3. 窗口 + 更新 ══
   createWindow()
