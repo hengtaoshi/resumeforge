@@ -10,6 +10,10 @@ const API_BASE = process.env.RF_API_URL || 'https://api.hengtaoyuan.asia'
 const TOKEN_PATH = app.getPath('userData') + '/auth-token.enc'
 const PROXY = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
 
+if (!safeStorage.isEncryptionAvailable()) {
+  console.warn('[auth] safeStorage unavailable — tokens will be stored in cleartext')
+}
+
 interface StoredTokens {
   accessToken: string
   refreshToken: string

@@ -14,12 +14,11 @@ export default function TitleBar() {
   const apiKeys = useSettingsStore((s) => s.apiKeys);
   const hasAI = Object.values(apiKeys).some(k => k?.length > 0);
   const { status, check, download, install } = useUpdate();
-  const { user, checkAuth } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [appVersion, setAppVersion] = useState('');
   useEffect(() => {
     window.electronAPI?.getVersion().then(setAppVersion);
-    checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   const handleTrafficLight = useCallback((action: 'minimize' | 'maximize' | 'close') => {
     window.electronAPI?.[action]();
