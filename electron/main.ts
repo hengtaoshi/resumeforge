@@ -90,6 +90,7 @@ function createWindow(): void {
     minWidth: 960, minHeight: 600,
     frame: false, titleBarStyle: 'hidden',
     backgroundColor: '#F8F7F4', show: false,
+    icon: path.join(__dirname, '../build/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true, nodeIntegration: false,
