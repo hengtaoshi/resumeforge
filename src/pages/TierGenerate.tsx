@@ -30,7 +30,7 @@ const tierCards: TierCardData[] = [
     badgeText: 'batched',
     borderColor: 'border-sky-200',
     ringColor: 'ring-sky-500',
-    stats: { matchRate: 94, pages: 2, keyExperience: '体系化 / 跨部门协作' },
+    stats: { matchRate: 94, pages: 1, keyExperience: '体系化 / 跨部门协作' },
   },
   {
     id: 'mid',
@@ -40,7 +40,7 @@ const tierCards: TierCardData[] = [
     badgeText: 'balanced',
     borderColor: 'border-violet-200',
     ringColor: 'ring-violet-500',
-    stats: { matchRate: 88, pages: 2, keyExperience: '独立负责 / 专业深度' },
+    stats: { matchRate: 88, pages: 1, keyExperience: '独立负责 / 专业深度' },
   },
   {
     id: 'small',
