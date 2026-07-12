@@ -16,11 +16,9 @@ autoUpdater.autoInstallOnAppQuit = false // 由用户主动触发安装
 
 // 自动检测本地代理（优先环境变量，其次探测常见端口）
 async function setupProxyForUpdater() {
-  const s = autoUpdater.netSession
-  if (!s) return
   const envProxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
   if (envProxy) {
-    await s.setProxy({ proxyRules: envProxy.replace(/^https?:\/\//, '') })
+    await session.defaultSession.setProxy({ proxyRules: envProxy.replace(/^https?:\/\//, '') })
     return
   }
   // 探测常见代理端口（mihomo 默认 7897, Clash 默认 7890）
@@ -30,7 +28,7 @@ async function setupProxyForUpdater() {
         const sock = net.createConnection(port, '127.0.0.1', () => { sock.destroy(); resolve() })
         sock.on('error', reject); sock.setTimeout(2000, () => { sock.destroy(); reject(new Error('timeout')) })
       })
-      await s.setProxy({ proxyRules: `http=127.0.0.1:${port};https=127.0.0.1:${port}` })
+      await session.defaultSession.setProxy({ proxyRules: `http=127.0.0.1:${port};https=127.0.0.1:${port}` })
       console.log(`[updater] detected proxy on 127.0.0.1:${port}`)
       return
     } catch { /* port not available, try next */ }
