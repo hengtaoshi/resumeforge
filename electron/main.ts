@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell, session } from 'electron'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
-import net from 'net'
 import { initDB, getDB, persistDB } from './db/schema'
 import { registerAIHandlers } from './ipc/ai'
 import { registerScannerHandlers } from './scanner'
@@ -10,30 +9,51 @@ import './export'
 
 let mainWindow: BrowserWindow | null = null
 
-// ── autoUpdater ──────────────────────────────────────────────
-autoUpdater.autoDownload = false         // 只检测，等用户确认后再下载
-autoUpdater.autoInstallOnAppQuit = false // 由用户主动触发安装
-
-// 自动检测本地代理（优先环境变量，其次探测常见端口）
-async function setupProxyForUpdater() {
-  const envProxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+// ── 代理检测（在 app.whenReady 之前同步执行） ────────────────
+// electron-updater 底层使用 Electron net.request (Chromium 网络栈)，
+// 需要 --proxy-server 命令行开关才能走代理。必须在 Chromium 初始化前设置。
+function detectProxySync() {
+  // 1. HTTPS_PROXY 环境变量（开发模式 npm run dev 已设，也可设系统环境变量）
+  const envProxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
   if (envProxy) {
-    await session.defaultSession.setProxy({ proxyRules: envProxy.replace(/^https?:\/\//, '') })
-    return
+    const host = envProxy.replace(/^https?:\/\//, '')
+    app.commandLine.appendSwitch('proxy-server', host)
+    console.log('[updater] proxy from env:', host)
+    return true
   }
-  // 探测常见代理端口（mihomo 默认 7897, Clash 默认 7890）
-  for (const port of [7897, 7890, 1080]) {
+
+  // 2. Windows 系统代理（Clash/V2Ray/mihomo 开启"系统代理"时注册表有值）
+  if (process.platform === 'win32') {
     try {
-      await new Promise<void>((resolve, reject) => {
-        const sock = net.createConnection(port, '127.0.0.1', () => { sock.destroy(); resolve() })
-        sock.on('error', reject); sock.setTimeout(2000, () => { sock.destroy(); reject(new Error('timeout')) })
-      })
-      await session.defaultSession.setProxy({ proxyRules: `http=127.0.0.1:${port};https=127.0.0.1:${port}` })
-      console.log(`[updater] detected proxy on 127.0.0.1:${port}`)
-      return
-    } catch { /* port not available, try next */ }
+      const { execSync } = require('child_process')
+      const out = execSync(
+        'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable',
+        { stdio: 'pipe', timeout: 2000, encoding: 'utf-8' }
+      )
+      if (out.includes('0x1')) {
+        const srv = execSync(
+          'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer',
+          { stdio: 'pipe', timeout: 2000, encoding: 'utf-8' }
+        )
+        const m = srv.match(/ProxyServer\s+REG_SZ\s+(\S+)/)
+        if (m) {
+          const host = m[1].trim().replace(/^https?:\/\//, '')
+          app.commandLine.appendSwitch('proxy-server', host)
+          console.log('[updater] proxy from Windows registry:', host)
+          return true
+        }
+      }
+    } catch {}
   }
+  return false
 }
+
+// 模块加载时同步检测代理（在 Chromium 初始化之前）
+detectProxySync()
+
+// ── autoUpdater ──────────────────────────────────────────────
+autoUpdater.autoDownload = false
+autoUpdater.autoInstallOnAppQuit = false
 
 function sendUpdateStatus(status: string, payload?: unknown) {
   mainWindow?.webContents.send('update-status', { status, ...(payload as Record<string, unknown>) })
@@ -202,7 +222,7 @@ ipcMain.handle('db:deleteResume', (_e, id: string) => {
 })
 
 app.whenReady().then(async () => {
-  // Content Security Policy — allow Vite dev server inline scripts + HMR WebSocket
+  // ══ 1. Content Security Policy ══
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
@@ -214,13 +234,15 @@ app.whenReady().then(async () => {
     })
   })
 
+  // ══ 2. 数据库 + IPC ══
   await initDB()
   registerAIHandlers()
   registerScannerHandlers()
   registerAuthHandlers()
+
+  // ══ 3. 窗口 + 更新 ══
   createWindow()
   setupAutoUpdater()
-  await setupProxyForUpdater()
   if (app.isPackaged) autoUpdater.checkForUpdates()
 })
 
