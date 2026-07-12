@@ -268,8 +268,98 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   return (
     <div
-      className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900"
+      className="flex-1 p-8 overflow-y-auto flex gap-6 bg-[#F8F7F4] dark:bg-slate-900"
     >
+
+      {/* ── Interview Panel ── */}
+        <div className="w-60 flex-shrink-0">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sticky top-0">
+            {/* Panel header */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center">
+                <i className="ph-light ph-chats text-sm text-rose-500" />
+              </div>
+              <span className="text-sm font-semibold" style={{ color: '#1E293B' }}>
+                模拟面试
+              </span>
+            </div>
+
+            {selectedRole ? (
+              /* ── Active interview state ── */
+              <div>
+                {/* Current role badge */}
+                <div className="text-xs text-slate-400 mb-2">当前面试官</div>
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${ROLE_COLORS[selectedRole].bg} ${ROLE_COLORS[selectedRole].text} mb-4`}
+                >
+                  <i className={`${ROLE_ICONS[selectedRole]} text-sm`} />
+                  {ROLE_LABELS[selectedRole]}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-slate-100 my-3" />
+
+                {/* Question count */}
+                <div className="flex items-center justify-between text-xs mb-4">
+                  <span className="text-slate-400">已提问</span>
+                  <span className="font-semibold" style={{ color: '#1E293B' }}>
+                    {questionCount} 个问题
+                  </span>
+                </div>
+
+                {/* Controls */}
+                <div className="space-y-2">
+                  <button
+                    onClick={switchRole}
+                    className="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200 flex items-center justify-center gap-1.5"
+                  >
+                    <i className="ph-light ph-swap text-sm" />
+                    切换角色
+                  </button>
+                  <button
+                    onClick={endInterview}
+                    className="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all duration-200 flex items-center justify-center gap-1.5"
+                  >
+                    <i className="ph-light ph-x-circle text-sm" />
+                    结束面试
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ── Role selector ── */
+              <div>
+                <div className="text-xs text-slate-400 mb-3">选择面试官角色</div>
+                <div className="space-y-2">
+                  {INTERVIEW_ROLES.map((role) => {
+                    const colors = ROLE_COLORS[role];
+                    return (
+                      <button
+                        key={role}
+                        onClick={() => handleRoleSelect(role)}
+                        className={`w-full text-left p-3 rounded-xl border border-slate-100 ${colors.bg} ${colors.ring} transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5 active:scale-[0.98]`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <i
+                            className={`${ROLE_ICONS[role]} text-base ${colors.text}`}
+                          />
+                          <span
+                            className={`text-xs font-semibold ${colors.text}`}
+                          >
+                            {ROLE_LABELS[role]}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed pl-6">
+                          {ROLE_DESCRIPTIONS[role]}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          </div>
+
       {/* ── Main Chat Area ── */}
       <div className="flex-1 min-w-0">
         {/* Header */}
