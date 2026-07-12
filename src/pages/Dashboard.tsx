@@ -74,10 +74,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   const [interviewCount, setInterviewCount] = useState(0)
   const [showDelivery, setShowDelivery] = useState(false)
   const [showInterview, setShowInterview] = useState(false)
+  const [activities, setActivities] = useState<Array<{ type: 'delivery' | 'interview'; data: any; time: string }>>([])
 
   const loadStats = () => {
     window.electronAPI?.getTrackingStats().then(s => {
       if (s) { setAtsScore(s.atsScore); setDeliveryCount(s.deliveryCount); setInterviewCount(s.interviewCount) }
+    }).catch(() => {})
+    // 加载最近活动（合并投递和面试，按时间倒序）
+    Promise.all([
+      window.electronAPI!.getDeliveries().catch(() => []),
+      window.electronAPI!.getInterviews().catch(() => []),
+    ]).then(([dels, ivs]) => {
+      const merged: any[] = [
+        ...dels.map((d: any) => ({ type: 'delivery' as const, data: d, time: d.created_at })),
+        ...ivs.map((i: any) => ({ type: 'interview' as const, data: i, time: i.created_at })),
+      ]
+      merged.sort((a, b) => b.time.localeCompare(a.time))
+      setActivities(merged.slice(0, 20))
     }).catch(() => {})
   }
 
@@ -207,9 +220,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
                 查看全部
               </span>
             </div>
-            <div className="text-center py-8">
-              <i className="ph-light ph-clock-counter-clockwise text-2xl text-slate-200 mb-2 block" />
-              <p className="text-xs text-slate-300">暂无活动</p>
+            <div className="space-y-3 max-h-[320px] overflow-y-auto">
+              {activities.length === 0 ? (
+                <div className="text-center py-6">
+                  <i className="ph-light ph-clock-counter-clockwise text-2xl text-slate-200 mb-2 block" />
+                  <p className="text-xs text-slate-300">暂无活动</p>
+                </div>
+              ) : activities.map((a, i) => (
+                <div key={`${a.type}-${a.data.id}`} className="flex items-start gap-3 pb-3 border-b border-slate-50 last:border-0">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${a.type === 'delivery' ? 'bg-violet-50' : 'bg-amber-50'}`}>
+                    <i className={`ph-light text-xs ${a.type === 'delivery' ? 'ph-paper-plane text-violet-500' : 'ph-video-camera text-amber-500'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-700">
+                      {a.type === 'delivery'
+                        ? `投递了 ${a.data.company} · ${a.data.role}`
+                        : `面试 ${a.data.company} · ${a.data.role}`
+                      }
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{relativeTime(a.time)}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
