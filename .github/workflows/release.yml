@@ -21,7 +21,7 @@ permissions:
 jobs:
   build:
     name: Build (Windows)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -41,30 +41,14 @@ jobs:
           restore-keys: |
             node-modules-${{ runner.os }}-
 
-      - name: Cache Electron binary
-        uses: actions/cache@v4
-        with:
-          path: electron-bin
-          key: electron-bin-${{ runner.os }}-${{ hashFiles('node_modules/electron/package.json') }}
-          restore-keys: |
-            electron-bin-${{ runner.os }}-
+      - name: Install wine (for NSIS)
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -q
+          sudo apt-get install -y wine64 wine32 2>/dev/null || sudo apt-get install -y wine
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Setup electron-bin cache
-        shell: bash
-        run: |
-          if [ -d "electron-bin" ] && [ -f "electron-bin/electron.exe" ]; then
-            echo "✓ electron-bin cache hit"
-            cp -r electron-bin/* node_modules/electron/dist/
-          else
-            echo "Ensuring electron binary is downloaded..."
-            node node_modules/electron/install.js
-            mkdir -p electron-bin
-            cp -r node_modules/electron/dist/* electron-bin/
-            echo "✓ electron-bin ready"
-          fi
 
       - name: Build app
         run: npm run build
@@ -75,16 +59,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: List release artifacts
-        shell: pwsh
-        run: |
-          Write-Host "=== Release artifacts ==="
-          if (Test-Path release/) {
-            Get-ChildItem -Path release/ | ForEach-Object {
-              Write-Host "  $($_.Name)  ($([math]::Round($_.Length / 1MB, 1)) MB)"
-            }
-          } else {
-            Write-Host "  (none - release/ directory not found)"
-          }
+        run: ls -lh release/
 
       - name: Clean up existing release
         if: startsWith(github.ref, 'refs/tags/')
@@ -112,22 +87,16 @@ jobs:
 
       - name: Deploy to VPS
         if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          pip install paramiko -q
-          python3 -c "
-          import paramiko, time
-          ssh = paramiko.SSHClient()
-          ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-          ssh.connect('124.221.92.130', username='root', password='${{ secrets.VPS_PASS }}')
-          cmd = 'VER=\$(echo \"${{ github.ref_name }}\" | sed s/^v//); GH=https://ghproxy.net/https://github.com/hengtaoshi/resumeforge/releases/download/${{ github.ref_name }}; mkdir -p /www/wwwroot/resumeforge/staging; cd /www/wwwroot/resumeforge; curl -sL --connect-timeout 10 --max-time 180 -o download/ResumeForge-\${VER}-Setup.exe \"\$GH/ResumeForge-\${VER}-Setup.exe\" && curl -sL --connect-timeout 10 --max-time 30 -o updates/latest.yml \"\$GH/latest.yml\" && curl -sL --connect-timeout 10 --max-time 30 -o updates/ResumeForge-\${VER}-Setup.exe.blockmap \"\$GH/ResumeForge-\${VER}-Setup.exe.blockmap\" && cp download/ResumeForge-\${VER}-Setup.exe updates/ && echo DONE'
-          _, out, err = ssh.exec_command(cmd)
-          time.sleep(5)
-          for _ in range(60):
-            if out.channel.exit_status_ready(): break
-            time.sleep(5)
-          print(out.read().decode()[:500])
-          print(err.read().decode()[:500] if err.channel.exit_status_ready() else '')
-          ssh.close()
-          "
-          echo "Deploy triggered"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 124.221.92.130
+          username: root
+          password: ${{ secrets.VPS_PASS }}
+          script: |
+            VER=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+            GH="https://ghproxy.net/https://github.com/hengtaoshi/resumeforge/releases/download/${{ github.ref_name }}"
+            cd /www/wwwroot/resumeforge
+            curl -sL --connect-timeout 10 --max-time 120 -o download/ResumeForge-${VER}-Setup.exe "$GH/ResumeForge-${VER}-Setup.exe"
+            curl -sL --connect-timeout 10 --max-time 30 -o updates/latest.yml "$GH/latest.yml"
+            curl -sL --connect-timeout 10 --max-time 30 -o updates/ResumeForge-${VER}-Setup.exe.blockmap "$GH/ResumeForge-${VER}-Setup.exe.blockmap"
+            cp download/ResumeForge-${VER}-Setup.exe updates/
