@@ -243,15 +243,15 @@ export function buildGuidedPrompt(
 [RESUME_JSON]
 { "title": "姓名 - 职位 - 简历标题",
   "sections": [
-    { "sectionType": "personal", "content": { "name": "姓名", "email": "邮箱", "phone": "电话", "title": "当前职位" } },
-    { "sectionType": "summary", "content": { "text": "个人简介总结" } },
+    { "sectionType": "personal", "content": { "name": "姓名", "email": "邮箱", "phone": "电话", "title": "当前职位", "location": "所在城市" } },
+    { "sectionType": "summary", "content": { "summary": "个人简介总结" } },
     { "sectionType": "experience", "content": { "items": [
       { "company": "公司名", "role": "职位", "startDate": "开始时间", "endDate": "结束时间", "description": "工作描述（STAR 法则，量化成果）" }
     ] } },
-    { "sectionType": "education", "content": { "school": "学校名", "major": "专业", "degree": "学位", "startDate": "", "endDate": "" } },
+    { "sectionType": "education", "content": { "items": [{ "school": "学校名", "major": "专业", "degree": "学位", "startDate": "", "endDate": "" }] } },
     { "sectionType": "skills", "content": { "skills": ["技能1", "技能2"] } },
     { "sectionType": "projects", "content": { "items": [
-      { "name": "项目名", "role": "角色", "description": "项目描述" }
+      { "name": "项目名", "role": "角色", "tech": "技术栈", "description": "项目描述", "link": "" }
     ] } },
     { "sectionType": "certifications", "content": { "items": [] } }
   ]

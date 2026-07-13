@@ -234,7 +234,7 @@ const SummaryRenderer = ({ section, onUpdate }: RendererProps) => (
   <div>
     <textarea
       className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 min-h-[100px] resize-y"
-      value={section.content.summary || ''}
+      value={section.content.summary ?? section.content.text ?? ''}
       onChange={(e) => onUpdate(section.id, { summary: e.target.value })}
       placeholder="请输入个人简介..."
     />
@@ -327,7 +327,11 @@ const ExperienceRenderer = ({ section, onUpdate }: RendererProps) => {
 /* ---------- Education ---------- */
 
 const EducationRenderer = ({ section, onUpdate }: RendererProps) => {
-  const items: any[] = section.content.items || []
+  // Normalize: AI guided generation may output flat fields instead of items array
+  let items: any[] = section.content.items || []
+  if (items.length === 0 && (section.content.school || section.content.degree || section.content.major)) {
+    items = [section.content]
+  }
 
   const addItem = () => {
     onUpdate(section.id, {
@@ -905,7 +909,7 @@ const Editor = () => {
     const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const sectionData: [string, Record<string, any>][] = [
       ['personal', data.personal],
-      ['summary', { text: data.summary.text }],
+      ['summary', { summary: data.summary.text }],
       ['experience', data.experience],
       ['education', data.education],
       ['skills', data.skills],

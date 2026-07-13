@@ -24,17 +24,17 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
   return (
     <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
-      <div className="mb-6 border-b-2 border-zinc-800 pb-4">
-        <div className="flex items-center justify-center gap-4">
+      <div className="mb-3 border-b-2 border-zinc-800 pb-2">
+        <div className="flex items-center justify-center gap-2">
           {pi.avatar && (
             <AvatarImage src={pi.avatar} avatarStyle={resume.themeConfig?.avatarStyle} size={64} className="shrink-0" />
           )}
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-zinc-900">{pi.fullName || 'Your Name'}</h1>
-            {pi.jobTitle && <p className="mt-1 text-lg text-zinc-600">{pi.jobTitle}</p>}
+            <h1 className="text-xl font-bold text-zinc-900">{pi.fullName || 'Your Name'}</h1>
+            {pi.jobTitle && <p className="mt-1 text-base text-zinc-600">{pi.jobTitle}</p>}
           </div>
         </div>
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-sm text-zinc-500">
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-sm text-zinc-500">
           {pi.age && <span>{pi.age}</span>}
           {pi.politicalStatus && <span>{pi.politicalStatus}</span>}
           {pi.gender && <span>{pi.gender}</span>}
@@ -55,8 +55,8 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
       {resume.sections
         .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
         .map((section) => (
-          <div key={section.id} className="mb-5" data-section>
-            <h2 className="mb-2 border-b border-zinc-300 pb-1 text-sm font-bold uppercase tracking-wider text-zinc-800">
+          <div key={section.id} className="mb-3" data-section>
+            <h2 className="mb-1 border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
               {section.title}
             </h2>
             <SectionContent section={section} lang={resume.language} />
@@ -71,13 +71,13 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   if (!content) return null;
 
   if (section.type === 'summary') {
-    return <p className="text-sm text-zinc-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />;
+    return <p className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />;
   }
 
   if (section.type === 'work_experience') {
     const items = (content as WorkExperienceContent).items || [];
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {items.map((item: any) => (
           <div key={item.id}>
             <div className="flex items-baseline justify-between">
@@ -108,7 +108,7 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   if (section.type === 'education') {
     const items = (content as EducationContent).items || [];
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {items.map((item: any) => (
           <div key={item.id}>
             <div className="flex items-baseline justify-between">
@@ -150,7 +150,7 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   if (section.type === 'projects') {
     const items = (content as ProjectsContent).items || [];
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {items.map((item: any) => (
           <div key={item.id}>
             <div className="flex items-baseline justify-between">
@@ -181,7 +181,7 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   if (section.type === 'github') {
     const items = (content as GitHubContent).items || [];
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {items.map((item: any) => (
           <div key={item.id}>
             <div className="flex items-baseline justify-between">

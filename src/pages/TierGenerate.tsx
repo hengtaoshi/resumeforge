@@ -241,6 +241,30 @@ const TierGenerate: React.FC = () => {
     });
   };
 
+  /** Normalize AI-generated content fields to match editor renderer expectations. */
+  function normalizeContent(type: SectionType, content: Record<string, any>): Record<string, any> {
+    switch (type) {
+      case 'summary': {
+        // AI may output { text: "..." } instead of { summary: "..." }
+        if (content.text !== undefined && content.summary === undefined) {
+          return { ...content, summary: content.text }
+        }
+        return content
+      }
+      case 'education': {
+        // AI may output flat fields instead of { items: [...] }
+        if (!content.items || content.items.length === 0) {
+          if (content.school || content.degree || content.major) {
+            return { items: [{ ...content }] }
+          }
+        }
+        return content
+      }
+      default:
+        return content
+    }
+  }
+
   function tryCreateResume(jsonStr: string) {
     const data = extractJSON<{
       title?: string;
@@ -265,7 +289,7 @@ const TierGenerate: React.FC = () => {
       const type = sectionTypeMap[s.sectionType];
       if (type) {
         existingTypes.add(type);
-        sections.push({ id: genId(), type, sortOrder: sections.length, content: s.content || {}, isVisible: true });
+        sections.push({ id: genId(), type, sortOrder: sections.length, content: normalizeContent(type, s.content || {}), isVisible: true });
       }
     }
 
