@@ -182,7 +182,7 @@ footer a:hover { color: var(--accent); }
   <div class="logo"><div class="logo-mark">R</div> ResumeForge</div>
   <div class="links">
     <a href="#features">功能</a>
-    <a href="#download">下载</a>
+    <a href="https://github.com/hengtaoshi/resumeforge" target="_blank">GitHub</a>
   </div>
 </nav>
 
@@ -230,23 +230,7 @@ footer a:hover { color: var(--accent); }
   </div>
 </section>
 
-<section class="download" id="download">
-  <h2>下载 ResumeForge</h2>
-  <p>Windows 桌面应用，下载即用</p>
-  <div class="download-card">
-    <div class="row"><span class="label">版本</span><span class="value"><span id="dl-version">v1.6.1</span></span></div>
-    <div class="row"><span class="label">大小</span><span class="value">~100 MB</span></div>
-    <div class="row"><span class="label">系统</span><span class="value">Windows 10 / 11 (64位)</span></div>
-    <div style="margin-top:20px">
-      <a href="/download/ResumeForge-1.6.2-Setup.exe" class="btn btn-primary" id="dl-link" style="font-size:15px;padding:14px 32px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        下载安装包
-      </a>
-    </div>
-  </div>
-</section>
-
-<footer>
+<footer
   <p><a href="https://github.com/hengtaoshi/resumeforge" target="_blank">ResumeForge</a> &middot; 免费供个人使用</p>
 </footer>
 
@@ -254,15 +238,11 @@ footer a:hover { color: var(--accent); }
 fetch('/updates/latest.yml').then(r => r.text()).then(t => {
   const vm = t.match(/^version:\s*(.+)/m)
   if (vm) {
-    const v = vm[1].trim()
-    document.getElementById('version-text').textContent = 'v' + v
-    document.getElementById('dl-version').textContent = 'v' + v
+    document.getElementById('version-text').textContent = 'v' + vm[1].trim()
   }
   const fm = t.match(/url:\s*(.+)/)
   if (fm) {
-    const url = '/download/' + fm[1].trim()
-    document.getElementById('hero-dl-link').href = url
-    document.getElementById('dl-link').href = url
+    document.getElementById('hero-dl-link').href = '/download/' + fm[1].trim()
   }
 }).catch(() => {})
 </script>
