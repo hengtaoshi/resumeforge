@@ -191,31 +191,7 @@ const TierGenerate: React.FC = () => {
     if (!isAIConfigured()) { toast.warning('请先在「设置」页面配置 AI 提供商和 API 密钥。'); return; }
     setGuidedActive(true);
     setGeneratedResumeId(null);
-    setGuidedMessages([]);
-
-    const initId = `g-${Date.now()}`;
-    setGuidedSending(true);
-    setGuidedStreamingId(initId);
-    setGuidedStreamingContent('');
-
-    const { system } = buildGuidedPrompt([], '开始');
-    streamAI([{ role: 'system', content: system }, { role: 'user', content: '你好！请开始引导我创建简历。' }], {
-      onToken: (token) => {
-        setGuidedStreamingContent((prev) => prev + token);
-      },
-      onDone: (finalText) => {
-        setGuidedMessages([{ role: 'ai', id: initId, content: finalText }]);
-        setGuidedStreamingId(null);
-        setGuidedStreamingContent('');
-        setGuidedSending(false);
-      },
-      onError: (err) => {
-        setGuidedMessages([{ role: 'ai', id: initId, content: `抱歉，启动失败：${err.message}` }]);
-        setGuidedStreamingId(null);
-        setGuidedStreamingContent('');
-        setGuidedSending(false);
-      },
-    });
+    setGuidedMessages([{ role: 'ai', id: `g-${Date.now()}`, content: '你好！我是 ResumeForge 的职业规划师，很高兴为你打造一份量身定制的简历！首先，请问你目前从事什么行业，担任什么职位呢？' }]);
   };
 
   const sendGuidedMessage = () => {
