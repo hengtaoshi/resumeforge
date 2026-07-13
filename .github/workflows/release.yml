@@ -87,6 +87,16 @@ jobs:
 
       - name: Deploy to VPS
         if: startsWith(github.ref, 'refs/tags/')
+        uses: appleboy/scp-action@v1
+        with:
+          host: 124.221.92.130
+          username: root
+          password: ${{ secrets.VPS_PASS }}
+          source: release/
+          target: /tmp/resumeforge-deploy/
+
+      - name: Install artifacts on VPS
+        if: startsWith(github.ref, 'refs/tags/')
         uses: appleboy/ssh-action@v1
         with:
           host: 124.221.92.130
@@ -94,9 +104,21 @@ jobs:
           password: ${{ secrets.VPS_PASS }}
           script: |
             VER=$(echo "${{ github.ref_name }}" | sed 's/^v//')
-            GH="https://ghproxy.net/https://github.com/hengtaoshi/resumeforge/releases/download/${{ github.ref_name }}"
-            cd /www/wwwroot/resumeforge
-            curl -sL --connect-timeout 10 --max-time 120 -o download/ResumeForge-${VER}-Setup.exe "$GH/ResumeForge-${VER}-Setup.exe"
-            curl -sL --connect-timeout 10 --max-time 30 -o updates/latest.yml "$GH/latest.yml"
-            curl -sL --connect-timeout 10 --max-time 30 -o updates/ResumeForge-${VER}-Setup.exe.blockmap "$GH/ResumeForge-${VER}-Setup.exe.blockmap"
-            cp download/ResumeForge-${VER}-Setup.exe updates/
+            SRC=/tmp/resumeforge-deploy/release
+            DEST=/www/wwwroot/resumeforge
+            # Verify the exe is valid (>90MB means a real build)
+            EXE_SIZE=$(stat -c%s "$SRC/ResumeForge-${VER}-Setup.exe" 2>/dev/null || echo 0)
+            if [ "$EXE_SIZE" -lt 90000000 ]; then
+              echo "ERROR: exe too small (${EXE_SIZE}B), aborting"
+              exit 1
+            fi
+            cp "$SRC/ResumeForge-${VER}-Setup.exe" "$DEST/download/"
+            cp "$SRC/ResumeForge-${VER}-Setup.exe" "$DEST/updates/"
+            cp "$SRC/ResumeForge-${VER}-Setup.exe.blockmap" "$DEST/updates/" 2>/dev/null || true
+            cp "$SRC/latest.yml" "$DEST/download/"
+            cp "$SRC/latest.yml" "$DEST/updates/"
+            # Remove old exes (keep only latest 2 versions)
+            ls -t "$DEST/download/"ResumeForge-*-Setup.exe | tail -n +3 | xargs -r rm
+            ls -t "$DEST/updates/"ResumeForge-*-Setup.exe | tail -n +3 | xargs -r rm
+            rm -rf /tmp/resumeforge-deploy
+            echo "Deployed v${VER} successfully"
