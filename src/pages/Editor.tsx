@@ -693,6 +693,7 @@ const Editor = () => {
   const [showTranslationResult, setShowTranslationResult] = useState(false)
   const [rightPanelMode, setRightPanelMode] = useState<'properties' | 'preview'>('properties')
   const [importReviewData, setImportReviewData] = useState<ParsedResumeData | null>(null)
+  const [importLoading, setImportLoading] = useState(false)
 
   // ── DnD sensors ──
   const sensors = useSensors(
@@ -836,11 +837,11 @@ const Editor = () => {
       toast.warning('仅支持 .txt、.docx、.pdf 格式'); return
     }
 
+    setImportLoading(true)
     toast.info('正在解析简历文件...')
 
     const extractText = async (f: File): Promise<string> => {
       const ext = f.name.split('.').pop()?.toLowerCase()
-      // PDF — 使用 pdfjs-dist 提取文本
       if (ext === 'pdf') {
         const pdfjsLib = await import('pdfjs-dist')
         pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
@@ -854,12 +855,11 @@ const Editor = () => {
         }
         return pages.join('\n')
       }
-      // .docx / 纯文本 — 直接读
       return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
     }
 
     const text = await extractText(file)
-    if (!text.trim()) { toast.error('无法读取文件内容'); return }
+    if (!text.trim()) { setImportLoading(false); toast.error('无法读取文件内容'); return }
 
     try {
       const res = await askAI([
@@ -880,9 +880,8 @@ const Editor = () => {
         { role: 'user', content: text.slice(0, 30000) },
       ])
       const parsed = extractJSON<any>(res)
-      if (!parsed) { toast.error('AI 解析失败，请重试'); return }
+      if (!parsed) { setImportLoading(false); toast.error('AI 解析失败，请重试'); return }
 
-      // Show review modal instead of creating directly
       setImportReviewData({
         title: parsed.title || '导入的简历',
         personal: parsed.personal || {},
@@ -896,6 +895,7 @@ const Editor = () => {
     } catch (err) {
       toast.error('解析失败: ' + (err instanceof Error ? err.message : String(err)))
     }
+    setImportLoading(false)
     e.target.value = ''
   }, [createResume, updateResume, isAIConfigured])
 
@@ -1085,6 +1085,19 @@ const Editor = () => {
                   删除
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Import Loading Overlay ─── */}
+        {importLoading && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center gap-4">
+              <svg className="animate-spin h-8 w-8 text-teal-500" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-sm text-slate-600">AI 正在解析简历...</p>
             </div>
           </div>
         )}
