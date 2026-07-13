@@ -116,23 +116,21 @@ jobs:
         run: |
           pip install paramiko -q
           python3 -c "
-          import paramiko, os
+          import paramiko, os, fnmatch
           ssh = paramiko.SSHClient()
           ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
           ssh.connect('124.221.92.130', username='root', password='${{ secrets.VPS_PASS }}')
           sftp = ssh.open_sftp()
+          patterns = ['*.exe', 'latest.yml', '*.blockmap']
           for f in os.listdir('release'):
-            print(f'Uploading {f}...')
-            sftp.put(f'release/{f}', f'/www/wwwroot/resumeforge/staging/{f}')
+            full = os.path.join('release', f)
+            if not os.path.isfile(full): continue
+            if any(fnmatch.fnmatch(f, p) for p in patterns):
+              print(f'Uploading {f}...')
+              sftp.put(full, '/www/wwwroot/resumeforge/staging/' + f)
           sftp.close()
-          ssh.exec_command('''VER=\$(echo \"${{ github.ref_name }}\" | sed 's/^v//')
-            STAGING=/www/wwwroot/resumeforge/staging
-            DEST=/www/wwwroot/resumeforge
-            mv \$STAGING/ResumeForge-\${VER}-Setup.exe \$DEST/download/
-            cp \$STAGING/latest.yml \$DEST/updates/
-            mv \$STAGING/ResumeForge-\${VER}-Setup.exe.blockmap \$DEST/updates/ 2>/dev/null || true
-            cp \$DEST/download/ResumeForge-\${VER}-Setup.exe \$DEST/updates/
-            rm -rf \$STAGING''')
+          _, out, _ = ssh.exec_command('VER=\$(echo \"${{ github.ref_name }}\" | sed s/^v//); STAGING=/www/wwwroot/resumeforge/staging; DEST=/www/wwwroot/resumeforge; mv \$STAGING/ResumeForge-\${VER}-Setup.exe \$DEST/download/; cp \$STAGING/latest.yml \$DEST/updates/; mv \$STAGING/ResumeForge-\${VER}-Setup.exe.blockmap \$DEST/updates/ 2>/dev/null || true; cp \$DEST/download/ResumeForge-\${VER}-Setup.exe \$DEST/updates/; rm -rf \$STAGING; echo DONE')
+          print(out.read().decode())
           ssh.close()
           print('Deploy done')
           "
