@@ -148,6 +148,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   logout: () => ipcRenderer.invoke('auth:logout'),
   changePassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke('auth:changePassword', oldPassword, newPassword),
 
+  // ── Data sync ─────────────────────────────────────────────────
+  syncAll: () => ipcRenderer.invoke('sync:all'),
+  apiFetch: (path: string, opts?: { method?: string; body?: string }) => ipcRenderer.invoke('api:fetch', path, opts),
+
   // ── Dashboard tracking ─────────────────────────────────────
   getTrackingStats: () => ipcRenderer.invoke('tracking:getStats'),
   saveATS: (score: number) => ipcRenderer.invoke('tracking:saveATS', score),

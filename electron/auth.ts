@@ -137,6 +137,8 @@ async function authedApi(path: string, opts: { method?: string; body?: string; h
   return body
 }
 
+export { authedApi, API_BASE }
+
 export function registerAuthHandlers() {
   ipcMain.handle('auth:sendCode', async (_e, email: string) => {
     await api('/api/auth/send-code', { method: 'POST', body: JSON.stringify({ email }) })
@@ -144,11 +146,13 @@ export function registerAuthHandlers() {
   ipcMain.handle('auth:register', async (_e, email: string, code: string, password: string) => {
     const body = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, code, password }) })
     saveTokens({ accessToken: body.accessToken, refreshToken: body.refreshToken, expiresAt: Date.now() + 14 * 60 * 1000 })
+    import('./sync').then(m => m.syncAllData()).catch(() => {})
     return body.user
   })
   ipcMain.handle('auth:login', async (_e, email: string, password: string) => {
     const body = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
     saveTokens({ accessToken: body.accessToken, refreshToken: body.refreshToken, expiresAt: Date.now() + 14 * 60 * 1000 })
+    import('./sync').then(m => m.syncAllData()).catch(() => {})
     return body.user
   })
   ipcMain.handle('auth:getUser', async () => {
