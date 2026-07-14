@@ -699,6 +699,8 @@ const Editor = () => {
   const [importReviewData, setImportReviewData] = useState<ParsedResumeData | null>(null)
   const [importLoading, setImportLoading] = useState(false)
   const [importStatus, setImportStatus] = useState('')
+  const [importText, setImportText] = useState('')
+  const [showTextImport, setShowTextImport] = useState(false)
 
   // ── DnD sensors ──
   const sensors = useSensors(
@@ -865,11 +867,21 @@ const Editor = () => {
 
     const text = await extractText(file)
     if (!text.trim()) { setImportLoading(false); setImportStatus(''); toast.error('无法读取文件内容'); return }
+    setImportLoading(false)
+    setImportStatus('')
+    setImportText(text)
+    setShowTextImport(true)
+    e.target.value = ''
+  }, [createResume, updateResume, isAIConfigured])
 
+  // ── Parse imported text with AI ──
+  const handleParseText = useCallback(async () => {
+    const text = importText.trim()
+    if (!text) { toast.warning('没有可解析的文本'); return }
+    setImportLoading(true)
     setImportStatus('正在调用 AI 解析...')
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 60000)
-
     try {
       const res = await askAI([
         { role: 'system', content: `你是一位简历解析专家。从以下文本中提取简历信息，返回纯 JSON（不要 markdown）：
@@ -891,7 +903,7 @@ const Editor = () => {
       clearTimeout(timeoutId)
       const parsed = extractJSON<any>(res)
       if (!parsed) { setImportLoading(false); setImportStatus(''); toast.error('AI 解析失败，请重试'); return }
-
+      setShowTextImport(false)
       setImportReviewData({
         title: parsed.title || '导入的简历',
         personal: parsed.personal || {},
@@ -913,8 +925,7 @@ const Editor = () => {
     }
     setImportLoading(false)
     setImportStatus('')
-    e.target.value = ''
-  }, [createResume, updateResume, isAIConfigured])
+  }, [importText])
 
   // ── Import review confirm ──
   const handleImportConfirm = useCallback(async (data: ParsedResumeData) => {
@@ -1011,6 +1022,10 @@ const Editor = () => {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 导入
               </label>
+              <button onClick={() => { setImportText(''); setShowTextImport(true); }} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors" title="粘贴文本导入">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>
+                粘贴
+              </button>
               {resumes.length > 0 && (
                 <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }}
                   className={`text-xs px-2 py-1 rounded transition-colors ${resumeDeleteMode ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -1115,6 +1130,35 @@ const Editor = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               <p className="text-sm text-slate-600">{importStatus || '正在解析...'}</p>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Text Import Modal ─── */}
+        {showTextImport && !importLoading && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl w-[640px] max-w-[90vw] max-h-[80vh] flex flex-col">
+              <div className="flex items-center justify-between px-6 py-4 border-b">
+                <h3 className="font-semibold text-slate-800">导入简历文本</h3>
+                <button onClick={() => setShowTextImport(false)} className="text-slate-400 hover:text-slate-600">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div className="flex-1 p-6 overflow-auto">
+                <p className="text-xs text-slate-500 mb-3">请确认提取的文本无误，也可直接粘贴完整简历文本，然后点击 "AI 解析"。</p>
+                <textarea
+                  className="w-full h-[300px] border border-slate-200 rounded-lg p-3 text-xs font-mono text-slate-700 resize-none focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  placeholder="在此粘贴简历文本..."
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50 rounded-b-xl">
+                <button onClick={() => setShowTextImport(false)} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
+                <button onClick={handleParseText} disabled={!importText.trim()} className="px-5 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                  AI 解析
+                </button>
+              </div>
             </div>
           </div>
         )}
