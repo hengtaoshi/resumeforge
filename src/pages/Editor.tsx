@@ -698,6 +698,7 @@ const Editor = () => {
   const [rightPanelMode, setRightPanelMode] = useState<'properties' | 'preview'>('properties')
   const [importReviewData, setImportReviewData] = useState<ParsedResumeData | null>(null)
   const [importLoading, setImportLoading] = useState(false)
+  const [importStatus, setImportStatus] = useState('')
 
   // ── DnD sensors ──
   const sensors = useSensors(
@@ -842,7 +843,7 @@ const Editor = () => {
     }
 
     setImportLoading(true)
-    toast.info('正在解析简历文件...')
+    setImportStatus('正在提取文件文本...')
 
     const extractText = async (f: File): Promise<string> => {
       const ext = f.name.split('.').pop()?.toLowerCase()
@@ -863,7 +864,11 @@ const Editor = () => {
     }
 
     const text = await extractText(file)
-    if (!text.trim()) { setImportLoading(false); toast.error('无法读取文件内容'); return }
+    if (!text.trim()) { setImportLoading(false); setImportStatus(''); toast.error('无法读取文件内容'); return }
+
+    setImportStatus('正在调用 AI 解析...')
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60000)
 
     try {
       const res = await askAI([
@@ -882,9 +887,10 @@ const Editor = () => {
 
 没有的字段填空数组或空字符串。` },
         { role: 'user', content: text.slice(0, 30000) },
-      ])
+      ], controller.signal)
+      clearTimeout(timeoutId)
       const parsed = extractJSON<any>(res)
-      if (!parsed) { setImportLoading(false); toast.error('AI 解析失败，请重试'); return }
+      if (!parsed) { setImportLoading(false); setImportStatus(''); toast.error('AI 解析失败，请重试'); return }
 
       setImportReviewData({
         title: parsed.title || '导入的简历',
@@ -897,9 +903,16 @@ const Editor = () => {
         certifications: { items: parsed.certifications?.items || [] },
       })
     } catch (err) {
-      toast.error('解析失败: ' + (err instanceof Error ? err.message : String(err)))
+      clearTimeout(timeoutId)
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes('abort') || msg.includes('timeout')) {
+        toast.error('解析超时（超过 60 秒），请检查网络或换用更快的模型')
+      } else {
+        toast.error('解析失败: ' + msg)
+      }
     }
     setImportLoading(false)
+    setImportStatus('')
     e.target.value = ''
   }, [createResume, updateResume, isAIConfigured])
 
@@ -1101,7 +1114,7 @@ const Editor = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <p className="text-sm text-slate-600">AI 正在解析简历...</p>
+              <p className="text-sm text-slate-600">{importStatus || '正在解析...'}</p>
             </div>
           </div>
         )}

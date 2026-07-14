@@ -185,7 +185,7 @@ export function streamAI(
 /**
  * Non-streaming AI call using the current settings from the store.
  */
-export async function askAI(messages: AIChatMessage[]): Promise<string> {
+export async function askAI(messages: AIChatMessage[], signal?: AbortSignal): Promise<string> {
   const settings = useSettingsStore.getState()
   const apiKey = settings.apiKeys[settings.aiProvider]
 
@@ -197,7 +197,7 @@ export async function askAI(messages: AIChatMessage[]): Promise<string> {
   }
 
   const { callAI } = await import('./provider')
-  return callAI([...messages], { provider: settings.aiProvider, apiKey, model: settings.model })
+  return callAI([...messages], { provider: settings.aiProvider, apiKey, model: settings.model }, signal)
 }
 
 /**
