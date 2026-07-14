@@ -12,6 +12,22 @@ let mainWindow: BrowserWindow | null = null
 // ── autoUpdater ──────────────────────────────────────────────
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
+// ponytail: auto-detect mihomo/clash proxy for update checks behind GFW
+const detectProxy = () => new Promise<void>((r) => {
+  if (process.env.HTTPS_PROXY || process.env.HTTP_PROXY) { r(); return }
+  const net = require('net')
+  const ports = [7897, 7890, 10809, 1080]
+  let i = 0
+  const tryNext = () => {
+    if (i >= ports.length || process.env.HTTPS_PROXY) { r(); return }
+    const s = net.connect(ports[i], '127.0.0.1', () => {
+      s.end(); process.env.HTTPS_PROXY = `http://127.0.0.1:${ports[i]}`; process.env.HTTP_PROXY = `http://127.0.0.1:${ports[i]}`; r()
+    })
+    s.on('error', () => { i++; tryNext() })
+    s.setTimeout(300, () => { s.destroy(); i++; tryNext() })
+  }
+  tryNext()
+})
 
 function sendUpdateStatus(status: string, payload?: unknown) {
   mainWindow?.webContents.send('update-status', { status, ...(payload as Record<string, unknown>) })
@@ -198,8 +214,8 @@ app.whenReady().then(async () => {
   createWindow()
   setupAutoUpdater()
   if (app.isPackaged) {
+    await detectProxy()
     autoUpdater.checkForUpdates()
-    // 每小时自动检查一次（不影响性能，仅一个轻量 HTTP 请求）
     setInterval(() => autoUpdater.checkForUpdates(), 60 * 60 * 1000)
   }
 })
