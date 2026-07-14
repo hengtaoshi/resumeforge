@@ -4,9 +4,7 @@ import { autoUpdater } from 'electron-updater'
 import { initDB, getDB, persistDB } from './db/schema'
 import { registerAIHandlers } from './ipc/ai'
 import { registerScannerHandlers } from './scanner'
-import { registerAuthHandlers, authedApi } from './auth'
-import { registerTrackingHandlers } from './tracking'
-import { syncAllData } from './sync'
+import { registerAuthHandlers } from './auth'
 import './export'
 
 let mainWindow: BrowserWindow | null = null
@@ -126,34 +124,8 @@ ipcMain.handle('ai:test', async (_e, opts: { provider: string; apiKey: string; m
   return true
 })
 
-// ── Generic server API call (avoids CORS, uses main process auth) ──
-ipcMain.handle('api:fetch', async (_e, path: string, opts?: { method?: string; body?: string }) => {
-  return authedApi(path, opts ? { method: opts.method, body: opts.body } : {})
-})
-
-// ── Trigger full sync from renderer ──
-ipcMain.handle('sync:all', async () => {
-  await syncAllData()
-  return { ok: true }
-})
-
-// Resume CRUD — server-first, local fallback
+// ── Resume CRUD — local only ──
 ipcMain.handle('db:getResumes', async () => {
-  try {
-    const remote: any = await authedApi('/api/data/resumes')
-    if (remote?.length !== undefined) {
-      // ponytail: cache server data locally
-      const db = getDB()
-      db.run('DELETE FROM resumes')
-      for (const r of remote) {
-        const data = typeof r.data === 'string' ? r.data : JSON.stringify(r.data || {})
-        db.run('INSERT OR REPLACE INTO resumes (id, title, created_at, updated_at, theme, version, data) VALUES (?,?,?,?,?,?,?)',
-          [r.id, r.title, r.created_at, r.updated_at, r.theme, r.version, data])
-      }
-      persistDB()
-      return remote.map((r: any) => ({ ...r, data: typeof r.data === 'string' ? JSON.parse(r.data) : r.data }))
-    }
-  } catch { /* offline — fall through to local */ }
   const db = getDB()
   const stmt = db.prepare('SELECT * FROM resumes ORDER BY updated_at DESC')
   const rows: any[] = []
@@ -167,10 +139,6 @@ ipcMain.handle('db:getResumes', async () => {
 })
 
 ipcMain.handle('db:getResume', async (_e, id: string) => {
-  try {
-    const remote: any = await authedApi(`/api/data/resumes/${id}`)
-    if (remote) return { ...remote, data: typeof remote.data === 'string' ? JSON.parse(remote.data) : remote.data }
-  } catch { /* offline */ }
   const db = getDB()
   const stmt = db.prepare('SELECT * FROM resumes WHERE id = ?')
   stmt.bind([id])
@@ -187,8 +155,6 @@ ipcMain.handle('db:saveResume', async (_e, data: any) => {
   const id = data.id || crypto.randomUUID()
   const now = new Date().toISOString()
   const json = JSON.stringify(data)
-  // ponytail: server first, ignore errors (offline)
-  try { await authedApi('/api/data/resumes', { method: 'POST', body: JSON.stringify({ ...data, id }) }) } catch {}
   const db = getDB()
   const existing = db.prepare('SELECT id FROM resumes WHERE id = ?')
   existing.bind([id])
@@ -204,7 +170,6 @@ ipcMain.handle('db:saveResume', async (_e, data: any) => {
 })
 
 ipcMain.handle('db:deleteResume', async (_e, id: string) => {
-  try { await authedApi(`/api/data/resumes/${id}`, { method: 'DELETE' }) } catch {}
   getDB().run('DELETE FROM resumes WHERE id = ?', [id])
   persistDB()
   return { success: true }
@@ -228,7 +193,6 @@ app.whenReady().then(async () => {
   registerAIHandlers()
   registerScannerHandlers()
   registerAuthHandlers()
-  registerTrackingHandlers()
 
   // ══ 3. 窗口 + 更新 ══
   createWindow()

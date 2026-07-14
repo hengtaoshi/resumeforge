@@ -1,9 +1,7 @@
 import { ipcMain } from 'electron'
 import { getDB, persistDB } from './db/schema'
-import { authedApi } from './auth'
 
 export function registerTrackingHandlers() {
-  // ── Get all stats ──
   ipcMain.handle('tracking:getStats', () => {
     const db = getDB()
     const stats: Record<string, string> = {}
@@ -22,7 +20,6 @@ export function registerTrackingHandlers() {
     }
   })
 
-  // ── Save ATS score ──
   ipcMain.handle('tracking:saveATS', (_e, score: number) => {
     const db = getDB()
     const now = new Date().toISOString()
@@ -31,11 +28,9 @@ export function registerTrackingHandlers() {
     return { ok: true }
   })
 
-  // ── Deliveries ──
   ipcMain.handle('tracking:addDelivery', async (_e, data: { company: string; role: string; url?: string; note?: string }) => {
     const id = crypto.randomUUID()
     const now = new Date().toISOString()
-    try { await authedApi('/api/data/deliveries', { method: 'POST', body: JSON.stringify({ ...data, id, created_at: now }) }) } catch {}
     const db = getDB()
     db.run('INSERT INTO deliveries (id, company, role, url, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
       [id, data.company, data.role, data.url || null, data.note || null, now])
@@ -44,19 +39,6 @@ export function registerTrackingHandlers() {
   })
 
   ipcMain.handle('tracking:getDeliveries', async () => {
-    try {
-      const remote: any = await authedApi('/api/data/deliveries')
-      if (remote?.length !== undefined) {
-        const db = getDB()
-        db.run('DELETE FROM deliveries')
-        for (const r of remote) {
-          db.run('INSERT OR REPLACE INTO deliveries (id, company, role, url, status, interview_at, offer_at, rejected_at, note, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)',
-            [r.id, r.company, r.role, r.url, r.status || 'applied', r.interview_at, r.offer_at, r.rejected_at, r.note, r.created_at])
-        }
-        persistDB()
-        return remote
-      }
-    } catch { /* offline */ }
     const db = getDB()
     const rows: any[] = []
     const stmt = db.prepare('SELECT id, company, role, url, status, interview_at, offer_at, rejected_at, note, created_at FROM deliveries ORDER BY created_at DESC')
@@ -66,7 +48,6 @@ export function registerTrackingHandlers() {
   })
 
   ipcMain.handle('tracking:updateDelivery', async (_e, id: string, data: { company?: string; role?: string; url?: string | null; note?: string | null }) => {
-    try { await authedApi(`/api/data/deliveries/${id}`, { method: 'PATCH', body: JSON.stringify(data) }) } catch {}
     const db = getDB()
     const sets: string[] = []; const vals: any[] = []
     const COL_MAP: Record<string, string> = { company: 'company', role: 'role', url: 'url', note: 'note' }
@@ -77,9 +58,7 @@ export function registerTrackingHandlers() {
     return { ok: true }
   })
 
-  // ponytail: single updateStatus handler — all status transitions go through this
   ipcMain.handle('tracking:updateStatus', async (_e, id: string, status: string) => {
-    try { await authedApi(`/api/data/deliveries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }) } catch {}
     const db = getDB()
     const now = new Date().toISOString()
     const tsCol = status === 'interviewing' ? 'interview_at' : status === 'offer' ? 'offer_at' : status === 'rejected' ? 'rejected_at' : null
@@ -90,17 +69,14 @@ export function registerTrackingHandlers() {
   })
 
   ipcMain.handle('tracking:deleteDelivery', async (_e, id: string) => {
-    try { await authedApi(`/api/data/deliveries/${id}`, { method: 'DELETE' }) } catch {}
     getDB().run('DELETE FROM deliveries WHERE id = ?', [id])
     persistDB()
     return { ok: true }
   })
 
-  // ── Interviews ──
   ipcMain.handle('tracking:addInterview', async (_e, data: { company: string; role: string; type?: string; note?: string }) => {
     const id = crypto.randomUUID()
     const now = new Date().toISOString()
-    try { await authedApi('/api/data/interviews', { method: 'POST', body: JSON.stringify({ ...data, id, created_at: now }) }) } catch {}
     const db = getDB()
     db.run('INSERT INTO interviews (id, company, role, type, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
       [id, data.company, data.role, data.type || 'tech', data.note || null, now])
@@ -109,19 +85,6 @@ export function registerTrackingHandlers() {
   })
 
   ipcMain.handle('tracking:getInterviews', async () => {
-    try {
-      const remote: any = await authedApi('/api/data/interviews')
-      if (remote?.length !== undefined) {
-        const db = getDB()
-        db.run('DELETE FROM interviews')
-        for (const r of remote) {
-          db.run('INSERT OR REPLACE INTO interviews (id, company, role, type, note, review, created_at) VALUES (?,?,?,?,?,?,?)',
-            [r.id, r.company, r.role, r.type || 'tech', r.note, r.review, r.created_at])
-        }
-        persistDB()
-        return remote
-      }
-    } catch { /* offline */ }
     const db = getDB()
     const rows: any[] = []
     const stmt = db.prepare('SELECT id, company, role, type, note, review, created_at FROM interviews ORDER BY created_at DESC')
@@ -131,14 +94,12 @@ export function registerTrackingHandlers() {
   })
 
   ipcMain.handle('tracking:saveReview', async (_e, id: string, review: string) => {
-    try { await authedApi(`/api/data/interviews/${id}/review`, { method: 'PATCH', body: JSON.stringify({ review }) }) } catch {}
     getDB().run('UPDATE interviews SET review = ? WHERE id = ?', [review, id])
     persistDB()
     return { ok: true }
   })
 
   ipcMain.handle('tracking:deleteInterview', async (_e, id: string) => {
-    try { await authedApi(`/api/data/interviews/${id}`, { method: 'DELETE' }) } catch {}
     getDB().run('DELETE FROM interviews WHERE id = ?', [id])
     persistDB()
     return { ok: true }
