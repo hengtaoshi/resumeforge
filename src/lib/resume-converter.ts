@@ -21,6 +21,16 @@ const SECTION_TYPE_MAP: Record<string, string> = {
   certifications: 'certifications',
 }
 
+const SECTION_TITLE_MAP: Record<string, string> = {
+  personal: '个人信息',
+  summary: '个人简介',
+  experience: '工作经历',
+  education: '教育背景',
+  skills: '专业技能',
+  projects: '项目/作品经验',
+  certifications: '证书资质',
+}
+
 function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
@@ -32,7 +42,7 @@ function mapPersonalContent(content: Record<string, any>): PersonalInfoContent {
     email: content.email || '',
     phone: content.phone || '',
     location: content.location || '',
-    avatar: content.avatar || '',
+    avatar: '',
     website: content.website || '',
     linkedin: content.linkedin || '',
     github: content.github || '',
@@ -127,7 +137,7 @@ export function convertResumeForTemplate(editorResume: EditorResume): TemplateRe
       return {
         id: s.id,
         type: templateType,
-        title: templateType === 'personal_info' ? '个人信息' : '',
+        title: SECTION_TITLE_MAP[s.type] || '',
         sortOrder: s.sortOrder,
         visible: true,
         content: mapper ? mapper(s.content) : (s.content as any),

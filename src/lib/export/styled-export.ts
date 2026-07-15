@@ -44,7 +44,7 @@ function convertPersonalContent(c: Record<string, any>): PersonalInfoContent {
     email: c.email || '',
     phone: c.phone || '',
     location: c.location || '',
-    avatar: c.avatar || '',
+    avatar: '',
   }
 }
 
@@ -169,10 +169,17 @@ body {
 }
 `
 
+function avatarOverlayHTML(avatarUrl: string): string {
+  return avatarUrl
+    ? `<div style="position:absolute;top:24px;right:24px;z-index:10;width:96px;height:120px;border:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,0.05);overflow:hidden;border-radius:2px"><img src="${escapeHtml(avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover" /></div>`
+    : ''
+}
+
 export function renderStyledHTML(resume: AppResume, templateId: string = 'classic'): string {
+  const avatarUrl = resume.sections.find(s => s.type === 'personal')?.content?.avatar || ''
   const jadeResume = convertResume(resume)
   const tpl = getTemplate(templateId)
-  if (!tpl) return renderFallbackHTML(resume)
+  if (!tpl) return renderFallbackHTML(resume, avatarUrl)
 
   let content: string
   try {
@@ -188,7 +195,7 @@ export function renderStyledHTML(resume: AppResume, templateId: string = 'classi
     document.body.removeChild(el)
   } catch (err) {
     console.error('styled-export: template render failed, using fallback', err)
-    return renderFallbackHTML(resume)
+    return renderFallbackHTML(resume, avatarUrl)
   }
 
   return `<!DOCTYPE html>
@@ -201,7 +208,12 @@ export function renderStyledHTML(resume: AppResume, templateId: string = 'classi
 ${TAILWIND_INLINE}
 </head>
 <body>
+<div style="position:relative;width:210mm;margin:0 auto;min-height:297mm">
+<div style="padding:24px">
 ${content}
+</div>
+${avatarOverlayHTML(avatarUrl)}
+</div>
 </body>
 </html>`
 }
@@ -210,7 +222,7 @@ ${content}
 // ponytail: basic A4 layout matching the old export.ts style.
 // Replace with Tailwind-inlined version if every template render fails.
 
-function renderFallbackHTML(resume: AppResume): string {
+function renderFallbackHTML(resume: AppResume, avatarUrl: string = ''): string {
   const esc = (s: unknown) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const sections = [...resume.sections].filter(s => s.isVisible).sort((a, b) => a.sortOrder - b.sortOrder)
   const personal = sections.find(s => s.type === 'personal')?.content || {}
@@ -266,7 +278,7 @@ body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;backg
 h3{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase}
 @media print{body{padding:0}.page{box-shadow:none}}
 </style></head>
-<body><div class="page">
+<body><div class="page" style="position:relative;min-height:297mm">
 <h1 style="font-size:22px;color:#0f172a;margin-bottom:4px">${esc(personal.name || '')}</h1>
 <h2 style="font-size:14px;color:#64748b;font-weight:400;margin-bottom:20px">${esc(personal.title || '')}</h2>
 ${sections.map(s => {
@@ -274,6 +286,7 @@ ${sections.map(s => {
   if (!html) return ''
   return `<div class="section"><h3>${labelMap[s.type] || s.type}</h3>${html}</div>`
 }).join('')}
+${avatarOverlayHTML(avatarUrl)}
 </div></body></html>`
 }
 

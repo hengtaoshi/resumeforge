@@ -32,6 +32,7 @@ export default function ResumePreview({ resume }: Props) {
   const templateDef = getTemplate(selectedId)
   const templateData = convertResumeForTemplate(resume)
   const TemplateComponent = templateDef?.component
+  const avatarUrl = resume.sections.find(s => s.type === 'personal')?.content?.avatar || ''
 
   if (!loaded) {
     return (
@@ -57,9 +58,14 @@ export default function ResumePreview({ resume }: Props) {
               width: '210mm',
               minHeight: '297mm',
             }}
-            className="shadow-xl bg-white"
+            className="shadow-xl bg-white p-6 relative"
           >
             {TemplateComponent && <TemplateComponent resume={templateData} />}
+            {avatarUrl && (
+              <div className="absolute top-6 right-6 z-10 w-[96px] h-[120px] border border-gray-200 shadow-sm overflow-hidden rounded-sm">
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              </div>
+            )}
           </div>
         </div>
         {scale < 1 && (

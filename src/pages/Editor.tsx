@@ -199,7 +199,9 @@ const Editor = () => {
         const { renderStyledHTML } = await import('@/lib/export/styled-export')
         const html = renderStyledHTML(activeResume as any, templateId)
         const key = format === 'PDF' ? 'exportStyledPDF' : 'exportStyledHTML'
-        const result = await (window.electronAPI as any)[key](html)
+        const pi = activeResume.sections.find(s => s.type === 'personal')?.content
+        const suggestedName = [pi?.name, pi?.title, '简历'].filter(Boolean).join('-')
+        const result = await (window.electronAPI as any)[key](html, suggestedName)
         if (result.success) toast.success(`导出 ${format} 成功`)
         else if (result.error) toast.error(result.error)
       } else {

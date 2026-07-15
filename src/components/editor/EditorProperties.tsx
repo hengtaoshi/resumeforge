@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { Resume } from '@/types/resume'
-import { COLOR_SWATCHES, FONT_OPTIONS, VERSION_OPTIONS } from './SectionRenderers'
+import { FONT_OPTIONS, VERSION_OPTIONS } from './SectionRenderers'
 import toast from '@/lib/toast'
 
 interface Props {
@@ -9,8 +9,26 @@ interface Props {
   handleExport: (format: string) => void
 }
 
+const TEMPLATE_CATEGORIES: Record<string, string> = {
+  classic: '经典通用', modern: '经典通用', minimal: '经典通用', professional: '经典通用',
+  clean: '经典通用', elegant: '经典通用', compact: '经典通用', euro: '经典通用',
+  corporate: '专业商务', formal: '专业商务', executive: '专业商务', consultant: '专业商务',
+  finance: '专业商务', ats: '专业商务', bold: '专业商务', legal: '专业商务',
+  creative: '创意视觉', artistic: '创意视觉', designer: '创意视觉', magazine: '创意视觉',
+  retro: '创意视觉', watercolor: '创意视觉', mosaic: '创意视觉', zigzag: '创意视觉',
+  ribbon: '创意视觉', neon: '创意视觉', gradient: '创意视觉', rose: '创意视觉', luxe: '创意视觉', berlin: '创意视觉',
+  coder: '技术开发', developer: '技术开发', engineer: '技术开发', startup: '技术开发',
+  blocks: '技术开发', metro: '技术开发', material: '技术开发',
+  academic: '教育科研', teacher: '教育科研', scientist: '教育科研', medical: '教育科研',
+  'two-column': '特色布局', sidebar: '特色布局', card: '特色布局', timeline: '特色布局',
+  infographic: '特色布局', architect: '特色布局', swiss: '特色布局', japanese: '特色布局', nordic: '特色布局',
+}
+
+const CATEGORY_ORDER = ['经典通用', '专业商务', '创意视觉', '技术开发', '教育科研', '特色布局']
+
 export default function EditorProperties(props: Props) {
   const { width, activeResume, templateOptions, updateResume, handleExport } = props
+  const [activeCategory, setActiveCategory] = useState('经典通用')
 
   return (
     <div className="border-l bg-white flex flex-col shrink-0" style={{ width: width || 280 }}>
@@ -31,15 +49,6 @@ export default function EditorProperties(props: Props) {
         <div className="border-t" />
 
         <div>
-          <label className="block text-xs text-gray-500 mb-1.5 font-medium">主题色</label>
-          <div className="grid grid-cols-6 gap-2">{COLOR_SWATCHES.map(color => (
-            <button key={color} onClick={() => updateResume(activeResume.id, { theme: { ...activeResume.theme, primary: color } })}
-              className={`w-8 h-8 rounded-lg transition-transform hover:scale-110 ${activeResume.theme.primary === color ? 'ring-2 ring-offset-2 ring-gray-400 scale-110' : ''}`}
-              style={{ backgroundColor: color }} title={color} />
-          ))}</div>
-        </div>
-
-        <div>
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">字体</label>
           <select className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
             value={activeResume.theme.font} onChange={e => updateResume(activeResume.id, { theme: { ...activeResume.theme, font: e.target.value } })}>
@@ -57,10 +66,16 @@ export default function EditorProperties(props: Props) {
 
         <div>
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">模板</label>
-          <div className="max-h-[200px] overflow-y-auto border rounded-lg p-1 space-y-0.5">{templateOptions.map(t => (
-            <button key={t.id} onClick={() => updateResume(activeResume.id, { template: t.id }) }
-              className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${(activeResume.template || 'classic') === t.id ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}>{t.name}</button>
+          <div className="flex flex-wrap gap-1 mb-2">{CATEGORY_ORDER.map(cat => (
+            <button key={cat} onClick={() => setActiveCategory(cat)}
+              className={`px-2 py-1 text-xs rounded-md transition-colors ${activeCategory === cat ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{cat}</button>
           ))}</div>
+          <div className="border rounded-lg p-1 max-h-[200px] overflow-y-auto">
+            {templateOptions.filter(t => (TEMPLATE_CATEGORIES[t.id] || '其他') === activeCategory).map(t => (
+              <button key={t.id} onClick={() => updateResume(activeResume.id, { template: t.id }) }
+                className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${(activeResume.template || 'classic') === t.id ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}>{t.name}</button>
+            ))}
+          </div>
         </div>
 
         <div className="border-t" />

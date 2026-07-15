@@ -131,12 +131,14 @@ ipcMain.handle('export:pdf', async (_event, data: ResumeData) => doExport(data))
 async function doStyledExport(
   html: string,
   format: 'pdf' | 'html',
+  suggestedName?: string,
 ): Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }> {
   try {
     const ext = format === 'pdf' ? 'pdf' : 'html'
+    const fileName = suggestedName ? `${suggestedName}.${ext}` : `resume.${ext}`
     const result = await dialog.showSaveDialog({
       title: format === 'pdf' ? '导出 PDF' : '导出 HTML',
-      defaultPath: `resume.${ext}`,
+      defaultPath: fileName,
       filters: format === 'pdf'
         ? [{ name: 'PDF', extensions: ['pdf'] }]
         : [{ name: 'HTML', extensions: ['html'] }],
@@ -163,6 +165,7 @@ async function doStyledExport(
     const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
     win.close()
     try { fs.unlinkSync(tmpFile) } catch {}
+    try { fs.unlinkSync(result.filePath) } catch {}
     fs.writeFileSync(result.filePath, pdfBuffer)
     return { success: true, filePath: result.filePath }
   } catch (err: any) {
@@ -170,5 +173,5 @@ async function doStyledExport(
   }
 }
 
-ipcMain.handle('export:styled-pdf', async (_event, html: string) => doStyledExport(html, 'pdf'))
-ipcMain.handle('export:styled-html', async (_event, html: string) => doStyledExport(html, 'html'))
+ipcMain.handle('export:styled-pdf', async (_event, html: string, suggestedName?: string) => doStyledExport(html, 'pdf', suggestedName))
+ipcMain.handle('export:styled-html', async (_event, html: string, suggestedName?: string) => doStyledExport(html, 'html', suggestedName))

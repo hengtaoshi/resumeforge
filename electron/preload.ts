@@ -116,8 +116,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportDOCX: (data: unknown) => ipcRenderer.invoke('export:docx', data),
   exportTXT: (data: unknown) => ipcRenderer.invoke('export:txt', data),
   exportHTML: (data: unknown) => ipcRenderer.invoke('export:html', data),
-  exportStyledPDF: (html: string) => ipcRenderer.invoke('export:styled-pdf', html),
-  exportStyledHTML: (html: string) => ipcRenderer.invoke('export:styled-html', html),
+  exportStyledPDF: (html: string, suggestedName?: string) => ipcRenderer.invoke('export:styled-pdf', html, suggestedName),
+  exportStyledHTML: (html: string, suggestedName?: string) => ipcRenderer.invoke('export:styled-html', html, suggestedName),
 
   // Scanner (ATS provider integration via IPC)
   scanProviders: () => ipcRenderer.invoke('scan:providers'),
