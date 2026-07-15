@@ -864,10 +864,10 @@ const Editor = () => {
               pages.push(tc.items.map((item: any) => item.str).join(' '))
             } catch { pages.push('') }
           }
-          return pages.filter(Boolean).join('
-')
+          return pages.filter(Boolean).join('\n')
         } catch { return '' }
-      }return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
+      }
+      return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
     }
 
     const text = await Promise.race([
