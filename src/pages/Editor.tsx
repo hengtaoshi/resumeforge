@@ -850,35 +850,45 @@ const Editor = () => {
     const extractText = async (f: File): Promise<string> => {
       const ext = f.name.split('.').pop()?.toLowerCase()
       if (ext === 'pdf') {
-        try {
-          const pdfjsLib = await import('pdfjs-dist')
-          pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
-          const buf = await f.arrayBuffer()
-          const pdf = await pdfjsLib.getDocument({ data: buf }).promise
-          const pages: string[] = []
-          const maxPages = Math.min(pdf.numPages, 20)
-          for (let i = 1; i <= maxPages; i++) {
-            try {
-              const page = await pdf.getPage(i)
-              const tc = await page.getTextContent()
-              pages.push(tc.items.map((item: any) => item.str).join(' '))
-            } catch { pages.push('') }
-          }
-          return pages.filter(Boolean).join('\n')
-        } catch { return '' }
+        const pdfjsLib = await import('pdfjs-dist')
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
+        const buf = await f.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        const pages: string[] = []
+        const maxPages = Math.min(pdf.numPages, 20)
+        for (let i = 1; i <= maxPages; i++) {
+          try {
+            const page = await pdf.getPage(i)
+            const tc = await page.getTextContent()
+            pages.push(tc.items.map((item: any) => item.str).join(' '))
+          } catch { pages.push('') }
+        }
+        return pages.filter(Boolean).join('\n')
       }
       return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
     }
 
-    const text = await Promise.race([
-      extractText(file),
-      new Promise<string>((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
-    ]).catch(() => '')
+    let text: string
+    try {
+      text = await Promise.race([
+        extractText(file),
+        new Promise<string>((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
+      ])
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      setImportLoading(false); setImportStatus('')
+      setImportText('')
+      setShowTextImport(true)
+      toast.warning(msg.includes('timeout')
+        ? 'PDF 提取超时（15s），请手动粘贴简历文本'
+        : 'PDF 提取失败: ' + msg + '，可手动粘贴文本')
+      e.target.value = ''; return
+    }
     if (!text.trim()) {
       setImportLoading(false); setImportStatus('')
       setImportText('')
       setShowTextImport(true)
-      toast.warning('PDF 提取超时，请手动粘贴简历文本')
+      toast.warning('PDF 未提取到文本（可能为扫描件/图片），请手动粘贴')
       e.target.value = ''; return
     }
     setImportLoading(false)
