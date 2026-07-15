@@ -124,6 +124,24 @@ ipcMain.handle('ai:test', async (_e, opts: { provider: string; apiKey: string; m
   return true
 })
 
+// ── PDF text extraction — runs in main process to avoid Vite bundling issues ──
+ipcMain.handle('pdf:extractText', async (_e, buffer: ArrayBuffer) => {
+  const pdfjsLib = require('pdfjs-dist')
+  const buf = Buffer.from(buffer)
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf), disableFontFace: true }).promise
+  const pages: string[] = []
+  const max = Math.min(doc.numPages, 20)
+  for (let i = 1; i <= max; i++) {
+    try {
+      const page = await doc.getPage(i)
+      const tc = await page.getTextContent()
+      pages.push(tc.items.map((item: any) => item.str).join(' '))
+    } catch { pages.push('') }
+  }
+  try { (doc as any).destroy() } catch {}
+  return pages.filter(Boolean).join('\n')
+})
+
 // ── Resume CRUD — local only ──
 ipcMain.handle('db:getResumes', async () => {
   const db = getDB()

@@ -850,10 +850,15 @@ const Editor = () => {
     const extractText = async (f: File): Promise<string> => {
       const ext = f.name.split('.').pop()?.toLowerCase()
       if (ext === 'pdf') {
+        if (window.electronAPI?.extractPdfText) {
+          const buf = await f.arrayBuffer()
+          return window.electronAPI.extractPdfText(buf)
+        }
+        // Fallback: renderer-side pdfjs (for web-only mode)
         const pdfjsLib = await import('pdfjs-dist')
         pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href
         const buf = await f.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: buf }).promise
+        const pdf = await pdfjsLib.getDocument({ data: buf, disableFontFace: true }).promise
         const pages: string[] = []
         const maxPages = Math.min(pdf.numPages, 20)
         for (let i = 1; i <= maxPages; i++) {
@@ -868,21 +873,22 @@ const Editor = () => {
       return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result as string); rd.readAsText(f) })
     }
 
+    const input = e.currentTarget
     let text: string
     try {
       text = await Promise.race([
         extractText(file),
         new Promise<string>((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
       ])
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
       setImportLoading(false); setImportStatus('')
       setImportText('')
       setShowTextImport(true)
       toast.warning(msg.includes('timeout')
         ? 'PDF 提取超时（15s），请手动粘贴简历文本'
         : 'PDF 提取失败: ' + msg + '，可手动粘贴文本')
-      e.target.value = ''; return
+      input.value = ''; return
     }
     if (!text.trim()) {
       setImportLoading(false); setImportStatus('')
@@ -1010,26 +1016,53 @@ const Editor = () => {
     }
   }, [activeResume, translationLang])
 
-  // ── Export handlers ──
+  const [exportFormat, setExportFormat] = useState('')
+  const [exportTemplate, setExportTemplate] = useState('classic')
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [exportTemplates, setExportTemplates] = useState<Array<{id:string;name:string}>>([])
+
   const handleExport = useCallback(
     async (format: string) => {
       if (!activeResume || !window.electronAPI) {
         toast.warning('导出功能仅在桌面客户端可用')
         return
       }
-      const key = `export${format}` as keyof typeof window.electronAPI
-      const fn = window.electronAPI[key]
-      if (typeof fn !== 'function') return
-      try {
-        const result = await (fn as (data: unknown) => Promise<any>)(activeResume)
-        if (result.success) toast.success(`导出 ${format} 成功`)
-        else if (result.error) toast.error(result.error)
-      } catch (err) {
-        toast.error(`导出 ${format} 失败: ${err instanceof Error ? err.message : String(err)}`)
-      }
+      // Load templates and show modal
+      const { getRegisteredTemplates, initTemplates } = await import('@/components/editor/template-registry')
+      await initTemplates()
+      setExportTemplates(getRegisteredTemplates().map((t: any) => ({ id: t.id, name: t.name })))
+      setExportFormat(format)
+      setExportTemplate(activeResume.template || 'classic')
+      setShowExportModal(true)
     },
     [activeResume],
   )
+
+  const confirmExport = useCallback(async () => {
+    if (!activeResume || !window.electronAPI) return
+    setShowExportModal(false)
+    try {
+      if (exportFormat === 'PDF' || exportFormat === 'HTML') {
+        // Use styled export with template
+        const { renderStyledHTML } = await import('@/lib/export/styled-export')
+        const html = renderStyledHTML(activeResume as any, exportTemplate)
+        const key = exportFormat === 'PDF' ? 'exportStyledPDF' : 'exportStyledHTML'
+        const result = await (window.electronAPI as any)[key](html)
+        if (result.success) toast.success(`导出 ${exportFormat} 成功`)
+        else if (result.error) toast.error(result.error)
+      } else {
+        // Other formats (DOCX, TXT) — original flow
+        const key = `export${exportFormat}` as keyof typeof window.electronAPI
+        const fn = window.electronAPI[key]
+        if (typeof fn !== 'function') return
+        const result = await (fn as (data: unknown) => Promise<any>)({ ...activeResume, template: exportTemplate })
+        if (result.success) toast.success(`导出 ${exportFormat} 成功`)
+        else if (result.error) toast.error(result.error)
+      }
+    } catch (err) {
+      toast.error(`导出 ${exportFormat} 失败: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }, [activeResume, exportFormat, exportTemplate])
 
   // ==========================================================================
   // Render: No active resume → sidebar list + EmptyState
@@ -1140,6 +1173,40 @@ const Editor = () => {
                   className="px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
                 >
                   删除
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Export Template Picker ─── */}
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl w-[480px] max-w-[90vw] flex flex-col">
+              <div className="px-6 py-4 border-b">
+                <h3 className="font-semibold text-slate-800">选择导出模板</h3>
+              </div>
+              <div className="p-6 max-h-[400px] overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2">
+                  {exportTemplates.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setExportTemplate(t.id)}
+                      className={`px-4 py-3 rounded-xl text-sm text-left border transition-all ${
+                        exportTemplate === t.id
+                          ? 'border-teal-400 bg-teal-50 text-teal-700 ring-2 ring-teal-200'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                      }`}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50 rounded-b-xl">
+                <button onClick={() => setShowExportModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
+                <button onClick={confirmExport} className="px-5 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600">
+                  导出 {exportFormat}
                 </button>
               </div>
             </div>

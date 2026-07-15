@@ -135,6 +135,9 @@ interface ElectronAPI {
   /** Export resume as styled HTML using templates */
   exportStyledHTML: (html: string) => Promise<{ success: boolean; filePath?: string; error?: string; canceled?: boolean }>
 
+  // ── PDF extraction (main process avoids Vite bundling issues) ──
+  extractPdfText: (buffer: ArrayBuffer) => Promise<string>
+
   // ── Dashboard tracking ──
   getTrackingStats: () => Promise<{ atsScore: number | null; deliveryCount: number; interviewCount: number }>
   saveATS: (score: number) => Promise<{ ok: boolean }>

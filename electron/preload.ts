@@ -148,6 +148,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   logout: () => ipcRenderer.invoke('auth:logout'),
   changePassword: (oldPassword: string, newPassword: string) => ipcRenderer.invoke('auth:changePassword', oldPassword, newPassword),
 
+  // ── PDF extraction ────────────────────────────────────────
+  extractPdfText: (buffer: ArrayBuffer) => ipcRenderer.invoke('pdf:extractText', buffer),
+
   // ── Dashboard tracking ─────────────────────────────────────
   getTrackingStats: () => ipcRenderer.invoke('tracking:getStats'),
   saveATS: (score: number) => ipcRenderer.invoke('tracking:saveATS', score),
