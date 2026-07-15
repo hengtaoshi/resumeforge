@@ -64,8 +64,8 @@ ipcMain.handle('app:version', () => app.getVersion())
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1280, height: 800,
-    minWidth: 960, minHeight: 600,
+    width: 1680, height: 1000,
+    minWidth: 1400, minHeight: 600,
     frame: false, titleBarStyle: 'hidden',
     backgroundColor: '#F8F7F4', show: false,
     icon: path.join(__dirname, '../build/icon.png'),

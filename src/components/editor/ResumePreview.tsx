@@ -1,24 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { Resume as EditorResume } from '@/types/resume'
 import { convertResumeForTemplate } from '@/lib/resume-converter'
-import { initTemplates, getRegisteredTemplates, getTemplate, type RegisteredTemplate } from './template-registry'
+import { initTemplates, getTemplate } from './template-registry'
 
 interface Props {
   resume: EditorResume
 }
 
 export default function ResumePreview({ resume }: Props) {
-  const [templates, setTemplates] = useState<RegisteredTemplate[]>([])
-  const [selectedId, setSelectedId] = useState('classic')
   const [loaded, setLoaded] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
   useEffect(() => {
-    initTemplates().then(() => {
-      setTemplates(getRegisteredTemplates())
-      setLoaded(true)
-    })
+    initTemplates().then(() => setLoaded(true))
   }, [])
 
   // Calculate scale to fit A4 width inside container
@@ -33,6 +28,7 @@ export default function ResumePreview({ resume }: Props) {
     return () => observer.disconnect()
   }, [])
 
+  const selectedId = resume.template || 'classic'
   const templateDef = getTemplate(selectedId)
   const templateData = convertResumeForTemplate(resume)
   const TemplateComponent = templateDef?.component
@@ -47,19 +43,8 @@ export default function ResumePreview({ resume }: Props) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Template selector */}
-      <div className="px-3 py-2 border-b">
-        <select
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-          className="w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
-        >
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} — {t.description}
-            </option>
-          ))}
-        </select>
+      <div className="px-3 py-2 border-b text-xs text-gray-500">
+        当前模板: <span className="font-medium text-gray-700">{templateDef?.name || selectedId}</span>
       </div>
 
       {/* A4 preview area */}

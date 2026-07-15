@@ -6,8 +6,10 @@
  */
 
 import { createRoot } from 'react-dom/client'
+import { flushSync } from 'react-dom'
 import React from 'react'
 import { getTemplate } from '@/lib/jadeai/templates'
+import { TAILWIND_CSS } from './tailwind-css'
 import type { Resume as AppResume, ResumeSection as AppSection } from '@/types/resume'
 import type {
   Resume as JadeResume,
@@ -153,19 +155,17 @@ export function convertResume(r: AppResume): JadeResume {
 
 // ─── HTML rendering ──────────────────────────────────────────────────────────
 
-const TAILWIND_CDN = '<script src="https://cdn.tailwindcss.com"></script>'
+const TAILWIND_INLINE = `<style>${TAILWIND_CSS}</style>`
 
 const PAGE_CSS = `
 @page { margin: 0; size: A4; }
 @media print {
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .no-print { display: none !important; }
 }
 * { box-sizing: border-box; }
 body {
   margin: 0; padding: 0;
   font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  background: #e5e7eb;
 }
 `
 
@@ -180,8 +180,9 @@ export function renderStyledHTML(resume: AppResume, templateId: string = 'classi
     el.style.display = 'none'
     document.body.appendChild(el)
     const root = createRoot(el)
-    root.render(React.createElement(tpl.component, { resume: jadeResume }))
-    // 同步提取 HTML（createRoot.render 在当前微任务中同步提交 DOM）
+    flushSync(() => {
+      root.render(React.createElement(tpl.component, { resume: jadeResume }))
+    })
     content = el.innerHTML
     root.unmount()
     document.body.removeChild(el)
@@ -197,14 +198,10 @@ export function renderStyledHTML(resume: AppResume, templateId: string = 'classi
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${escapeHtml(resume.title || 'Resume')}</title>
 <style>${PAGE_CSS}</style>
-${TAILWIND_CDN}
+${TAILWIND_INLINE}
 </head>
 <body>
-<div class="flex justify-center py-8 no-print">
-  <div class="shadow-xl" style="width:210mm;min-height:297mm;background:#fff;overflow:hidden">
-    ${content}
-  </div>
-</div>
+${content}
 </body>
 </html>`
 }

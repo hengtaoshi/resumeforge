@@ -1,5 +1,7 @@
 import { BrowserWindow, ipcMain, dialog } from 'electron'
 import fs from 'fs'
+import path from 'path'
+import os from 'os'
 
 interface ResumeData {
   id: string; title: string
@@ -147,13 +149,20 @@ async function doStyledExport(
     }
 
     // PDF — render in headless BrowserWindow
+    const tmpFile = path.join(os.tmpdir(), `resumeforge-export-${Date.now()}.html`)
+    fs.writeFileSync(tmpFile, html, 'utf-8')
     const win = new BrowserWindow({
       show: false, width: 800, height: 1100,
       webPreferences: { contextIsolation: true, nodeIntegration: false },
     })
-    await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+    const proxy = process.env.HTTPS_PROXY || process.env.https_proxy || ''
+    if (proxy) {
+      await win.webContents.session.setProxy({ proxyRules: proxy })
+    }
+    await win.loadFile(tmpFile)
     const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
     win.close()
+    try { fs.unlinkSync(tmpFile) } catch {}
     fs.writeFileSync(result.filePath, pdfBuffer)
     return { success: true, filePath: result.filePath }
   } catch (err: any) {

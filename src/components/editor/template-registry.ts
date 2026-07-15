@@ -23,7 +23,7 @@ export function getTemplate(id: string): RegisteredTemplate | undefined {
 }
 
 export async function initTemplates(): Promise<void> {
-  const all = await Promise.all([
+  const results = await Promise.allSettled([
     import('@/lib/jadeai/templates/academic').then(m => m.AcademicTemplate),
     import('@/lib/jadeai/templates/architect').then(m => m.ArchitectTemplate),
     import('@/lib/jadeai/templates/artistic').then(m => m.ArtisticTemplate),
@@ -129,5 +129,7 @@ export async function initTemplates(): Promise<void> {
     { id: 'zigzag', name: '锯齿', description: '锯齿布局，动感活泼' },
   ]
 
-  all.forEach((comp, i) => registerTemplate({ ...defs[i], component: comp }))
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') registerTemplate({ ...defs[i], component: r.value })
+  })
 }
