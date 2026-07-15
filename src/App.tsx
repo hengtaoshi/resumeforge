@@ -11,6 +11,7 @@ import AIChat from './pages/AIChat'
 import CareerTools from './pages/CareerTools'
 import JobScanner from './pages/JobScanner'
 import Kanban from './pages/Kanban'
+import InterviewTips from './pages/InterviewTips'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -41,6 +42,7 @@ function MainApp() {
     tools: <CareerTools onPageChange={(p) => setActivePage(p as PageKey)} />,
     kanban: <Kanban />,
     scanner: <JobScanner onPageChange={(p) => setActivePage(p as PageKey)} />,
+    interview: <InterviewTips />,
     settings: <Settings />,
   }
 

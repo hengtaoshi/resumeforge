@@ -890,6 +890,7 @@ const Editor = () => {
 
   // ── Parse imported text with AI ──
   const handleParseText = useCallback(async () => {
+    if (!isAIConfigured()) { toast.warning('请先在设置中配置 AI 服务'); return }
     const text = importText.trim()
     if (!text) { toast.warning('没有可解析的文本'); return }
     setImportLoading(true)
