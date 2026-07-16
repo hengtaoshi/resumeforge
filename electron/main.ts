@@ -10,8 +10,8 @@ import './export'
 let mainWindow: BrowserWindow | null = null
 
 // ── autoUpdater ──────────────────────────────────────────────
-autoUpdater.autoDownload = false
-autoUpdater.autoInstallOnAppQuit = false
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
 
 function sendUpdateStatus(status: string, payload?: unknown) {
   mainWindow?.webContents.send('update-status', { status, ...(payload as Record<string, unknown>) })

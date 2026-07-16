@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useScanStore, runAnalysis } from '@/stores/scanStore';
 import type { ScannedJob, JobPlatform, MatchScore, SkillGap } from '@/stores/scanStore';
 import toast from '@/lib/toast';
@@ -340,6 +340,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   </button>
                 </div>
               )}
+
             </div>
           </div>
 
@@ -362,6 +363,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
               </div>
             </div>
           )}
+
         </div>
 
         {/* ============ RIGHT PANEL: Job List + Detail ============ */}

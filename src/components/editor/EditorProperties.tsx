@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { Resume } from '@/types/resume'
 import { FONT_OPTIONS, VERSION_OPTIONS } from './SectionRenderers'
+import NarrativeAuditModal from './NarrativeAuditModal'
 import toast from '@/lib/toast'
 
 interface Props {
@@ -29,6 +30,7 @@ const CATEGORY_ORDER = ['经典通用', '专业商务', '创意视觉', '技术�
 export default function EditorProperties(props: Props) {
   const { width, activeResume, templateOptions, updateResume, handleExport } = props
   const [activeCategory, setActiveCategory] = useState('经典通用')
+  const [showNarrative, setShowNarrative] = useState(false)
 
   return (
     <div className="border-l bg-white flex flex-col shrink-0" style={{ width: width || 280 }}>
@@ -80,6 +82,13 @@ export default function EditorProperties(props: Props) {
 
         <div className="border-t" />
 
+        <button onClick={() => setShowNarrative(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>简历叙事分析
+        </button>
+
+        <div className="border-t" />
+
         <div>
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">导出</label>
           <button onClick={() => handleExport('PDF')}
@@ -88,6 +97,8 @@ export default function EditorProperties(props: Props) {
           </button>
         </div>
       </div>
+
+      {showNarrative && <NarrativeAuditModal resume={activeResume} onClose={() => setShowNarrative(false)} />}
     </div>
   )
 }

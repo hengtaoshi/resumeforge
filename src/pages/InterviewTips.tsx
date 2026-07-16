@@ -1,5 +1,14 @@
 import { useState } from 'react'
 
+const COMPANY_STYLES: Record<string, { focus: string; tips: string[] }> = {
+  通用: { focus: '通用面试技巧', tips: [] },
+  '字节跳动': { focus: '高并发·始终创业·数据驱动', tips: ['字节面试通常4-5轮，技术面深度高', '看重"始终创业"——主动性和承担意愿', '数据驱动：回答尽量用数据说话', '系统设计面常考高并发、海量数据场景', '行为面问"最有挑战的项目"出现频率极高'] },
+  '阿里巴巴': { focus: '体系化思考·方法论·复盘', tips: ['阿里重视"体系化思考"——不只讲做了什么，要讲为什么做、怎么做', '价值观考察贯穿全程，了解"六脉神剑"', '技术面关注底层原理和边界条件', '复盘思维：主动讲项目中的失败和改进', '多轮交叉面，抗压能力很重要'] },
+  腾讯: { focus: '产品思维·用户导向·长线', tips: ['腾讯非常看重产品思维，即使是技术岗', '回答体现对用户体验的思考', '长线思维：讲项目时展示技术规划', '技术面常有"开放设计题"', '不强调加班，更看重产出质量'] },
+  美团: { focus: '实战落地·执行力', tips: ['美团重视实战能力，少谈理论多讲落地', '关注ROI意识——你做的东西带来了什么价值', '技术面偏实战，结合具体业务场景提问', '"长期有耐心"是价值观关键词', '经验匹配度很重要，突出相关领域经验'] },
+  '外企(微软/谷歌/亚马逊)': { focus: '英语·行为面试·通用能力', tips: ['亚马逊：准备Leadership Principles行为面试', '谷歌：通用认知能力(gCA)面试+算法', '微软：技术面深度高，看重解决问题思路', '英语面试：准备英文自我介绍和项目介绍', '行为面试用STAR/SOAR结构描述项目'] },
+}
+
 type Question = {
   q: string
   a: string
@@ -183,13 +192,36 @@ function QuestionCard({ q, idx }: { q: Question; idx: number }) {
 
 export default function InterviewTips() {
   const [activeCat, setActiveCat] = useState(0)
+  const [activeCompany, setActiveCompany] = useState('通用')
   const cat = DATA[activeCat]
+  const companyStyle = COMPANY_STYLES[activeCompany]
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-800 mb-2">面试技巧</h1>
         <p className="text-sm text-slate-500">非技术类面试高频问题应答策略，基于真实面试经验整理</p>
+      </div>
+
+      {/* Company style selector */}
+      <div className="mb-6">
+        <p className="text-xs font-medium text-slate-500 mb-2">企业面试风格</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.keys(COMPANY_STYLES).map(name => (
+            <button key={name} onClick={() => setActiveCompany(name)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                activeCompany === name ? 'bg-sky-500 text-white border-sky-500' : 'border-slate-200 text-slate-500 hover:border-sky-300'
+              }`}>{name}</button>
+          ))}
+        </div>
+        {activeCompany !== '通用' && (
+          <div className="mt-3 p-4 bg-sky-50 rounded-xl">
+            <p className="text-sm font-semibold text-sky-700 mb-1">{activeCompany} — {companyStyle.focus}</p>
+            <ul className="space-y-1">
+              {companyStyle.tips.map((t, i) => <li key={i} className="text-xs text-sky-600 flex items-start gap-2"><span className="mt-1 w-1 h-1 rounded-full bg-sky-400 flex-shrink-0" />{t}</li>)}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { askAI, isAIConfigured } from '@/lib/ai/stream';
+import { extractJSON } from '@/lib/ai/provider';
 import toast from '@/lib/toast';
 
 interface Offer {
@@ -10,6 +12,8 @@ interface Offer {
   bonus: number;
   location: string;
   notes: string;
+  industry: string;
+  growth: number;
 }
 
 function genId(): string {
@@ -32,6 +36,11 @@ const SalaryCompare: React.FC = () => {
   const [bonus, setBonus] = useState('');
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [growth, setGrowth] = useState(3);
+  const [viewMonthly, setViewMonthly] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<string | null>(null);
 
   const resetForm = () => {
     setCompany('');
@@ -41,6 +50,8 @@ const SalaryCompare: React.FC = () => {
     setBonus('');
     setLocation('');
     setNotes('');
+    setIndustry('');
+    setGrowth(3);
   };
 
   const handleAdd = () => {
@@ -61,6 +72,8 @@ const SalaryCompare: React.FC = () => {
       bonus: bonusNum,
       location: location.trim(),
       notes: notes.trim(),
+      industry: industry.trim(),
+      growth,
     };
 
     setOffers((prev) => [...prev, offer]);
@@ -123,6 +136,16 @@ const SalaryCompare: React.FC = () => {
               <label className={labelCls}>地点</label>
               <input className={inputCls} value={location} onChange={(e) => setLocation(e.target.value)} placeholder="城市" />
             </div>
+            <div>
+              <label className={labelCls}>行业</label>
+              <input className={inputCls} value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="互联网/金融/制造" />
+            </div>
+            <div>
+              <label className={labelCls}>成长前景</label>
+              <select className={inputCls} value={growth} onChange={(e) => setGrowth(Number(e.target.value))}>
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{'⭐'.repeat(n)}{n <= 2 ? ' 一般' : n === 3 ? ' 中等' : n === 4 ? ' 良好' : ' 优秀'}</option>)}
+              </select>
+            </div>
             <div className="sm:col-span-2">
               <label className={labelCls}>备注</label>
               <input className={inputCls} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="其他说明" />
@@ -144,6 +167,37 @@ const SalaryCompare: React.FC = () => {
         <div className="text-center py-16 text-slate-400">
           <p className="text-sm">还没有添加 Offer，点击上方按钮开始对比薪资</p>
         </div>
+      )}
+
+      {/* toggle + AI */}
+      {offers.length > 1 && (
+        <div className="flex items-center gap-3 mb-4">
+          <button onClick={() => setViewMonthly(v => !v)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMonthly ? 'bg-amber-500 text-white border-amber-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            {viewMonthly ? '年薪' : '月薪'}
+          </button>
+          <button onClick={async () => {
+            if (!isAIConfigured()) { toast.warning('请先配置 AI'); return }
+            setAiLoading(true)
+            try {
+              const text = await askAI([{ role: 'user', content: `你是一位置业顾问。分析以下 Offer 并给出推荐建议（中文，100-200字）：
+
+${offers.map(o => `- ${o.company} ${o.role}: 年包 ${(o.base+o.stock+o.bonus).toLocaleString()}元, 行业=${o.industry || '未知'}, 成长${o.growth}/5星`).join('\n')}
+
+按综合价值排序推荐。`}])
+              setAiResult(text)
+            } catch (e: any) { toast.error(e?.message || '分析失败') }
+            finally { setAiLoading(false) }
+          }} disabled={aiLoading}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-500 hover:bg-sky-600 disabled:bg-sky-300 text-white transition-colors flex items-center gap-1.5">
+            {aiLoading ? <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
+            AI 对比分析
+          </button>
+        </div>
+      )}
+
+      {aiResult && (
+        <div className="mb-4 p-4 bg-sky-50 rounded-xl text-sm text-slate-700">{aiResult}</div>
       )}
 
       {/* comparison table */}
@@ -172,13 +226,36 @@ const SalaryCompare: React.FC = () => {
                   ))}
                 </tr>
               ))}
-              {/* total row */}
+              {/* total (annual) */}
               <tr className="bg-amber-50/50">
-                <td className="px-4 py-3 font-semibold text-slate-700">总计</td>
+                <td className="px-4 py-3 font-semibold text-slate-700">年包总计</td>
                 {offers.map((o) => (
                   <td key={o.id} className="px-4 py-3 font-bold text-amber-600">
                     {formatCurrency(o.base + o.stock + o.bonus)}
                   </td>
+                ))}
+              </tr>
+              {/* monthly */}
+              <tr className="bg-amber-50/50 border-t border-amber-100">
+                <td className="px-4 py-3 font-semibold text-slate-700">{viewMonthly ? '月均' : '月均(估)'}</td>
+                {offers.map((o) => (
+                  <td key={o.id} className="px-4 py-3 font-bold text-amber-600">
+                    {formatCurrency(Math.round((o.base + o.stock + o.bonus) / 12))}
+                  </td>
+                ))}
+              </tr>
+              {/* industry */}
+              <tr className="border-b border-slate-50">
+                <td className="px-4 py-3 text-slate-500">行业</td>
+                {offers.map((o) => (
+                  <td key={o.id} className="px-4 py-3 text-slate-600">{o.industry || '-'}</td>
+                ))}
+              </tr>
+              {/* growth */}
+              <tr className="border-b border-slate-50">
+                <td className="px-4 py-3 text-slate-500">成长前景</td>
+                {offers.map((o) => (
+                  <td key={o.id} className="px-4 py-3 text-slate-600">{'⭐'.repeat(o.growth)}</td>
                 ))}
               </tr>
               {/* location row */}

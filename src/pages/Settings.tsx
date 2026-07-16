@@ -84,14 +84,27 @@ const Settings: React.FC = () => {
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-cpu text-brand-500" /> AI 提供商
           </h2>
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {providerOrder.map(p => (
-              <button key={p} onClick={() => setProvider(p)}
-                className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
-                  aiProvider === p ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
-                }`}>{PROVIDER_LABELS[p]}</button>
-            ))}
-          </div>
+          {(() => {
+            const COMMON = ['openai', 'anthropic', 'deepseek', 'qwen']
+            const [showAll, setShowAll] = useState(false)
+            const visible = showAll ? providerOrder : providerOrder.filter(p => COMMON.includes(p))
+            return <>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {visible.map(p => (
+                  <button key={p} onClick={() => setProvider(p)}
+                    className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
+                      aiProvider === p ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
+                    }`}>{PROVIDER_LABELS[p]}</button>
+                ))}
+                {!showAll && providerOrder.length > COMMON.length && (
+                  <button onClick={() => setShowAll(true)}
+                    className="px-2.5 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-slate-600 border border-dashed border-slate-200 hover:border-slate-300">
+                    +{providerOrder.length - COMMON.length} 更多
+                  </button>
+                )}
+              </div>
+            </>
+          })()}
           <div className="flex items-center gap-2 flex-wrap">
             <select value={model} onChange={e => setModel(e.target.value)}
               className="text-sm px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">

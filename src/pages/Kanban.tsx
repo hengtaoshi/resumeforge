@@ -193,6 +193,7 @@ export default function Kanban() {
   const [items, setItems] = useState<DeliveryItem[]>([])
   const [activeItem, setActiveItem] = useState<DeliveryItem | null>(null)
   const [detailItem, setDetailItem] = useState<DeliveryItem | null>(null)
+  const [viewMode, setViewMode] = useState<'kanban' | 'funnel'>('kanban')
 
   const load = useCallback(() => {
     window.electronAPI!.getDeliveries()
@@ -245,27 +246,90 @@ export default function Kanban() {
           <i className="ph-light ph-columns text-sm" />
           求职看板
         </span>
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">求职进度看板</h1>
-        <p className="text-sm text-slate-500">拖拽卡片到不同列来更新投递状态</p>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-slate-800 mb-1">求职进度看板</h1>
+          <button onClick={() => setViewMode(v => v === 'kanban' ? 'funnel' : 'kanban')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMode === 'funnel' ? 'bg-teal-500 text-white border-teal-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            {viewMode === 'funnel' ? '看板视图' : '漏斗分析'}
+          </button>
+        </div>
+        <p className="text-sm text-slate-500">{viewMode === 'kanban' ? '拖拽卡片到不同列来更新投递状态' : '投递转化率分析'}</p>
       </div>
 
-      {/* Board */}
-      <div className="px-8 pb-8 h-[calc(100vh-200px)]">
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex gap-4 h-full">
-            {(Object.keys(COLUMNS) as DeliveryStatus[]).map(status => (
-              <KanbanColumn key={status} status={status} items={grouped[status]} onCardClick={setDetailItem} />
-            ))}
-          </div>
-          <DragOverlay>
-            {activeItem ? <KanbanCard item={activeItem} isDragOverlay /> : null}
-          </DragOverlay>
-        </DndContext>
-      </div>
+      {/* Board / Funnel */}
+      {viewMode === 'kanban' ? (
+        <div className="px-8 pb-8 h-[calc(100vh-200px)]">
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className="flex gap-4 h-full">
+              {(Object.keys(COLUMNS) as DeliveryStatus[]).map(status => (
+                <KanbanColumn key={status} status={status} items={grouped[status]} onCardClick={setDetailItem} />
+              ))}
+            </div>
+            <DragOverlay>
+              {activeItem ? <KanbanCard item={activeItem} isDragOverlay /> : null}
+            </DragOverlay>
+          </DndContext>
+        </div>
+      ) : (
+        <div className="px-8 pb-8">
+          <FunnelView items={items} />
+        </div>
+      )}
 
       {detailItem && (
         <DetailModal item={detailItem} onClose={() => setDetailItem(null)} onUpdated={load} />
       )}
+    </div>
+  )
+}
+
+/* ---------- funnel view ---------- */
+
+function FunnelView({ items }: { items: DeliveryItem[] }) {
+  const total = items.length
+  const interviewing = items.filter(i => i.status === 'interviewing').length
+  const offer = items.filter(i => i.status === 'offer').length
+  const rejected = items.filter(i => i.status === 'rejected').length
+  const active = total - rejected
+
+  const stages = [
+    { label: '已投递', count: total, pct: 100, bar: '100%', color: 'bg-sky-400' },
+    { label: '简历通过', count: active, pct: total ? Math.round(active / total * 100) : 0, bar: total ? `${active / total * 100}%` : '0%', color: 'bg-blue-400' },
+    { label: '获得面试', count: interviewing + offer, pct: total ? Math.round((interviewing + offer) / total * 100) : 0, bar: total ? `${(interviewing + offer) / total * 100}%` : '0%', color: 'bg-teal-400' },
+    { label: '拿到 Offer', count: offer, pct: total ? Math.round(offer / total * 100) : 0, bar: total ? `${offer / total * 100}%` : '0%', color: 'bg-emerald-400' },
+  ]
+  const stepRates = [
+    { from: '已投递 → 简历通过', rate: total ? `${Math.round(active / total * 100)}%` : '-' },
+    { from: '简历通过 → 面试', rate: active ? `${Math.round((interviewing + offer) / active * 100)}%` : '-' },
+    { from: '面试 → Offer', rate: (interviewing + offer) ? `${Math.round(offer / (interviewing + offer) * 100)}%` : '-' },
+  ]
+
+  return (
+    <div className="max-w-2xl space-y-6 py-4">
+      <div className="space-y-4">
+        {stages.map((s, i) => (
+          <div key={i}>
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="font-medium text-slate-700">{s.label}</span>
+              <span className="text-slate-400">{s.count} 个 ({s.pct}%)</span>
+            </div>
+            <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full ${s.color} transition-all`} style={{ width: s.bar }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="border-t pt-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase mb-3">各阶段转化率</p>
+        <div className="grid grid-cols-3 gap-4">
+          {stepRates.map((r, i) => (
+            <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 text-center">
+              <p className="text-2xl font-bold text-teal-600">{r.rate}</p>
+              <p className="text-xs text-slate-500 mt-1">{r.from}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

@@ -5,8 +5,9 @@ import CompanyWatchlist from './career/CompanyWatchlist';
 import InterviewCalendar from './career/InterviewCalendar';
 import NetworkRecommend from './career/NetworkRecommend';
 import KeywordOptimize from './career/KeywordOptimize';
+import CareerAssess from './career/CareerAssess';
 
-type ToolName = '人脉推荐' | '关键词优化' | '面试技巧' | '薪资对比' | '公司关注列表' | '面试日历'
+type ToolName = '人脉推荐' | '关键词优化' | '面试技巧' | '薪资对比' | '公司关注列表' | '面试日历' | '职业定位'
 
 const TOOLS: { name: ToolName; icon: string; desc: string; iconBg: string; iconColor: string }[] = [
   { name: '薪资对比', icon: 'ph-currency-circle-dollar', desc: '对比不同 Offer 的薪资构成，包括基本薪资、股票期权和奖金，帮助你做出最优选择。', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500' },
@@ -15,6 +16,7 @@ const TOOLS: { name: ToolName; icon: string; desc: string; iconBg: string; iconC
   { name: '人脉推荐', icon: 'ph-users-three', desc: '基于你的行业和职业目标，智能推荐值得建立联系的业内人士。', iconBg: 'bg-violet-50', iconColor: 'text-violet-500' },
   { name: '关键词优化', icon: 'ph-magnifying-glass', desc: '分析职位描述关键词，优化简历内容以提升 ATS 匹配度。', iconBg: 'bg-blue-50', iconColor: 'text-blue-500' },
   { name: '面试技巧', icon: 'ph-chat-circle-text', desc: '非技术类面试高频问题应答策略，覆盖离职原因、优缺点、团队冲突等场景。', iconBg: 'bg-teal-50', iconColor: 'text-teal-500' },
+  { name: '职业定位', icon: 'ph-compass', desc: '基于你的职业背景和技能，AI 推荐适合的发展方向并分析能力短板。', iconBg: 'bg-sky-50', iconColor: 'text-sky-500' },
 ]
 
 function ToolShell({ title, children, onBack }: { title: string; children: React.ReactNode; onBack: () => void }) {
@@ -56,6 +58,9 @@ const CareerTools: React.FC = () => {
         <InterviewTips />
       </ToolShell>
     )
+  }
+  if (activeTool === '职业定位') {
+    return <ToolShell title="职业定位" onBack={back}><CareerAssess /></ToolShell>
   }
 
   return (
