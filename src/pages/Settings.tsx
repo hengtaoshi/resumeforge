@@ -54,7 +54,6 @@ const Settings: React.FC = () => {
     setApiKey, setProvider, setModel, toggleTheme, setLanguage, setDefaultTemplate, setAutoSave, setExportLimit } = useSettingsStore();
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [showAllProviders, setShowAllProviders] = useState(false);
   const currentKey = apiKeys[aiProvider];
 
   // Apply dark mode class to html element
@@ -82,15 +81,13 @@ const Settings: React.FC = () => {
         <h1 className="text-xl font-bold font-display text-slate-800">设置</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 max-w-4xl">
-        <div className="card-doc p-3 col-span-2">
+      <div className="grid grid-cols-3 gap-2">
+        <div className="card-doc p-2 col-span-3">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-cpu text-brand-500" /> AI 提供商
           </h2>
           {(() => {
-            const COMMON = ['openai', 'anthropic', 'deepseek', 'qwen']
-            const all = providerOrder.map((p, i) => ({ p, i, hidden: !showAllProviders && !COMMON.includes(p) }))
-            const total = all.length
+            const total = providerOrder.length
             const selectedIdx = providerOrder.indexOf(aiProvider)
             return <>
               <style>{`
@@ -105,7 +102,6 @@ const Settings: React.FC = () => {
                   height: calc(100% / ${total}); width: 100%;
                   background: linear-gradient(0deg,transparent 0%,#D4875E 50%,transparent 100%);
                   transition: transform 0.5s cubic-bezier(0.37,1.95,0.66,0.56);
-                  transform: translateY(${selectedIdx * 100}%);
                   position: relative;
                 }
                 .radio-glider-inner::before {
@@ -119,9 +115,9 @@ const Settings: React.FC = () => {
                 .radio-item input:checked + span { color: #D4875E; font-weight: 600; }
               `}</style>
               <div className="relative pl-5">
-                <div className="radio-glider"><div className="radio-glider-inner" /></div>
-                {all.map(({ p, i, hidden }) => (
-                  <label key={p} className={`radio-item flex items-center gap-2 py-1.5 ${hidden ? 'hidden' : ''}`}>
+                <div className="radio-glider"><div className="radio-glider-inner" style={{ transform: `translateY(${selectedIdx * 100}%)` }} /></div>
+                {providerOrder.map(p => (
+                  <label key={p} className="radio-item flex items-center gap-2 py-1.5">
                     <input type="radio" name="ai-provider" checked={aiProvider === p}
                       onChange={() => setProvider(p)} className="hidden" />
                     <span className="text-sm text-slate-500 dark:text-slate-400 transition-all duration-300 cursor-pointer">
@@ -129,12 +125,6 @@ const Settings: React.FC = () => {
                     </span>
                   </label>
                 ))}
-                {!showAllProviders && providerOrder.length > COMMON.length && (
-                  <button onClick={() => setShowAllProviders(true)}
-                    className="text-xs text-slate-400 hover:text-slate-600 mt-1">
-                    +{providerOrder.length - COMMON.length} 更多
-                  </button>
-                )}
               </div>
             </>
           })()}
@@ -143,7 +133,7 @@ const Settings: React.FC = () => {
               className="text-sm px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">
               {(MODELS[aiProvider] || []).map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
             </select>
-            <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <div className="relative flex-1 min-w-[200px]">
               <input type={showKey ? 'text' : 'password'} value={currentKey || ''}
                 onChange={e => setApiKey(aiProvider, e.target.value)}
                 placeholder={`输入 ${PROVIDER_LABELS[aiProvider]} API Key`}
@@ -159,7 +149,7 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
-        <div className="card-doc p-3">
+        <div className="card-doc p-2">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-plug text-brand-500" /> 连接状态
           </h2>
@@ -176,7 +166,7 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
-        <div className="card-doc p-3">
+        <div className="card-doc p-2">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-palette text-brand-500" /> 主题与偏好
           </h2>
@@ -217,17 +207,16 @@ const Settings: React.FC = () => {
               </select>
             </div>
           </div>
+        </div>
 
-          {/* 账户安全 */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5 mt-6">
-            <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              账户安全
-            </h2>
-            <ChangePassword />
-          </div>
+        <div className="card-doc p-2">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            账户安全
+          </h2>
+          <ChangePassword />
         </div>
       </div>
     </div>
