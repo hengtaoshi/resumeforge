@@ -55,21 +55,21 @@ export default function NarrativeAuditModal({ resume, onClose }: { resume: Resum
           {!result && !loading && (
             <div className="text-center py-8 text-slate-400 text-sm space-y-3">
               <p>AI 将分析你的简历在讲什么职业故事</p>
-              <button onClick={handleAnalyze} className="px-6 py-2.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg text-sm font-medium transition-colors">
+              <button onClick={handleAnalyze} className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-lg text-sm font-medium transition-colors">
                 开始分析
               </button>
             </div>
           )}
           {loading && (
             <div className="flex flex-col items-center py-8 gap-3">
-              <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-slate-400">正在分析叙事结构...</p>
             </div>
           )}
           {result && (
             <>
               <div className="bg-teal-50 rounded-lg p-4">
-                <p className="text-xs text-teal-600 font-medium mb-1">职业故事类型</p>
+                <p className="text-xs text-[#D4875E] font-medium mb-1">职业故事类型</p>
                 <p className="text-lg font-bold text-slate-800">{result.storyType}</p>
                 <p className="text-sm text-slate-600 mt-1">{result.storyLabel}</p>
               </div>

@@ -12,7 +12,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow duration-200">
+    <div className="card-doc p-5 flex items-center gap-4">
       <div
         className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl ${color}`}
       >
@@ -34,7 +34,7 @@ interface ResumeCardProps {
 
 const ResumeCard: React.FC<ResumeCardProps> = ({ title, updatedAt, onClick }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow duration-200 cursor-pointer group" onClick={onClick}>
+    <div className="card-doc p-5 transition-all duration-300 cursor-pointer group" onClick={onClick}>
       <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center text-brand-500 mb-4 group-hover:bg-brand-100 transition-colors">
         <i className="ph-light ph-file-text text-xl" />
       </div>
@@ -104,7 +104,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F4F2ED' }}>
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">
@@ -138,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
               icon="ph-gauge"
               label="ATS评分"
               value={atsScore ?? '-'}
-              color="bg-sky-50 text-sky-500"
+              color="bg-[rgba(212,135,94,0.10)] text-[#D4875E]"
             />
             <div onClick={() => setShowDelivery(true)} className="cursor-pointer">
               <StatCard
@@ -175,15 +175,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
 
           {/* Resume grid or empty state */}
           {resumeCount === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-12 flex flex-col items-center justify-center text-center">
+            <div className="card-doc p-12 flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mb-4">
                 <i className="ph-light ph-file-text text-3xl text-brand-400" />
               </div>
               <p className="text-sm text-slate-400 mb-4">还没有简历，创建第一份简历开始</p>
               <button
                 onClick={handleCreateResume}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200"
-                style={{ backgroundColor: '#14b8a6' }}
+                className="btn-pill primary inline-flex items-center gap-1.5"
               >
                 <i className="ph-light ph-plus text-base" />
                 新建简历
@@ -208,7 +207,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
 
         {/* Right sidebar */}
         <div className="w-72 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="card-doc p-5">
             <div className="flex items-center justify-between mb-4">
               <h3
                 className="font-bold text-sm"

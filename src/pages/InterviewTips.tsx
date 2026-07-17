@@ -160,7 +160,7 @@ function QuestionCard({ q, idx }: { q: Question; idx: number }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
       >
-        <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 text-xs font-bold flex items-center justify-center shrink-0">
+        <span className="w-6 h-6 rounded-full bg-[rgba(212,135,94,0.10)] text-[#D4875E] text-xs font-bold flex items-center justify-center shrink-0">
           {idx + 1}
         </span>
         <span className="flex-1 text-sm font-medium text-slate-800">{q.q}</span>
@@ -171,7 +171,7 @@ function QuestionCard({ q, idx }: { q: Question; idx: number }) {
       {open && (
         <div className="px-5 pb-5 space-y-3">
           <div>
-            <div className="text-xs font-semibold text-teal-600 mb-1">推荐回答</div>
+            <div className="text-xs font-semibold text-[#D4875E] mb-1">推荐回答</div>
             <div className="text-sm text-slate-700 bg-teal-50 rounded-lg p-3 leading-relaxed">{q.a}</div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -210,15 +210,15 @@ export default function InterviewTips() {
           {Object.keys(COMPANY_STYLES).map(name => (
             <button key={name} onClick={() => setActiveCompany(name)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                activeCompany === name ? 'bg-sky-500 text-white border-sky-500' : 'border-slate-200 text-slate-500 hover:border-sky-300'
+                activeCompany === name ? 'bg-[#D4875E] text-white border-[#D4875E]' : 'border-slate-200 text-slate-500 hover:border-[rgba(212,135,94,0.20)]'
               }`}>{name}</button>
           ))}
         </div>
         {activeCompany !== '通用' && (
-          <div className="mt-3 p-4 bg-sky-50 rounded-xl">
-            <p className="text-sm font-semibold text-sky-700 mb-1">{activeCompany} — {companyStyle.focus}</p>
+          <div className="mt-3 p-4 bg-[rgba(212,135,94,0.10)] rounded-xl">
+            <p className="text-sm font-semibold text-[#D4875E] mb-1">{activeCompany} — {companyStyle.focus}</p>
             <ul className="space-y-1">
-              {companyStyle.tips.map((t, i) => <li key={i} className="text-xs text-sky-600 flex items-start gap-2"><span className="mt-1 w-1 h-1 rounded-full bg-sky-400 flex-shrink-0" />{t}</li>)}
+              {companyStyle.tips.map((t, i) => <li key={i} className="text-xs text-[#D4875E] flex items-start gap-2"><span className="mt-1 w-1 h-1 rounded-full bg-sky-400 flex-shrink-0" />{t}</li>)}
             </ul>
           </div>
         )}
@@ -231,8 +231,8 @@ export default function InterviewTips() {
             onClick={() => setActiveCat(i)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               i === activeCat
-                ? 'bg-teal-500 text-white shadow-md'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-teal-300 hover:text-teal-600'
+                ? 'bg-accent text-white shadow-md'
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-[#D4875E]'
             }`}
           >
             <span>{c.icon}</span>

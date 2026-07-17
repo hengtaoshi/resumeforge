@@ -65,7 +65,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     const resume: Resume = {
       id: genId(), title: title || '未命名简历',
       createdAt: now, updatedAt: now,
-      theme: { primary: '#14b8a6', font: 'Noto Sans SC' },
+      theme: { primary: '#D4875E', font: 'Noto Sans SC' },
       version: 'general', sections: buildSections(),
     }
     try {

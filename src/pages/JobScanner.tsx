@@ -27,7 +27,7 @@ const PLATFORM_COLOR: Record<string, string> = {
   lagou: 'bg-red-50 text-red-600',
   zhaopin: 'bg-blue-50 text-blue-600',
   maimai: 'bg-purple-50 text-purple-600',
-  linkedin: 'bg-sky-50 text-sky-600',
+  linkedin: 'bg-[rgba(212,135,94,0.10)] text-[#D4875E]',
   indeed: 'bg-slate-50 text-slate-600',
   manual: 'bg-slate-50 text-slate-500',
   other: 'bg-slate-50 text-slate-500',
@@ -217,13 +217,13 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
   /* ----- render ----- */
 
   return (
-    <div className="flex-1 h-full overflow-hidden bg-[#F8F7F4] dark:bg-slate-900">
+    <div className="flex-1 h-full overflow-hidden bg-[#F4F2ED] dark:bg-slate-900">
       <div className="flex h-full gap-6 p-8">
         {/* ============ LEFT PANEL: Import ============ */}
         <div className="w-[440px] flex-shrink-0 flex flex-col">
           {/* Header */}
           <div className="mb-5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-50 text-sky-600 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[rgba(212,135,94,0.10)] text-[#D4875E] mb-3">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"/>
                 <path d="M12 6v6l4 2"/>
@@ -235,7 +235,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
           </div>
 
           {/* Import card */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col">
+          <div className="card-doc flex flex-col">
             {/* Tabs */}
             <div className="flex border-b border-slate-100">
               {TABS.map(tab => (
@@ -244,13 +244,13 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   onClick={() => setActiveTab(tab.key)}
                   className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                     activeTab === tab.key
-                      ? 'text-sky-600'
+                      ? 'text-[#D4875E]'
                       : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
                   {tab.label}
                   {activeTab === tab.key && (
-                    <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-sky-500 rounded-full" />
+                    <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-[#D4875E] rounded-full" />
                   )}
                 </button>
               ))}
@@ -265,12 +265,12 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                     value={manualText}
                     onChange={e => setManualText(e.target.value)}
                     placeholder={`例如：\n职位名称：高级前端工程师\n\n岗位职责：\n1. 负责公司核心产品的前端架构设计...\n\n任职要求：\n1. 5年以上前端开发经验...`}
-                    className="w-full h-56 p-3 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400 transition-colors"
+                    className="w-full h-56 p-3 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.20)] focus:border-[#D4875E] transition-colors"
                     style={{ backgroundColor: '#FCFCFB' }}
                   />
                   <button
                     onClick={handleManualImport}
-                    className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition-colors"
+                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
                   >
                     导入职位
                   </button>
@@ -285,7 +285,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                     value={urlInput}
                     onChange={e => setUrlInput(e.target.value)}
                     placeholder="https://www.zhipin.com/job_detail/..."
-                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400 transition-colors"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.20)] focus:border-[#D4875E] transition-colors"
                     style={{ backgroundColor: '#FCFCFB' }}
                   />
                   <label className="block text-sm text-slate-600 font-medium">选择平台</label>
@@ -303,7 +303,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                         onClick={() => setPlatformSelect(key)}
                         className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
                           platformSelect === key
-                            ? 'border-sky-400 bg-sky-50 text-sky-600'
+                            ? 'border-[#D4875E] bg-[rgba(212,135,94,0.10)] text-[#D4875E]'
                             : 'border-slate-200 text-slate-500 hover:border-slate-300'
                         }`}
                       >
@@ -313,7 +313,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   </div>
                   <button
                     onClick={handleUrlImport}
-                    className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition-colors"
+                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
                   >
                     导入链接
                   </button>
@@ -329,12 +329,12 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                     value={batchText}
                     onChange={e => setBatchText(e.target.value)}
                     placeholder={`https://www.zhipin.com/job_detail/...\nhttps://www.liepin.com/job/...\n\n职位名称：后端工程师\n岗位要求：...`}
-                    className="w-full h-56 p-3 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400 transition-colors"
+                    className="w-full h-56 p-3 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.20)] focus:border-[#D4875E] transition-colors"
                     style={{ backgroundColor: '#FCFCFB' }}
                   />
                   <button
                     onClick={handleBatchImport}
-                    className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition-colors"
+                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
                   >
                     批量导入
                   </button>
@@ -346,7 +346,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
 
           {/* Quick stats */}
           {jobs.length > 0 && (
-            <div className="mt-4 bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <div className="mt-4 card-doc p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">已导入职位</span>
                 <span className="font-semibold text-slate-700">{jobs.length}</span>
@@ -401,7 +401,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
               <>
                 {selected ? (
                   /* --- Detail view --- */
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                  <div className="card-doc p-5">
                     {/* Back button */}
                     <button
                       onClick={() => setSelectedId(null)}
@@ -430,7 +430,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                         <p className="text-sm text-slate-400">等待分析</p>
                         <button
                           onClick={() => handleAnalyze(selected.id)}
-                          className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition-colors"
+                          className="px-6 py-2 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
                         >
                           分析匹配
                         </button>
@@ -439,7 +439,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
 
                     {selected.status === 'analyzing' && (
                       <div className="flex flex-col items-center py-8 gap-3">
-                        <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-[#D4875E] border-t-transparent rounded-full animate-spin" />
                         <p className="text-sm text-slate-400">正在分析匹配度...</p>
                       </div>
                     )}
@@ -489,7 +489,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                         <div className="flex gap-3 pt-1">
                           <button
                             onClick={() => handleOptimize(selected)}
-                            className="flex-1 py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition-colors"
+                            className="flex-1 py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
                           >
                             根据此JD优化简历
                           </button>
@@ -553,7 +553,7 @@ function JobCard({ job, loading, onClick, onAnalyze }: {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:shadow-md hover:border-slate-200 transition-all duration-200 cursor-pointer group"
+      className="card-doc p-4 hover:shadow-md hover:border-slate-200 transition-all duration-200 cursor-pointer group"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -582,13 +582,13 @@ function JobCard({ job, loading, onClick, onAnalyze }: {
             <button
               onClick={e => { e.stopPropagation(); onAnalyze(); }}
               disabled={loading}
-              className="px-2.5 py-1.5 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-300 text-white text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
+              className="px-2.5 py-1.5 bg-[#D4875E] hover:bg-[#E09A72] disabled:bg-[rgba(212,135,94,0.30)] text-white text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
             >
               {loading ? '分析中...' : '分析匹配'}
             </button>
           )}
           {job.status === 'analyzing' && (
-            <div className="w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#D4875E] border-t-transparent rounded-full animate-spin" />
           )}
         </div>
       </div>

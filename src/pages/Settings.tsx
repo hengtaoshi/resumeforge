@@ -11,9 +11,11 @@ async function testConnectionIPC(opts: { provider: string; apiKey: string; model
 import toast from '@/lib/toast';
 
 const Toggle: React.FC<{ active: boolean; onClick: () => void }> = ({ active, onClick }) => (
-  <button onClick={onClick} className={`relative w-9 h-5 rounded-full transition-colors shrink-0 border ${active ? 'bg-brand-500 border-brand-500' : 'bg-slate-200 dark:bg-slate-600 border-slate-300 dark:border-slate-500'}`}>
-    <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${active ? 'translate-x-4' : ''}`} />
-  </button>
+  <label className="rocker rocker-small" onClick={onClick} style={{ cursor: 'pointer', margin: 0 }}>
+    <input type="checkbox" checked={active} readOnly />
+    <span className="switch-left">开</span>
+    <span className="switch-right">关</span>
+  </label>
 );
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -71,7 +73,7 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-4 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900 h-full">
+    <div className="flex-1 p-4 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900 h-full">
       <div className="mb-3">
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 mb-2">
           <i className="ph-light ph-gear-six text-sm" /> Settings
@@ -80,7 +82,7 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3 max-w-4xl">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 col-span-2">
+        <div className="card-doc p-3 col-span-2">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-cpu text-brand-500" /> AI 提供商
           </h2>
@@ -93,7 +95,7 @@ const Settings: React.FC = () => {
                 {visible.map(p => (
                   <button key={p} onClick={() => setProvider(p)}
                     className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
-                      aiProvider === p ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
+                      aiProvider === p ? 'bg-accent text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
                     }`}>{PROVIDER_LABELS[p]}</button>
                 ))}
                 {!showAll && providerOrder.length > COMMON.length && (
@@ -126,7 +128,7 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-3">
+        <div className="card-doc p-3">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-plug text-brand-500" /> 连接状态
           </h2>
@@ -137,13 +139,13 @@ const Settings: React.FC = () => {
               <span className="text-slate-300 ml-1">{apiKeys[aiProvider] ? '已配置' : '未配置'}</span>
             </span>
             <button onClick={() => window.electronAPI?.openExternal(API_KEY_URLS[aiProvider])}
-              className="text-[11px] px-2 py-1 rounded-md bg-teal-500 text-white hover:bg-teal-600 border-none cursor-pointer transition-colors shrink-0 ml-2">
+              className="text-[11px] px-2 py-1 rounded-md bg-accent text-white hover:bg-accent-hover border-none cursor-pointer transition-colors shrink-0 ml-2">
               获取 Key ↗
             </button>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-3">
+        <div className="card-doc p-3">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
             <i className="ph-light ph-palette text-brand-500" /> 主题与偏好
           </h2>
@@ -227,22 +229,22 @@ function ChangePassword() {
       <div>
         <label className="block text-xs text-slate-500 mb-1">当前密码</label>
         <input type="password" value={oldPw} onChange={e => setOldPw(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
       </div>
       <div>
         <label className="block text-xs text-slate-500 mb-1">新密码</label>
         <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
         <p className="text-[11px] text-slate-400 mt-1">至少8位，需包含字母和数字</p>
       </div>
       <div>
         <label className="block text-xs text-slate-500 mb-1">确认新密码</label>
         <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
+          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
       </div>
       {msg && <p className={`text-xs ${msg.includes('成功') ? 'text-green-600' : 'text-red-500'}`}>{msg}</p>}
       <button onClick={handleSave} disabled={saving}
-        className="px-4 py-2 bg-sky-500 text-white rounded-lg text-sm font-medium hover:bg-sky-600 disabled:opacity-50 transition-colors">
+        className="px-4 py-2 bg-[#D4875E] text-white rounded-lg text-sm font-medium hover:bg-[#E09A72] disabled:opacity-50 transition-colors">
         {saving ? '修改中...' : '修改密码'}
       </button>
     </div>

@@ -2,13 +2,189 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --accent: #D4875E;
+  --accent-hover: #E09A72;
+  --accent-muted: rgba(212,135,94,0.10);
+  --accent-light: rgba(212,135,94,0.06);
+  --bg-body: #F4F2ED;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FAF9F6;
+  --bg-hover: #F0EDE8;
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-medium: rgba(0,0,0,0.10);
+  --text-primary: #1C1814;
+  --text-secondary: #6B6560;
+  --text-muted: #A09890;
+  --success: #6A8D6A;
+  --success-muted: rgba(106,141,106,0.10);
+  --danger: #C46A5A;
+  --font-sans: 'Noto Sans SC', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
 html, body, #root {
   height: 100%;
 }
 
 body {
-  font-family: 'Noto Sans SC', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
+
+/* ─── Sidebar Nav Button (Li-Deheng style) — GPU optimized ─── */
+.nav-btn {
+  --btn-size: 1.05em;
+  --btn-text: var(--text-muted);
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--accent-muted);
+  --btn-outline: rgba(212,135,94,0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border: none;
+  border-radius: calc(var(--btn-size) * 100);
+  padding: 0.55em 0.7em 0.55em 0.9em;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--btn-size);
+  color: var(--btn-text);
+  background: var(--btn-bg);
+  width: 100%;
+  text-align: left;
+  position: relative;
+  transform: translateZ(0);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.nav-btn:active { transform: scale(0.96); }
+.nav-btn:hover {
+  background: var(--btn-bg-hover);
+  box-shadow: 0 0 0.8em 0 var(--btn-outline);
+}
+.nav-btn.active {
+  --btn-text: #fff;
+  --btn-bg: var(--accent);
+  --btn-bg-hover: var(--accent-hover);
+  --btn-outline: rgba(212,135,94,0.35);
+}
+.nav-btn .nav-icon {
+  width: 1.15em; height: 1.15em;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5;
+  margin-right: 0.5em;
+  flex-shrink: 0;
+}
+.nav-btn .nav-label {
+  margin-right: auto;
+  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s;
+  display: inline-block;
+  will-change: transform;
+}
+.nav-btn:hover .nav-label {
+  transform: translateX(8px);
+  font-weight: 600;
+  color: var(--accent);
+}
+.nav-btn.active .nav-label {
+  color: #fff;
+  transform: translateX(8px);
+  font-weight: 600;
+}
+.nav-btn:active .nav-label {
+  transform: translateX(0);
+  font-weight: 500;
+  transition-duration: 0.1s;
+}
+.nav-btn .nav-arrow {
+  height: 0.65em;
+  fill: currentColor;
+  margin-right: -0.1em;
+  position: relative;
+  transition: margin-right 0.2s, opacity 0.2s;
+  opacity: 0.4;
+}
+.nav-btn:hover .nav-arrow {
+  margin-right: 0.3em;
+  opacity: 1;
+}
+.nav-arrow polygon {
+  transition: transform 0.2s;
+  transform: translateX(0);
+}
+.nav-btn:not(.active):not(:hover) .nav-arrow polygon:nth-child(1) { transform: translateX(-40%); }
+.nav-btn:not(.active):not(:hover) .nav-arrow polygon:nth-child(2) { transform: translateX(-20%); }
+.nav-btn:hover .nav-arrow polygon:nth-child(1),
+.nav-btn.active .nav-arrow polygon:nth-child(1) { transform: translateX(0); }
+.nav-btn:hover .nav-arrow polygon:nth-child(2),
+.nav-btn.active .nav-arrow polygon:nth-child(2) { transform: translateX(0); }
+.nav-btn:hover .nav-arrow polygon:nth-child(3),
+.nav-btn.active .nav-arrow polygon:nth-child(3) { transform: translateX(0); }
+.nav-btn.active .nav-arrow { opacity: 1; margin-right: 0.3em; }
+
+/* Remove all the animation keyframes that are no longer needed */
+
+/* ─── Pill Button (cssbuttons-io style) ─── */
+.btn-pill {
+  padding: 0.7em 2em;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  border: none;
+  border-radius: 45px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all 0.3s ease 0s;
+  outline: none;
+}
+.btn-pill.primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0px 6px 12px rgba(212,135,94,0.25);
+}
+.btn-pill.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0px 12px 18px rgba(212,135,94,0.35);
+  color: #fff;
+  transform: translateY(-5px);
+}
+.btn-pill.primary:active { transform: translateY(-1px); }
+.btn-pill.secondary {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  box-shadow: 0px 6px 12px rgba(0,0,0,0.06);
+}
+.btn-pill.secondary:hover {
+  color: var(--accent);
+  box-shadow: 0px 12px 18px rgba(212,135,94,0.15);
+  transform: translateY(-5px);
+}
+.btn-pill.secondary:active { transform: translateY(-1px); }
+
+/* ─── Login pill button ─── */
+.btn-pill-full {
+  width: 100%;
+  padding: 0.9em 2em;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 45px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  box-shadow: 0px 6px 12px rgba(212,135,94,0.25);
+  transition: all 0.3s ease 0s;
+  outline: none;
+}
+.btn-pill-full:hover {
+  background: var(--accent-hover);
+  box-shadow: 0px 12px 18px rgba(212,135,94,0.35);
+  transform: translateY(-5px);
+}
+.btn-pill-full:active { transform: translateY(-1px); }
 
 /* Dark mode */
 .dark body, .dark #root { background: #0f172a; color: #e2e8f0; }
@@ -63,3 +239,422 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 4px; }
 .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+
+/* ─── Lakshay-art Chat Input ─── */
+.chat-input-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+.chat-input-inner {
+  position: relative;
+  width: 100%;
+}
+.chat-input-inner .white,
+.chat-input-inner .border,
+.chat-input-inner .darkBorderBg,
+.chat-input-inner .glow {
+  max-height: 70px;
+  max-width: 100%;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  overflow: hidden;
+  z-index: -1;
+  border-radius: 12px;
+  filter: blur(3px);
+}
+.chat-input {
+  background-color: #FAF9F6;
+  border: none;
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+  color: var(--text-primary);
+  padding-inline: 48px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  position: relative;
+  z-index: 1;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.chat-input:focus { outline: none; }
+
+.chat-input-inner .white {
+  max-height: 63px;
+  max-width: calc(100% - 6px);
+  border-radius: 10px;
+  filter: blur(2px);
+  left: 3px;
+  top: 3.5px;
+}
+.chat-input-inner .white::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(83deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  filter: brightness(1.4);
+  background-image: conic-gradient(
+    rgba(0,0,0,0) 0%,
+    #D4875E,
+    rgba(0,0,0,0) 8%,
+    rgba(0,0,0,0) 50%,
+    #E09A72,
+    rgba(0,0,0,0) 58%
+  );
+  transition: all 2s;
+}
+.chat-input-inner .border {
+  max-height: 59px;
+  max-width: calc(100% - 10px);
+  border-radius: 11px;
+  filter: blur(0.5px);
+  left: 5px;
+  top: 5.5px;
+}
+.chat-input-inner .border::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(70deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  filter: brightness(1.3);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    var(--border-medium),
+    #D4875E 5%,
+    var(--border-medium) 14%,
+    var(--border-medium) 50%,
+    #E09A72 60%,
+    var(--border-medium) 64%
+  );
+  transition: all 2s;
+}
+.chat-input-inner .darkBorderBg {
+  max-height: 65px;
+  max-width: 100%;
+}
+.chat-input-inner .darkBorderBg::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(82deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    rgba(0,0,0,0),
+    var(--accent-muted),
+    rgba(0,0,0,0) 10%,
+    rgba(0,0,0,0) 50%,
+    var(--accent-muted),
+    rgba(0,0,0,0) 60%
+  );
+  transition: all 2s;
+}
+.chat-input-inner .glow {
+  overflow: hidden;
+  filter: blur(30px);
+  opacity: 0.4;
+  max-height: 130px;
+  max-width: calc(100% + 40px);
+  left: -20px;
+  top: -30px;
+}
+.chat-input-inner .glow::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(60deg);
+  position: absolute;
+  width: 999px;
+  height: 999px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    transparent,
+    var(--accent-muted) 5%,
+    transparent 38%,
+    transparent 50%,
+    rgba(212,135,94,0.15) 60%,
+    transparent 87%
+  );
+  transition: all 2s;
+}
+
+.chat-input-inner:hover > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(262deg); }
+.chat-input-inner:hover > .glow::before { transform: translate(-50%, -50%) rotate(240deg); }
+.chat-input-inner:hover > .white::before { transform: translate(-50%, -50%) rotate(263deg); }
+.chat-input-inner:hover > .border::before { transform: translate(-50%, -50%) rotate(250deg); }
+.chat-input-inner:hover > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(-98deg); }
+.chat-input-inner:hover > .glow::before { transform: translate(-50%, -50%) rotate(-120deg); }
+.chat-input-inner:hover > .white::before { transform: translate(-50%, -50%) rotate(-97deg); }
+.chat-input-inner:hover > .border::before { transform: translate(-50%, -50%) rotate(-110deg); }
+.chat-input-inner:focus-within > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(442deg); transition: all 4s; }
+.chat-input-inner:focus-within > .glow::before { transform: translate(-50%, -50%) rotate(420deg); transition: all 4s; }
+.chat-input-inner:focus-within > .white::before { transform: translate(-50%, -50%) rotate(443deg); transition: all 4s; }
+.chat-input-inner:focus-within > .border::before { transform: translate(-50%, -50%) rotate(430deg); transition: all 4s; }
+
+.chat-input-search {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: var(--text-muted);
+  width: 18px;
+  height: 18px;
+}
+
+/* ─── Login/Register (from design doc) ─── */
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+}
+.auth-form_area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: var(--bg-surface);
+  height: auto;
+  width: auto;
+  border: 1px solid var(--border-medium);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 32px;
+  min-width: 340px;
+}
+.auth-title {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 20px;
+  letter-spacing: -0.3px;
+}
+.auth-sub_title {
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 5px 0;
+}
+.auth-form_group {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  margin: 10px 0;
+  width: 100%;
+}
+.auth-form_style {
+  outline: none;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-body);
+  width: 290px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: border-color 0.2s;
+}
+.auth-form_style:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+.auth-btn {
+  padding: 12px;
+  margin: 20px 0 16px;
+  width: 290px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all 0.2s;
+}
+.auth-btn:hover { opacity: 0.9; }
+.auth-btn:active { transform: scale(0.97); }
+.auth-link {
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+}
+.auth-link:hover { text-decoration: underline; }
+.auth-switch {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.auth-code-row {
+  display: flex;
+  gap: 8px;
+  width: 290px;
+}
+.auth-code-row .auth-form_style { width: auto; flex: 1; }
+.auth-code-btn {
+  padding: 12px 14px;
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.auth-code-btn:hover { background: var(--accent-light); }
+.auth-code-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.auth-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.auth-tab:hover { color: var(--text-secondary); }
+
+/* ─── Rocker Switch (from design doc) ─── */
+.rocker {
+  display: inline-block;
+  position: relative;
+  font-size: 1.6em;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  width: 7em;
+  height: 4em;
+  overflow: hidden;
+  border-bottom: 0.5em solid #E8E5DF;
+}
+.rocker-small {
+  font-size: 0.65em;
+}
+.rocker::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E0DDD6;
+  border: 0.5em solid #E8E5DF;
+  border-bottom: 0;
+}
+.rocker input { opacity: 0; width: 0; height: 0; }
+.switch-left, .switch-right {
+  cursor: pointer;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5em;
+  width: 3em;
+  transition: .2s;
+  user-select: none;
+}
+.switch-left {
+  height: 2.4em;
+  width: 2.75em;
+  left: 0.85em;
+  bottom: 0.4em;
+  background-color: #E0DDD6;
+  transform: rotate(15deg) skewX(15deg);
+}
+.switch-right {
+  right: 0.5em;
+  bottom: 0;
+  background-color: var(--danger);
+  color: #fff;
+}
+.switch-left::before, .switch-right::before {
+  content: "";
+  position: absolute;
+  width: 0.4em;
+  height: 2.45em;
+  bottom: -0.45em;
+  background-color: #D5D0C8;
+  transform: skewY(-65deg);
+}
+.switch-left::before { left: -0.4em; }
+.switch-right::before { right: -0.375em; background-color: transparent; transform: skewY(65deg); }
+input:checked + .switch-left {
+  background-color: var(--accent);
+  color: #fff;
+  bottom: 0px;
+  left: 0.5em;
+  height: 2.5em;
+  width: 3em;
+  transform: rotate(0deg) skewX(0deg);
+}
+input:checked + .switch-left::before { background-color: transparent; width: 3.0833em; }
+input:checked + .switch-left + .switch-right {
+  background-color: #E0DDD6;
+  color: var(--text-muted);
+  bottom: 0.4em;
+  right: 0.8em;
+  height: 2.4em;
+  width: 2.75em;
+  transform: rotate(-15deg) skewX(-15deg);
+}
+input:checked + .switch-left + .switch-right::before { background-color: #D5D0C8; }
+
+/* ─── Card design (from design doc) ─── */
+.card-doc {
+  background: linear-gradient(135deg, #FAF9F6 0%, #F5F2ED 100%);
+  border: 1px solid rgba(212,135,94,0.12);
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  perspective: 800px;
+}
+.card-doc:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 28px rgba(212,135,94,0.12);
+}

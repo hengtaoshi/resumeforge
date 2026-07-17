@@ -26,10 +26,10 @@ const tierCards: TierCardData[] = [
     id: 'big',
     label: '大厂适用版',
     description: '对标大型企业用人标准，突出体系化工作方法、跨部门协作经验和复杂项目管理能力。',
-    badgeGradient: 'from-sky-500 to-sky-600',
+    badgeGradient: 'from-[#D4875E] to-[#E09A72]',
     badgeText: 'batched',
-    borderColor: 'border-sky-200',
-    ringColor: 'ring-sky-500',
+    borderColor: 'border-[rgba(212,135,94,0.20)]',
+    ringColor: 'ring-[#D4875E]',
     stats: { matchRate: 94, pages: 1, keyExperience: '体系化 / 跨部门协作' },
   },
   {
@@ -304,7 +304,7 @@ const TierGenerate: React.FC = () => {
       id: genId(),
       title: data.title || 'AI 引导生成简历',
       createdAt: now, updatedAt: now,
-      theme: { primary: '#14b8a6', font: 'Noto Sans SC' },
+      theme: { primary: '#D4875E', font: 'Noto Sans SC' },
       version: 'general',
       sections,
     };
@@ -361,7 +361,7 @@ const TierGenerate: React.FC = () => {
       <button
         onClick={(e) => { e.stopPropagation(); handleGenerate(card.id); }}
         className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98]"
-        style={{ backgroundColor: '#14b8a6' }}>
+        style={{ backgroundColor: '#D4875E' }}>
         <i className="ph-light ph-magic-wand text-base" />
         生成此版本
       </button>
@@ -371,7 +371,7 @@ const TierGenerate: React.FC = () => {
   // ── Render: guided chat view ──
   if (guidedActive) {
     return (
-      <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
+      <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900">
         <div className="flex items-center gap-4 mb-6">
           <button onClick={() => setGuidedActive(false)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all">
@@ -379,7 +379,7 @@ const TierGenerate: React.FC = () => {
             返回
           </button>
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-teal-50 text-teal-600 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#D4875E]/10 text-[#D4875E] mb-1">
               <i className="ph-light ph-robot text-sm" />
               AI Guided
             </span>
@@ -395,17 +395,17 @@ const TierGenerate: React.FC = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col" style={{ height: 'calc(100vh - 240px)' }}>
+        <div className="card-doc flex flex-col" style={{ height: 'calc(100vh - 240px)' }}>
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {guidedMessages.map((msg) => (
               <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  msg.role === 'ai' ? 'bg-teal-50 text-teal-500' : 'bg-sky-50 text-sky-500'
+                  msg.role === 'ai' ? 'bg-teal-50 text-teal-500' : 'bg-[rgba(212,135,94,0.10)] text-[#D4875E]'
                 }`}>
                   <i className={`ph-light text-sm ${msg.role === 'ai' ? 'ph-robot' : 'ph-user-circle'}`} />
                 </div>
                 <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                  msg.role === 'ai' ? 'bg-teal-50 text-slate-700 rounded-tl-sm' : 'bg-sky-50 text-slate-700 rounded-tr-sm'
+                  msg.role === 'ai' ? 'bg-teal-50 text-slate-700 rounded-tl-sm' : 'bg-[rgba(212,135,94,0.10)] text-slate-700 rounded-tr-sm'
                 }`} style={{ whiteSpace: 'pre-wrap' }}>
                   {msg.content.split('\n').map((line, i) => (
                     <React.Fragment key={i}>
@@ -428,7 +428,7 @@ const TierGenerate: React.FC = () => {
                 </div>
                 <div className="max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed bg-teal-50 text-slate-700 rounded-tl-sm" style={{ whiteSpace: 'pre-wrap' }}>
                   {guidedStreamingContent}
-                  <span className="inline-block w-1.5 h-4 bg-teal-500 ml-0.5 animate-pulse" />
+                  <span className="inline-block w-1.5 h-4 bg-accent ml-0.5 animate-pulse" />
                 </div>
               </div>
             )}
@@ -465,12 +465,12 @@ const TierGenerate: React.FC = () => {
               onChange={(e) => setGuidedInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendGuidedMessage(); } }}
               placeholder={generatedResumeId ? '简历已生成，可以继续对话...' : '回答AI的问题...'}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all bg-[#F8F7F4] dark:bg-slate-900"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D4875E]/20 transition-all bg-[#F4F2ED] dark:bg-slate-900"
               style={{ color: '#1E293B' }} />
             <button onClick={sendGuidedMessage}
               disabled={!guidedInput.trim() || guidedSending}
               className="w-9 h-9 rounded-lg flex items-center justify-center text-white disabled:opacity-40 transition-all active:scale-[0.95] flex-shrink-0"
-              style={{ backgroundColor: '#14b8a6' }}>
+              style={{ backgroundColor: '#D4875E' }}>
               <i className="ph-light ph-arrow-right text-lg" />
             </button>
           </div>
@@ -481,7 +481,7 @@ const TierGenerate: React.FC = () => {
 
   // ── Render: tier grid view ──
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900">
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">
           <i className="ph-light ph-magic-wand text-sm" />
@@ -504,7 +504,7 @@ const TierGenerate: React.FC = () => {
               <div className="text-center py-6">
                 <p className="text-sm text-slate-400 mb-3">还没有简历</p>
                 <button onClick={async () => { const r = await createResume(); if (r) { setActiveResume(r.id); setShowResumePicker(false); doGenerate(r, pendingTierRef.current!) } }}
-                  className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600">创建新简历</button>
+                  className="px-4 py-2 bg-accent text-white rounded-lg text-sm hover:bg-accent-hover">创建新简历</button>
               </div>
             ) : (
               <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -512,7 +512,7 @@ const TierGenerate: React.FC = () => {
                   <div key={r.id} onClick={() => { setActiveResume(r.id); setShowResumePicker(false); doGenerate(r, pendingTierRef.current!) }}
                     className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
                     <span className="text-sm text-slate-700">{r.title}</span>
-                    <span className="text-xs text-teal-600 font-medium">使用此简历</span>
+                    <span className="text-xs text-[#D4875E] font-medium">使用此简历</span>
                   </div>
                 ))}
               </div>
@@ -569,7 +569,7 @@ const TierGenerate: React.FC = () => {
 
         {/* AI guided generation card */}
         <div onClick={startGuided}
-          className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl shadow-sm border border-teal-100 p-5 cursor-pointer transition-all duration-200 hover:shadow-md flex flex-col group">
+          className="bg-gradient-to-br from-[#F4F2ED] to-[#F4F2ED] rounded-xl shadow-sm border border-[#D4875E]/20 p-5 cursor-pointer transition-all duration-200 hover:shadow-md flex flex-col group">
           <div className="flex items-center justify-between mb-4">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600">
               <i className="ph-light ph-sparkle text-xs" />
@@ -587,7 +587,7 @@ const TierGenerate: React.FC = () => {
               没有现成简历？让 AI 资深职业规划师一步步引导你，从零创建一份量身定制的简历。
             </p>
           </div>
-          <div className="mt-5 flex items-center gap-2 text-sm font-medium text-teal-600 group-hover:gap-3 transition-all">
+          <div className="mt-5 flex items-center gap-2 text-sm font-medium text-[#D4875E] group-hover:gap-3 transition-all">
             <span>开始对话</span>
             <i className="ph-light ph-arrow-right text-base" />
           </div>
@@ -610,7 +610,7 @@ const TierGenerate: React.FC = () => {
             <div className="flex flex-col items-center gap-3 py-6">
               <div className="flex gap-2">
                 <span className="w-3 h-3 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-3 h-3 rounded-full bg-teal-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-3 h-3 rounded-full bg-accent animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-3 h-3 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
               <p className="text-sm text-slate-500">AI 正在优化简历内容...</p>

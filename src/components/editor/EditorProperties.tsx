@@ -44,7 +44,7 @@ export default function EditorProperties(props: Props) {
 
         <button onClick={() => { updateResume(activeResume.id, {}); toast.success('简历已保存') }}
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md"
-          style={{ backgroundColor: '#14b8a6' }}>
+          style={{ backgroundColor: '#D4875E' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存简历
         </button>
 
@@ -62,7 +62,7 @@ export default function EditorProperties(props: Props) {
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">版本</label>
           <div className="flex gap-1">{VERSION_OPTIONS.map(v => (
             <button key={v.value} onClick={() => updateResume(activeResume.id, { version: v.value as Resume['version'] })}
-              className={`flex-1 px-2 py-1.5 text-xs rounded-lg border transition-colors ${activeResume.version === v.value ? 'bg-teal-500 text-white border-teal-500' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{v.label}</button>
+              className={`flex-1 px-2 py-1.5 text-xs rounded-lg border transition-colors ${activeResume.version === v.value ? 'bg-accent text-white border-accent' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{v.label}</button>
           ))}</div>
         </div>
 
@@ -70,7 +70,7 @@ export default function EditorProperties(props: Props) {
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">模板</label>
           <div className="flex flex-wrap gap-1 mb-2">{CATEGORY_ORDER.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-2 py-1 text-xs rounded-md transition-colors ${activeCategory === cat ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{cat}</button>
+              className={`px-2 py-1 text-xs rounded-md transition-colors ${activeCategory === cat ? 'bg-accent text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{cat}</button>
           ))}</div>
           <div className="border rounded-lg p-1 max-h-[200px] overflow-y-auto">
             {templateOptions.filter(t => (TEMPLATE_CATEGORIES[t.id] || '其他') === activeCategory).map(t => (

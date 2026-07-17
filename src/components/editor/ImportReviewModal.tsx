@@ -194,7 +194,7 @@ export default function ImportReviewModal({ data, onConfirm, onCancel }: Props) 
                   <textarea className="w-full border rounded px-2 py-1.5 text-sm min-h-[60px] resize-y" value={item.description || ''} onChange={e => updateExpItem(idx, 'description', e.target.value)} placeholder="工作描述" />
                 </div>
               ))}
-              <button onClick={addExpItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700">
+              <button onClick={addExpItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700">
                 <i className="ph-light ph-plus text-base" /> 添加工作经历
               </button>
             </div>
@@ -231,7 +231,7 @@ export default function ImportReviewModal({ data, onConfirm, onCancel }: Props) 
                   </div>
                 </div>
               ))}
-              <button onClick={addEduItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700">
+              <button onClick={addEduItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700">
                 <i className="ph-light ph-plus text-base" /> 添加教育经历
               </button>
             </div>
@@ -271,7 +271,7 @@ export default function ImportReviewModal({ data, onConfirm, onCancel }: Props) 
                   <textarea className="w-full border rounded px-2 py-1.5 text-sm min-h-[60px] resize-y" value={item.description || ''} onChange={e => updateProjItem(idx, 'description', e.target.value)} placeholder="项目描述" />
                 </div>
               ))}
-              <button onClick={addProjItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700">
+              <button onClick={addProjItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700">
                 <i className="ph-light ph-plus text-base" /> 添加项目
               </button>
             </div>
@@ -291,7 +291,7 @@ export default function ImportReviewModal({ data, onConfirm, onCancel }: Props) 
                   </div>
                 </div>
               ))}
-              <button onClick={addCertItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700">
+              <button onClick={addCertItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700">
                 <i className="ph-light ph-plus text-base" /> 添加证书
               </button>
             </div>
@@ -301,7 +301,7 @@ export default function ImportReviewModal({ data, onConfirm, onCancel }: Props) 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100">
           <button onClick={onCancel} className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">取消</button>
-          <button onClick={() => onConfirm(form)} className="px-4 py-2 text-sm rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors">确认创建简历</button>
+          <button onClick={() => onConfirm(form)} className="px-4 py-2 text-sm rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors">确认创建简历</button>
         </div>
       </div>
     </div>

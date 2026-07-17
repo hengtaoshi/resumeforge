@@ -88,7 +88,7 @@ function KanbanColumn({ status, items, onCardClick }: {
     <div
       ref={setNodeRef}
       className={`flex-1 min-w-0 flex flex-col rounded-xl border border-slate-200 bg-slate-50/50
-        ${isOver ? 'ring-2 ring-sky-400 ring-offset-2 bg-sky-50/30' : ''} transition-all duration-150`}
+        ${isOver ? 'ring-2 ring-sky-400 ring-offset-2 bg-[rgba(212,135,94,0.10)]' : ''} transition-all duration-150`}
     >
       {/* Column header */}
       <div className={`flex items-center gap-2 px-4 py-3 border-b border-slate-200 ${col.accent} border-t-[3px] rounded-t-xl bg-white`}>
@@ -110,7 +110,7 @@ function KanbanColumn({ status, items, onCardClick }: {
         ))}
         {/* Drag over target ghost zone */}
         {isOver && items.length === 0 && (
-          <div className="h-20 rounded-lg border-2 border-dashed border-sky-300 bg-sky-50/50" />
+          <div className="h-20 rounded-lg border-2 border-dashed border-[rgba(212,135,94,0.20)] bg-[rgba(212,135,94,0.10)]" />
         )}
       </div>
     </div>
@@ -162,13 +162,13 @@ function DetailModal({ item, onClose, onUpdated }: { item: DeliveryItem; onClose
             <span className="text-xs text-slate-400">创建于 {new Date(item.created_at).toLocaleDateString('zh-CN')}</span>
           </div>
           <input value={company} onChange={e => setCompany(e.target.value)} placeholder="公司名称"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-[#D4875E] focus:ring-1 focus:ring-[rgba(212,135,94,0.2)] transition-all" />
           <input value={role} onChange={e => setRole(e.target.value)} placeholder="职位"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-[#D4875E] focus:ring-1 focus:ring-[rgba(212,135,94,0.2)] transition-all" />
           <input value={url} onChange={e => setUrl(e.target.value)} placeholder="投递链接（选填）"
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-[#D4875E] focus:ring-1 focus:ring-[rgba(212,135,94,0.2)] transition-all" />
           <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="备注（选填）" rows={3}
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors resize-none" />
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-[#D4875E] focus:ring-1 focus:ring-[rgba(212,135,94,0.2)] transition-all resize-none" />
           {/* Timestamps */}
           <div className="text-xs text-slate-400 space-y-1 pt-1">
             {item.interview_at && <p>进入面试：{new Date(item.interview_at).toLocaleString('zh-CN')}</p>}
@@ -179,7 +179,7 @@ function DetailModal({ item, onClose, onUpdated }: { item: DeliveryItem; onClose
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100">
           <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition-colors">取消</button>
           <button onClick={handleSave} disabled={saving}
-            className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 disabled:opacity-50 transition-colors">
+            className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-accent hover:bg-accent-hover disabled:opacity-50 transition-colors">
             {saving ? '保存中...' : '保存'}
           </button>
         </div>
@@ -239,17 +239,17 @@ export default function Kanban() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F8F7F4]">
+    <div className="flex-1 overflow-y-auto bg-[#F4F2ED]">
       {/* Header */}
       <div className="px-8 pt-8 pb-6">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-50 text-sky-600 mb-3">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[rgba(212,135,94,0.10)] text-[#D4875E] mb-3">
           <i className="ph-light ph-columns text-sm" />
           求职看板
         </span>
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-800 mb-1">求职进度看板</h1>
           <button onClick={() => setViewMode(v => v === 'kanban' ? 'funnel' : 'kanban')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMode === 'funnel' ? 'bg-teal-500 text-white border-teal-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMode === 'funnel' ? 'bg-accent text-white border-accent' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
             {viewMode === 'funnel' ? '看板视图' : '漏斗分析'}
           </button>
         </div>
@@ -324,7 +324,7 @@ function FunnelView({ items }: { items: DeliveryItem[] }) {
         <div className="grid grid-cols-3 gap-4">
           {stepRates.map((r, i) => (
             <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 text-center">
-              <p className="text-2xl font-bold text-teal-600">{r.rate}</p>
+              <p className="text-2xl font-bold text-[#D4875E]">{r.rate}</p>
               <p className="text-xs text-slate-500 mt-1">{r.from}</p>
             </div>
           ))}

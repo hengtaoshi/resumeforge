@@ -20,7 +20,7 @@ export default function UserMenu({ onOpenLogin }: { onOpenLogin: () => void }) {
     return (
       <button
         onClick={onOpenLogin}
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-sky-50 text-sky-600 hover:bg-sky-100 text-xs font-medium transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[rgba(212,135,94,0.10)] text-[#D4875E] hover:bg-[rgba(212,135,94,0.10)] text-xs font-medium transition-colors"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -43,7 +43,7 @@ export default function UserMenu({ onOpenLogin }: { onOpenLogin: () => void }) {
         {user.avatar ? (
           <img src={user.avatar} alt="" className="w-6 h-6 rounded-full" />
         ) : (
-          <span className="w-6 h-6 rounded-full bg-sky-500 text-white text-[11px] font-semibold flex items-center justify-center">
+          <span className="w-6 h-6 rounded-full bg-[#D4875E] text-white text-[11px] font-semibold flex items-center justify-center">
             {initial}
           </span>
         )}

@@ -221,7 +221,7 @@ const Editor = () => {
           <div className="p-4 border-b bg-white flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">我的简历</h2>
             <div className="flex items-center gap-1">
-              <label className="cursor-pointer flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 transition-colors" title="导入简历文件">
+              <label className="cursor-pointer flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-[rgba(212,135,94,0.10)] text-[#D4875E] hover:bg-[rgba(212,135,94,0.15)] border border-[rgba(212,135,94,0.20)] transition-colors" title="导入简历文件">
                 <input type="file" accept=".txt,.docx,.pdf" className="hidden" onChange={handleImportResume} />
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>导入
               </label>
@@ -286,7 +286,7 @@ const Editor = () => {
               </div>
               <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50 rounded-b-xl">
                 <button onClick={() => setShowTextImport(false)} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
-                <button onClick={handleParseText} disabled={!importText.trim()} className="px-5 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed">AI 解析</button>
+                <button onClick={handleParseText} disabled={!importText.trim()} className="px-5 py-2 text-sm font-medium bg-accent text-white rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed">AI 解析</button>
               </div>
             </div>
           </div>
@@ -306,10 +306,10 @@ const Editor = () => {
         setShowDeleteConfirm={setShowDeleteConfirm} setShowAddDropdown={setShowAddDropdown} handleDragEnd={handleDragEnd}
         toggleSelectForDelete={toggleSelectForDelete} handleToggleVisibility={handleToggleVisibility}
         handleDeleteSelected={handleDeleteSelected} addSection={addSection} />
-      <div ref={leftDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-teal-400 active:bg-teal-500 transition-colors ${leftDiv.drag ? 'bg-teal-400' : 'bg-gray-200'}`} />
+      <div ref={leftDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-[#D4875E] active:bg-[#D4875E] transition-colors ${leftDiv.drag ? 'bg-[#D4875E]' : 'bg-gray-200'}`} />
       <EditorCenter activeResume={activeResume} sortedSections={sortedSections}
         updateSectionContent={updateSectionContent} />
-      <div ref={rightDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-teal-400 active:bg-teal-500 transition-colors ${rightDiv.drag ? 'bg-teal-400' : 'bg-gray-200'}`} />
+      <div ref={rightDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-[#D4875E] active:bg-[#D4875E] transition-colors ${rightDiv.drag ? 'bg-[#D4875E]' : 'bg-gray-200'}`} />
       <EditorProperties width={propsWidth} activeResume={activeResume} templateOptions={templateOptions} updateResume={updateResume}
         handleExport={handleExport} />
 
@@ -347,7 +347,7 @@ const Editor = () => {
             </div>
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50 rounded-b-xl">
               <button onClick={() => setShowTextImport(false)} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
-              <button onClick={handleParseText} disabled={!importText.trim()} className="px-5 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed">AI 解析</button>
+              <button onClick={handleParseText} disabled={!importText.trim()} className="px-5 py-2 text-sm font-medium bg-accent text-white rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed">AI 解析</button>
             </div>
           </div>
         </div>

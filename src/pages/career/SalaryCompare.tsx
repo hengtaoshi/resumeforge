@@ -21,7 +21,7 @@ function genId(): string {
 }
 
 const inputCls =
-  'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white';
+  'w-full px-3 py-2 text-sm border border-[rgba(0,0,0,0.10)] rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white';
 const labelCls = 'block text-xs font-medium text-slate-500 mb-1';
 
 const SalaryCompare: React.FC = () => {
@@ -110,7 +110,7 @@ const SalaryCompare: React.FC = () => {
 
       {/* inline form */}
       {showForm && (
-        <div className="mb-5 p-5 bg-white rounded-xl shadow-sm border border-slate-100">
+        <div className="mb-5 p-5 bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.06)]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
               <label className={labelCls}>公司 *</label>
@@ -173,7 +173,7 @@ const SalaryCompare: React.FC = () => {
       {offers.length > 1 && (
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => setViewMonthly(v => !v)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMonthly ? 'bg-amber-500 text-white border-amber-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${viewMonthly ? 'bg-amber-500 text-white border-amber-500' : 'border-[rgba(0,0,0,0.10)] text-slate-500 hover:bg-[#F0EDE8]'}`}>
             {viewMonthly ? '年薪' : '月薪'}
           </button>
           <button onClick={async () => {
@@ -189,7 +189,7 @@ ${offers.map(o => `- ${o.company} ${o.role}: 年包 ${(o.base+o.stock+o.bonus).t
             } catch (e: any) { toast.error(e?.message || '分析失败') }
             finally { setAiLoading(false) }
           }} disabled={aiLoading}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-500 hover:bg-sky-600 disabled:bg-sky-300 text-white transition-colors flex items-center gap-1.5">
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[#D4875E] hover:bg-[#E09A72] disabled:bg-[rgba(212,135,94,0.30)] text-white transition-colors flex items-center gap-1.5">
             {aiLoading ? <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
             AI 对比分析
           </button>
@@ -197,15 +197,15 @@ ${offers.map(o => `- ${o.company} ${o.role}: 年包 ${(o.base+o.stock+o.bonus).t
       )}
 
       {aiResult && (
-        <div className="mb-4 p-4 bg-sky-50 rounded-xl text-sm text-slate-700">{aiResult}</div>
+        <div className="mb-4 p-4 bg-[rgba(212,135,94,0.10)] rounded-xl text-sm text-slate-700">{aiResult}</div>
       )}
 
       {/* comparison table */}
       {offers.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+        <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.06)] overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100">
+              <tr className="border-b border-[rgba(0,0,0,0.06)]">
                 <th className="text-left px-4 py-3 text-slate-400 font-medium w-28">类别</th>
                 {offers.map((o) => (
                   <th key={o.id} className="text-left px-4 py-3 font-semibold text-slate-700 min-w-[160px]">
@@ -279,7 +279,7 @@ ${offers.map(o => `- ${o.company} ${o.role}: 年包 ${(o.base+o.stock+o.bonus).t
             </tbody>
           </table>
           {/* delete buttons row */}
-          <div className="flex border-t border-slate-100 bg-slate-50/50">
+          <div className="flex border-t border-[rgba(0,0,0,0.06)] bg-[#FAF9F6]/50">
             <div className="px-4 py-2 w-28" />
             {offers.map((o) => (
               <div key={o.id} className="px-4 py-2 min-w-[160px]">

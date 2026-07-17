@@ -22,7 +22,7 @@ export default function App() {
     checkAuth().finally(() => setInitDone(true))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!initDone) return <div className="h-full bg-[#F8F7F4]" />
+  if (!initDone) return <div className="h-full" style={{ backgroundColor: '#F4F2ED' }} />
 
   if (!user) return <LoginPage />
 
@@ -38,7 +38,7 @@ function MainApp() {
     tiers: <TierGenerate />,
     jd: <JDMatch />,
     chat: <AIChat />,
-    tools: <CareerTools onPageChange={(p) => setActivePage(p as PageKey)} />,
+    tools: <CareerTools />,
     kanban: <Kanban />,
     scanner: <JobScanner onPageChange={(p) => setActivePage(p as PageKey)} />,
     settings: <Settings />,

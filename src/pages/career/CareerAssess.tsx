@@ -50,7 +50,7 @@ export default function CareerAssess() {
   if (step === 'result' && result) {
     return (
       <div className="max-w-3xl space-y-5">
-        <button onClick={() => { setStep('form'); setResult(null) }} className="text-sm text-sky-500 hover:text-sky-600">← 重新填写</button>
+        <button onClick={() => { setStep('form'); setResult(null) }} className="text-sm text-[#D4875E] hover:text-[#D4875E]">← 重新填写</button>
         <div className="bg-emerald-50 rounded-xl p-5">
           <p className="text-xs text-emerald-600 font-medium mb-1">核心优势</p>
           <p className="text-sm text-slate-700">{result.strengthSummary}</p>
@@ -58,8 +58,8 @@ export default function CareerAssess() {
         <div>
           <p className="text-sm font-semibold text-slate-700 mb-3">推荐方向</p>
           {result.suitableDirections.map((d, i) => (
-            <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 flex items-center gap-4 mb-2">
-              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-sm font-bold text-teal-600">{d.match}%</div>
+            <div key={i} className="bg-white rounded-xl p-4 border border-[rgba(0,0,0,0.06)] flex items-center gap-4 mb-2">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-sm font-bold text-[#D4875E]">{d.match}%</div>
               <div><p className="text-sm font-medium text-slate-800">{d.title}</p><p className="text-xs text-slate-500">{d.reason}</p></div>
             </div>
           ))}
@@ -68,18 +68,18 @@ export default function CareerAssess() {
           <div>
             <p className="text-sm font-semibold text-slate-700 mb-3">技能可迁移性</p>
             {result.skillTransfer.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-100 mb-2">
+              <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[rgba(0,0,0,0.06)] mb-2">
                 <span className="text-xs w-28 text-right text-slate-600">{s.from}</span>
                 <div className="flex-1 h-2 bg-slate-100 rounded-full">
                   <div className="h-full bg-teal-400 rounded-full" style={{ width: `${s.transferability}%` }} />
                 </div>
                 <span className="text-xs w-28 text-slate-500">{s.to}</span>
-                <span className="text-xs font-bold text-teal-600 w-8 text-right">{s.transferability}%</span>
+                <span className="text-xs font-bold text-[#D4875E] w-8 text-right">{s.transferability}%</span>
               </div>
             ))}
           </div>
         )}
-        <div className="bg-white rounded-xl p-5 border border-slate-100">
+        <div className="bg-white rounded-xl p-5 border border-[rgba(0,0,0,0.06)]">
           <p className="text-sm font-semibold text-slate-700 mb-3">改进方向</p>
           {result.gapAnalysis.map((g, i) => (
             <div key={i} className="flex items-start gap-3 mb-3">
@@ -88,8 +88,8 @@ export default function CareerAssess() {
             </div>
           ))}
         </div>
-        <div className="bg-sky-50 rounded-xl p-5">
-          <p className="text-xs font-semibold text-sky-600 uppercase mb-2">建议行动</p>
+        <div className="bg-[rgba(212,135,94,0.10)] rounded-xl p-5">
+          <p className="text-xs font-semibold text-[#D4875E] uppercase mb-2">建议行动</p>
           <ol className="space-y-2 text-sm text-slate-700 list-decimal list-inside">{result.recommendedActions.map((a, i) => <li key={i}>{a}</li>)}</ol>
         </div>
       </div>
@@ -103,11 +103,11 @@ export default function CareerAssess() {
         <div key={key}>
           <label className="block text-xs text-slate-500 mb-1">{label}</label>
           <input value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300" />
+            className="w-full px-3 py-2 text-sm border border-[rgba(0,0,0,0.10)] rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300" />
         </div>
       ))}
       <button onClick={handleSubmit} disabled={loading}
-        className="w-full py-2.5 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-300 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+        className="w-full py-2.5 bg-accent hover:bg-accent-hover disabled:bg-teal-300 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
         {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
         {loading ? '分析中...' : '开始职业定位分析'}
       </button>

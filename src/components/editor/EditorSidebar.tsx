@@ -66,7 +66,7 @@ export default function EditorSidebar(props: SidebarProps) {
       <div className="p-3 border-t space-y-2">
         <div className="relative">
           <button onClick={() => setShowAddDropdown(!showAddDropdown)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-teal-400 hover:text-teal-600 transition-colors">
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-teal-400 hover:text-[#D4875E] transition-colors">
             <i className="ph-light ph-plus text-base"></i>添加版块
           </button>
           {showAddDropdown && (<><div className="fixed inset-0 z-10" onClick={() => setShowAddDropdown(false)} />

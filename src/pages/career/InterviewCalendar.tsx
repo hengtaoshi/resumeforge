@@ -4,7 +4,7 @@ import { useInterviewCalendarStore } from '@/stores/interviewCalendarStore';
 import type { Interview } from '@/stores/interviewCalendarStore';
 
 const inputCls =
-  'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white';
+  'w-full px-3 py-2 text-sm border border-[rgba(0,0,0,0.10)] rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white';
 const labelCls = 'block text-xs font-medium text-slate-500 mb-1';
 
 const typeLabels: Record<Interview['type'], string> = {
@@ -153,7 +153,7 @@ const InterviewCalendar: React.FC = () => {
 
       {/* inline form */}
       {showForm && (
-        <div className="mb-5 p-5 bg-white rounded-xl shadow-sm border border-slate-100">
+        <div className="mb-5 p-5 bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.06)]">
           <h3 className="text-sm font-semibold text-slate-700 mb-4">
             {editingId ? '编辑面试' : '添加面试'}
           </h3>
@@ -212,7 +212,7 @@ const InterviewCalendar: React.FC = () => {
       {/* interview list */}
       <div className="space-y-3">
         {sorted.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div key={item.id} className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] border border-[rgba(0,0,0,0.06)] p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1 flex-wrap">

@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import type { PageKey } from './MainLayout';
 
-// Inline SVG paths — no CDN dependency, always renders
 const ICONS: Record<string, React.ReactNode> = {
   dashboard: <><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
   editor: <><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></>,
@@ -19,32 +18,44 @@ const LABELS: Record<string, string> = {
   chat: 'AI助手', tools: '求职工具', kanban: '求职看板', scanner: '职位扫描', settings: '设置',
 };
 
+const ARROW_SVG = (
+  <svg className="nav-arrow" viewBox="0 0 66 43">
+    <polygon points="39.58,4.46 44.11,0 66,21.5 44.11,43 39.58,38.54 56.94,21.5" />
+    <polygon points="19.79,4.46 24.32,0 46.21,21.5 24.32,43 19.79,38.54 37.15,21.5" />
+    <polygon points="0,4.46 4.53,0 26.42,21.5 4.53,43 0,38.54 17.36,21.5" />
+  </svg>
+);
+
 interface SidebarProps { activePage: PageKey; onPageChange: (page: PageKey) => void }
 
 export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
   const handleClick = useCallback((key: PageKey) => onPageChange(key), [onPageChange]);
+  const [appVersion, setAppVersion] = useState('');
+  useEffect(() => {
+    window.electronAPI?.getVersion().then(v => setAppVersion(v || '')).catch(() => {});
+  }, []);
 
   return (
-    <nav className="flex flex-col w-44 h-full bg-white border-r border-slate-200 py-3 gap-0.5 z-10 shadow-sm px-2">
+    <nav className="flex flex-col w-44 h-full py-4 gap-2 px-2.5" style={{ backgroundColor: '#FAF9F6', borderRight: '1px solid rgba(0,0,0,0.06)' }}>
       {Object.entries(ICONS).map(([key, svg]) => {
         const isActive = activePage === key;
         return (
           <button
             key={key}
             onClick={() => handleClick(key as PageKey)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ease-in-out ${
-              isActive
-                ? 'bg-sky-100 text-sky-600 shadow-sm'
-                : 'text-slate-400 hover:bg-slate-200/60 hover:text-slate-600'
-            }`}
+            className={`nav-btn ${isActive ? 'active' : ''}`}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {svg}
             </svg>
-            <span className="text-sm font-medium">{LABELS[key] || key}</span>
+            <span className="nav-label">{LABELS[key] || key}</span>
+            {ARROW_SVG}
           </button>
         );
       })}
+      <div className="text-[11px] font-mono mt-auto pt-3 px-3" style={{ color: '#A09890' }}>
+        {appVersion ? `v${appVersion}` : ''}
+      </div>
     </nav>
   );
 }

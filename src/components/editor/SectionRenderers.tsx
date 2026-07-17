@@ -20,7 +20,7 @@ export const SECTION_BG_COLORS: Record<SectionType, string> = {
 }
 
 export const COLOR_SWATCHES = [
-  '#14b8a6', '#0ea5e9', '#6366f1', '#a855f7',
+  '#D4875E', '#0ea5e9', '#6366f1', '#a855f7',
   '#ec4899', '#f43f5e', '#f97316', '#eab308',
   '#22c55e', '#06b6d4', '#8b5cf6', '#64748b',
 ]
@@ -91,7 +91,7 @@ const ExperienceRenderer = ({ section, onUpdate }: RendererProps) => {
       </div>
       <textarea className="w-full border rounded px-2 py-1.5 text-sm min-h-[60px] resize-y" value={item.description || ''} onChange={e => updateItem(idx, 'description', e.target.value)} placeholder="工作描述，每行一条" />
     </div>
-  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加工作经历</button></div>)
+  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加工作经历</button></div>)
 }
 
 const EducationRenderer = ({ section, onUpdate }: RendererProps) => {
@@ -117,7 +117,7 @@ const EducationRenderer = ({ section, onUpdate }: RendererProps) => {
         <div className="flex-1"><label className="block text-xs text-gray-400 mb-1">结束时间</label><input type="date" className="w-full border rounded px-2 py-1.5 text-sm" value={item.endDate || ''} onChange={e => updateItem(idx, 'endDate', e.target.value)} /></div>
       </div>
     </div>
-  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加教育经历</button></div>)
+  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加教育经历</button></div>)
 }
 
 const SkillsRenderer = ({ section, onUpdate }: RendererProps) => {
@@ -126,7 +126,7 @@ const SkillsRenderer = ({ section, onUpdate }: RendererProps) => {
   return (<div>
     <div className="flex gap-2 mb-3">
       <input className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={inputVal} onChange={e => setInputVal(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill() } }} placeholder="输入技能后回车添加" />
-      <button onClick={addSkill} className="px-3 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600">添加</button>
+      <button onClick={addSkill} className="px-3 py-2 bg-accent text-white rounded-lg text-sm hover:bg-accent-hover">添加</button>
     </div>
     <div className="flex flex-wrap gap-2">{skills.map((s, i) => (
       <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm">{s}<button onClick={() => onUpdate(section.id, { skills: skills.filter((_, j) => j !== i) })} className="hover:text-red-500"><i className="ph-light ph-x text-sm"></i></button></span>
@@ -153,7 +153,7 @@ const ProjectsRenderer = ({ section, onUpdate }: RendererProps) => {
       </div>
       <textarea className="w-full border rounded px-2 py-1.5 text-sm min-h-[60px] resize-y" value={item.description || ''} onChange={e => updateItem(idx, 'description', e.target.value)} placeholder="项目描述" />
     </div>
-  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加项目</button></div>)
+  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加项目</button></div>)
 }
 
 const CertificationsRenderer = ({ section, onUpdate }: RendererProps) => {
@@ -172,7 +172,7 @@ const CertificationsRenderer = ({ section, onUpdate }: RendererProps) => {
         <input type="date" className="border rounded px-2 py-1.5 text-sm" value={item.date || ''} onChange={e => updateItem(idx, 'date', e.target.value)} />
       </div>
     </div>
-  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加证书</button></div>)
+  ))}<button onClick={addItem} className="flex items-center gap-1 text-sm text-[#D4875E] hover:text-teal-700"><i className="ph-light ph-plus text-base"></i> 添加证书</button></div>)
 }
 
 export const SectionContentEditor = ({ section, onUpdate }: RendererProps) => {
@@ -192,6 +192,6 @@ export const EmptyState = ({ onCreate }: { onCreate: () => void }) => (
   <div className="flex flex-col items-center justify-center h-full text-gray-400">
     <i className="ph-light ph-file-text text-6xl mb-4"></i>
     <p className="text-lg mb-4">还没有选择简历</p>
-    <button onClick={onCreate} className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">创建新简历</button>
+    <button onClick={onCreate} className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors">创建新简历</button>
   </div>
 )

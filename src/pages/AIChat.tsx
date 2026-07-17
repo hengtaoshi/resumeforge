@@ -268,12 +268,13 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   return (
     <div
-      className="flex-1 p-8 overflow-y-auto flex gap-6 bg-[#F8F7F4] dark:bg-slate-900"
+      className="flex-1 p-8 overflow-y-auto flex gap-6"
+      style={{ backgroundColor: '#F4F2ED' }}
     >
 
       {/* ── Interview Panel ── */}
         <div className="w-60 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sticky top-0">
+          <div className="card-doc p-4 sticky top-0">
             {/* Panel header */}
             <div className="flex items-center gap-2 mb-4">
               <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center">
@@ -311,14 +312,14 @@ const AIChat: React.FC = () => {
                 <div className="space-y-2">
                   <button
                     onClick={switchRole}
-                    className="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200 flex items-center justify-center gap-1.5"
+                    className="w-full text-xs py-2 px-3 rounded-lg border border-[rgba(0,0,0,0.06)] text-[#A09890] hover:bg-[#F4F2ED] hover:text-[#D4875E] transition-all duration-200 flex items-center justify-center gap-1.5"
                   >
                     <i className="ph-light ph-swap text-sm" />
                     切换角色
                   </button>
                   <button
                     onClick={endInterview}
-                    className="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-all duration-200 flex items-center justify-center gap-1.5"
+                    className="w-full text-xs py-2 px-3 rounded-lg border border-[rgba(0,0,0,0.06)] text-rose-400 hover:bg-[#F4F2ED] hover:text-rose-500 transition-all duration-200 flex items-center justify-center gap-1.5"
                   >
                     <i className="ph-light ph-x-circle text-sm" />
                     结束面试
@@ -378,7 +379,7 @@ const AIChat: React.FC = () => {
 
         {/* Chat container */}
         <div
-          className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col"
+          className="card-doc flex flex-col"
           style={{ height: 'calc(100vh - 240px)' }}
         >
           {/* Messages area */}
@@ -452,7 +453,7 @@ const AIChat: React.FC = () => {
                       {formatContent(line)}
                     </React.Fragment>
                   ))}
-                  <span className="inline-block w-1.5 h-4 bg-teal-500 ml-0.5 animate-pulse" />
+                  <span className="inline-block w-1.5 h-4 bg-accent ml-0.5 animate-pulse" />
                 </div>
               </div>
             )}
@@ -540,22 +541,33 @@ const AIChat: React.FC = () => {
               title="附加文件">
               <i className="ph-light ph-paperclip text-lg" />
             </button>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="输入你的问题..."
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
-                style={{ color: '#1E293B' }}
-              />
+            <div className="chat-input-wrap">
+              <div className="chat-input-inner">
+                <div className="white"></div>
+                <div className="darkBorderBg"></div>
+                <div className="darkBorderBg"></div>
+                <div className="darkBorderBg"></div>
+                <div className="border"></div>
+                <div className="glow"></div>
+                <svg className="chat-input-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="输入你的问题..."
+                  className="chat-input"
+                />
+              </div>
             </div>
             <button
               onClick={handleSend}
               disabled={!inputText.trim() || isSending}
               className="w-9 h-9 rounded-lg flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.95] flex-shrink-0"
-              style={{ backgroundColor: '#14b8a6' }}
+              style={{ backgroundColor: '#D4875E' }}
             >
               <i className="ph-light ph-arrow-right text-lg" />
             </button>

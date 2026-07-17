@@ -19,7 +19,7 @@ const AVATAR_COLORS = [
   'bg-rose-500',
   'bg-cyan-500',
   'bg-orange-500',
-  'bg-teal-500',
+  'bg-accent',
 ]
 
 function getAvatarColor(index: number): string {
@@ -104,7 +104,7 @@ export default function NetworkRecommend() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Profile summary */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5">
+      <div className="bg-white border border-[rgba(0,0,0,0.10)] rounded-xl p-5">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">
           <i className="ph-light ph-user-circle text-slate-400 mr-1.5" />
           我的信息
@@ -145,7 +145,7 @@ export default function NetworkRecommend() {
           value={needs}
           onChange={(e) => setNeeds(e.target.value)}
           placeholder="例如：北京AI方向、想找大厂机会..."
-          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-[rgba(0,0,0,0.10)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
         />
       </div>
 
@@ -153,7 +153,7 @@ export default function NetworkRecommend() {
       <button
         onClick={handleRecommend}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-6 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-xl hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? (
           <>
@@ -182,7 +182,7 @@ export default function NetworkRecommend() {
             {results.map((c, i) => (
               <div
                 key={i}
-                className="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-4 hover:shadow-sm transition-shadow"
+                className="bg-white border border-[rgba(0,0,0,0.10)] rounded-xl p-4 flex items-start gap-4 hover:shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-shadow"
               >
                 <div
                   className={`w-10 h-10 rounded-full ${getAvatarColor(i)} flex items-center justify-center text-white text-sm font-bold shrink-0`}

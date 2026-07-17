@@ -55,7 +55,7 @@ export const ROLE_DESCRIPTIONS: Record<InterviewRole, string> = {
 };
 
 export const ROLE_COLORS: Record<InterviewRole, { bg: string; text: string; ring: string; badgeBg: string }> = {
-  hr:   { bg: 'bg-sky-50', text: 'text-sky-700', ring: 'ring-sky-200', badgeBg: 'bg-sky-500' },
+  hr:   { bg: 'bg-[rgba(212,135,94,0.10)]', text: 'text-[#D4875E]', ring: 'ring-sky-200', badgeBg: 'bg-[#D4875E]' },
   tech: { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-200', badgeBg: 'bg-emerald-500' },
   behavior: { bg: 'bg-violet-50', text: 'text-violet-700', ring: 'ring-violet-200', badgeBg: 'bg-violet-500' },
   scene: { bg: 'bg-amber-50', text: 'text-amber-700', ring: 'ring-amber-200', badgeBg: 'bg-amber-500' },

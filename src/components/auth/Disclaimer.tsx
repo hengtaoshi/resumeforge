@@ -12,11 +12,11 @@ export default function Disclaimer({ onClose }: { onClose: () => void }) {
         <div className="flex border-b border-slate-200 shrink-0">
           <button
             onClick={() => setPage('terms')}
-            className={`flex-1 py-3.5 text-sm font-medium transition-colors ${page === 'terms' ? 'text-sky-600 border-b-2 border-sky-500' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex-1 py-3.5 text-sm font-medium transition-colors ${page === 'terms' ? 'text-[#D4875E] border-b-2 border-[#D4875E]' : 'text-slate-400 hover:text-slate-600'}`}
           >服务条款</button>
           <button
             onClick={() => setPage('privacy')}
-            className={`flex-1 py-3.5 text-sm font-medium transition-colors ${page === 'privacy' ? 'text-sky-600 border-b-2 border-sky-500' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex-1 py-3.5 text-sm font-medium transition-colors ${page === 'privacy' ? 'text-[#D4875E] border-b-2 border-[#D4875E]' : 'text-slate-400 hover:text-slate-600'}`}
           >隐私政策</button>
         </div>
 
@@ -25,7 +25,7 @@ export default function Disclaimer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="px-6 pb-5 shrink-0">
-          <button onClick={onClose} className="w-full py-2.5 bg-sky-500 text-white rounded-lg text-sm font-medium hover:bg-sky-600 transition-colors">我知道了</button>
+          <button onClick={onClose} className="w-full py-2.5 bg-[#D4875E] text-white rounded-lg text-sm font-medium hover:bg-[#E09A72] transition-colors">我知道了</button>
         </div>
       </div>
     </div>

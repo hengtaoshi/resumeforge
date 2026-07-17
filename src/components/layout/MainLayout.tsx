@@ -12,7 +12,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children, activePage, onPageChange }: MainLayoutProps) {
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-[#F8F7F4]">
+    <div className="flex flex-col h-full w-full overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
       {/* Title bar at top */}
       <TitleBar />
 

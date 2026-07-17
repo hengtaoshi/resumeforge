@@ -16,13 +16,13 @@ const TOOLS: { name: ToolName; icon: string; desc: string; iconBg: string; iconC
   { name: '人脉推荐', icon: 'ph-users-three', desc: '基于你的行业和职业目标，智能推荐值得建立联系的业内人士。', iconBg: 'bg-violet-50', iconColor: 'text-violet-500' },
   { name: '关键词优化', icon: 'ph-magnifying-glass', desc: '分析职位描述关键词，优化简历内容以提升 ATS 匹配度。', iconBg: 'bg-blue-50', iconColor: 'text-blue-500' },
   { name: '面试技巧', icon: 'ph-chat-circle-text', desc: '非技术类面试高频问题应答策略，覆盖离职原因、优缺点、团队冲突等场景。', iconBg: 'bg-teal-50', iconColor: 'text-teal-500' },
-  { name: '职业定位', icon: 'ph-compass', desc: '基于你的职业背景和技能，AI 推荐适合的发展方向并分析能力短板。', iconBg: 'bg-sky-50', iconColor: 'text-sky-500' },
+  { name: '职业定位', icon: 'ph-compass', desc: '基于你的职业背景和技能，AI 推荐适合的发展方向并分析能力短板。', iconBg: 'bg-[rgba(212,135,94,0.10)]', iconColor: 'text-[#D4875E]' },
 ]
 
 function ToolShell({ title, children, onBack }: { title: string; children: React.ReactNode; onBack: () => void }) {
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F8F7F4]">
-      <div className="sticky top-0 z-10 bg-[#F8F7F4] border-b border-slate-200 px-8 py-3 flex items-center gap-3">
+    <div className="flex-1 overflow-y-auto bg-[#F4F2ED]">
+      <div className="sticky top-0 z-10 bg-[#F4F2ED] border-b border-slate-200 px-8 py-3 flex items-center gap-3">
         <button onClick={onBack} className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>返回
         </button>
@@ -64,7 +64,7 @@ const CareerTools: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4]">
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED]">
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 mb-3">
           <i className="ph-light ph-suitcase text-sm" />Career Tools
@@ -75,7 +75,7 @@ const CareerTools: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TOOLS.map(t => (
           <div key={t.name} onClick={() => setActiveTool(t.name)}
-            className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all duration-200 cursor-pointer group flex items-start gap-4"
+            className="card-doc p-5 hover:shadow-md transition-all duration-200 cursor-pointer group flex items-start gap-4"
           >
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${t.iconBg} ${t.iconColor} group-hover:scale-110 transition-transform duration-200`}>
               <i className={`ph-light ${t.icon}`} />

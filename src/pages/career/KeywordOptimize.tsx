@@ -97,7 +97,7 @@ ${skillList.length > 0 ? skillList.join('、') : '（暂未填写）'}
           onChange={(e) => setJdText(e.target.value)}
           rows={8}
           placeholder="请粘贴职位描述内容..."
-          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent resize-y"
+          className="w-full px-4 py-3 border border-[rgba(0,0,0,0.10)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent resize-y"
         />
       </div>
 
@@ -105,7 +105,7 @@ ${skillList.length > 0 ? skillList.join('、') : '（暂未填写）'}
       <button
         onClick={handleAnalyze}
         disabled={loading || !jdText.trim()}
-        className="inline-flex items-center gap-2 px-6 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-xl hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? (
           <>
@@ -127,7 +127,7 @@ ${skillList.length > 0 ? skillList.join('、') : '（暂未填写）'}
       {result ? (
         <div className="space-y-5">
           {/* Summary */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
+          <div className="bg-white border border-[rgba(0,0,0,0.10)] rounded-xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-sm font-semibold text-slate-700">匹配概览</span>
               <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
@@ -193,7 +193,7 @@ ${skillList.length > 0 ? skillList.join('、') : '（暂未填写）'}
                     key={i}
                     className="flex items-start gap-2.5 text-sm text-slate-600 leading-relaxed"
                   >
-                    <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-600 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-full bg-teal-100 text-[#D4875E] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                       {i + 1}
                     </span>
                     {s}

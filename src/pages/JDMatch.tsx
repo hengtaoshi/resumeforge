@@ -238,10 +238,10 @@ const JDMatch: React.FC = () => {
   const matchCounts = result?.matchCounts ?? { good: 0, partial: 0, missing: 0 };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-[#F8F7F4] dark:bg-slate-900">
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-50 text-sky-600 mb-3">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[rgba(212,135,94,0.10)] text-[#D4875E] mb-3">
           <i className="ph-light ph-target text-sm" />
           JD Match
         </span>
@@ -257,7 +257,7 @@ const JDMatch: React.FC = () => {
       <div className="flex gap-6">
         {/* Left: JD input */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="card-doc p-5">
             <label className="block text-sm font-medium mb-2" style={{ color: '#1E293B' }}>
               粘贴职位描述 (JD)
             </label>
@@ -265,7 +265,7 @@ const JDMatch: React.FC = () => {
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               placeholder="请将职位描述粘贴到这里..."
-              className="w-full h-64 p-4 rounded-lg border border-slate-200 resize-none text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
+              className="w-full h-64 p-4 rounded-lg border border-slate-200 resize-none text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200 bg-[#F4F2ED] dark:bg-slate-900"
              
             />
 
@@ -274,7 +274,7 @@ const JDMatch: React.FC = () => {
                 onClick={handleAnalyze}
                 disabled={!jdText.trim() || analyzing}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
-                style={{ backgroundColor: '#14b8a6' }}
+                style={{ backgroundColor: '#D4875E' }}
               >
                 {analyzing ? (
                   <>
@@ -294,7 +294,7 @@ const JDMatch: React.FC = () => {
 
               <button
                 onClick={handleFileUpload}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 bg-[#F8F7F4] dark:bg-slate-900"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 bg-[#F4F2ED] dark:bg-slate-900"
                 style={{ color: '#1E293B' }}
               >
                 <i className="ph-light ph-upload text-base" />
@@ -314,7 +314,7 @@ const JDMatch: React.FC = () => {
         {/* Right: Match results */}
         <div className="w-[420px] flex-shrink-0">
           {!showResult || !result ? (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 h-full flex flex-col items-center justify-center text-center">
+            <div className="card-doc p-5 h-full flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
                 <i className="ph-light ph-chart-bar text-3xl text-slate-300" />
               </div>
@@ -325,7 +325,7 @@ const JDMatch: React.FC = () => {
           ) : (
             <div className="flex flex-col gap-5">
               {/* Score ring card */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+              <div className="card-doc p-6">
                 <h3 className="text-sm font-semibold mb-5" style={{ color: '#1E293B' }}>
                   匹配评分
                 </h3>
@@ -338,7 +338,7 @@ const JDMatch: React.FC = () => {
                       <circle
                         cx="60" cy="60" r="54"
                         fill="none"
-                        stroke="#14b8a6"
+                        stroke="#D4875E"
                         strokeWidth="8"
                         strokeLinecap="round"
                         strokeDasharray={circumference}
@@ -390,7 +390,7 @@ const JDMatch: React.FC = () => {
                   onClick={handleTailorResume}
                   disabled={tailoring}
                   className="w-full mt-5 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#14b8a6' }}
+                  style={{ backgroundColor: '#D4875E' }}
                 >
                   {tailoring ? (
                     <>
@@ -436,7 +436,7 @@ const JDMatch: React.FC = () => {
               </div>
 
               {/* Gap analysis */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+              <div className="card-doc p-6">
                 <h3 className="text-sm font-semibold mb-4" style={{ color: '#1E293B' }}>
                   差距分析
                 </h3>
@@ -470,7 +470,7 @@ const JDMatch: React.FC = () => {
 
               {/* ATS Evaluation Results */}
               {atsResult && (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                <div className="card-doc p-6">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="text-sm font-semibold" style={{ color: '#1E293B' }}>
                       ATS 深度评估
@@ -531,7 +531,7 @@ const JDMatch: React.FC = () => {
                   </div>
 
                   {/* Summary */}
-                  <div className="p-3 rounded-lg mb-4 bg-[#F8F7F4] dark:bg-slate-900">
+                  <div className="p-3 rounded-lg mb-4 bg-[#F4F2ED] dark:bg-slate-900">
                     <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                       {atsResult.summary}
                     </p>

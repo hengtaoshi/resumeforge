@@ -20,7 +20,7 @@ const ENCOURAGEMENTS = [
   '每一步都算数，加油！⭐',
 ]
 
-const CONFETTI_COLORS = ['#14b8a6', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+const CONFETTI_COLORS = ['#D4875E', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
 // ponytail: minimal markdown renderer for review result
 function RenderMarkdown({ text }: { text: string }) {
@@ -117,13 +117,13 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
         <div className="px-6 pt-4 pb-3 border-b border-slate-100 space-y-3">
           <div className="flex gap-3">
             <input value={company} onChange={e => setCompany(e.target.value)} placeholder="公司名称" maxLength={100}
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-accent transition-colors" />
             <input value={role} onChange={e => setRole(e.target.value)} placeholder="职位" maxLength={100}
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-accent transition-colors" />
           </div>
           <div className="flex gap-3">
             <select value={type} onChange={e => setType(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors bg-white">
+              className="px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-accent transition-colors bg-white">
               <option value="tech">技术面</option>
               <option value="hr">HR面</option>
               <option value="behavior">行为面</option>
@@ -131,7 +131,7 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
               <option value="other">其他</option>
             </select>
             <input value={note} onChange={e => setNote(e.target.value)} placeholder="备注（选填）" maxLength={200}
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors" />
+              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-accent transition-colors" />
             <button onClick={handleAdd} disabled={adding}
               className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 transition-colors whitespace-nowrap">
               {adding ? '保存中...' : '新增面试'}
@@ -158,7 +158,7 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
                 </p>
                 {iv.note && <p className="text-xs text-slate-400 mt-0.5">{iv.note}</p>}
                 <button onClick={() => startReview(iv)}
-                  className={`mt-1.5 text-xs px-2 py-0.5 rounded-full border transition-colors ${iv.review ? 'bg-teal-50 text-teal-600 border-teal-200 hover:bg-teal-100' : 'text-slate-400 border-slate-200 hover:border-teal-300 hover:text-teal-500'}`}>
+                  className={`mt-1.5 text-xs px-2 py-0.5 rounded-full border transition-colors ${iv.review ? 'bg-teal-50 text-[#D4875E] border-teal-200 hover:bg-teal-100' : 'text-slate-400 border-slate-200 hover:border-accent hover:text-teal-500'}`}>
                   <i className="ph-light ph-arrows-clockwise text-xs mr-0.5" />复盘
                 </button>
               </div>
@@ -186,7 +186,7 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
               <div className="flex-1 overflow-y-auto p-6">
                 <RenderMarkdown text={reviewResult} />
                 <button onClick={() => { setReviewingId(null); setReviewResult(null) }}
-                  className="mt-4 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 transition-colors">
+                  className="mt-4 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-accent hover:bg-accent-hover transition-colors">
                   返回面试记录
                 </button>
               </div>
@@ -198,10 +198,10 @@ export default function InterviewModal({ onClose, onUpdate }: Props) {
                 </p>
                 <textarea value={reviewNotes} onChange={e => setReviewNotes(e.target.value)}
                   placeholder="例如：面试官先让我做了自我介绍，然后问了一个系统设计题…\n我回答的时候感觉在XXX方面不够好…\n面试官追问了XXX，我当时没答上来…"
-                  className="w-full h-48 px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-teal-400 transition-colors resize-none"
+                  className="w-full h-48 px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-accent transition-colors resize-none"
                   style={{ color: '#1E293B' }} />
                 <button onClick={submitReview} disabled={reviewing || !reviewNotes.trim()}
-                  className="mt-3 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 disabled:opacity-50 transition-colors">
+                  className="mt-3 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-accent hover:bg-accent-hover disabled:opacity-50 transition-colors">
                   {reviewing ? '🤔 AI 正在分析...' : '🚀 提交复盘'}
                 </button>
               </div>
