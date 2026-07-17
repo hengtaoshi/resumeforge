@@ -273,14 +273,13 @@ const JDMatch: React.FC = () => {
               <button
                 onClick={handleAnalyze}
                 disabled={!jdText.trim() || analyzing}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
-                style={{ backgroundColor: '#D4875E' }}
+                className="btn-pill primary shrink-0"
               >
                 {analyzing ? (
                   <>
                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.293 0 0 5.293 0 12h4z" />
                     </svg>
                     分析中...
                   </>
@@ -294,8 +293,7 @@ const JDMatch: React.FC = () => {
 
               <button
                 onClick={handleFileUpload}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 bg-[#F4F2ED] dark:bg-slate-900"
-                style={{ color: '#1E293B' }}
+                className="btn-pill secondary"
               >
                 <i className="ph-light ph-upload text-base" />
                 上传文件
@@ -389,8 +387,7 @@ const JDMatch: React.FC = () => {
                 <button
                   onClick={handleTailorResume}
                   disabled={tailoring}
-                  className="w-full mt-5 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#D4875E' }}
+                  className="btn-pill primary w-full mt-5"
                 >
                   {tailoring ? (
                     <>
@@ -411,7 +408,7 @@ const JDMatch: React.FC = () => {
                 <button
                   onClick={handleATSEval}
                   disabled={atsAnalyzing}
-                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="btn-pill secondary w-full mt-3"
                   style={{
                     color: atsResult ? '#6366F1' : '#6366F1',
                     borderColor: atsResult ? '#6366F1' : '#C7D2FE',

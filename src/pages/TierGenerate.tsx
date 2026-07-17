@@ -360,8 +360,7 @@ const TierGenerate: React.FC = () => {
     return (
       <button
         onClick={(e) => { e.stopPropagation(); handleGenerate(card.id); }}
-        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98]"
-        style={{ backgroundColor: '#D4875E' }}>
+        className="btn-pill primary w-full">
         <i className="ph-light ph-magic-wand text-base" />
         生成此版本
       </button>

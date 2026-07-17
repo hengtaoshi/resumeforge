@@ -244,7 +244,7 @@ function ChangePassword() {
       </div>
       {msg && <p className={`text-xs ${msg.includes('成功') ? 'text-green-600' : 'text-red-500'}`}>{msg}</p>}
       <button onClick={handleSave} disabled={saving}
-        className="px-4 py-2 bg-[#D4875E] text-white rounded-lg text-sm font-medium hover:bg-[#E09A72] disabled:opacity-50 transition-colors">
+        className="btn-pill primary disabled:opacity-50">
         {saving ? '修改中...' : '修改密码'}
       </button>
     </div>

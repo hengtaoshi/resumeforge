@@ -32,7 +32,7 @@ body {
 
 /* ─── Sidebar Nav Button (Li-Deheng style) — GPU optimized ─── */
 .nav-btn {
-  --btn-size: 1.05em;
+  --btn-size: 0.875em;
   --btn-text: var(--text-muted);
   --btn-bg: transparent;
   --btn-bg-hover: var(--accent-muted);

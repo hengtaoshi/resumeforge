@@ -221,11 +221,11 @@ const Editor = () => {
           <div className="p-4 border-b bg-white flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">我的简历</h2>
             <div className="flex items-center gap-1">
-              <label className="cursor-pointer flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-[rgba(212,135,94,0.10)] text-[#D4875E] hover:bg-[rgba(212,135,94,0.15)] border border-[rgba(212,135,94,0.20)] transition-colors" title="导入简历文件">
+              <label className="btn-pill primary !text-xs !px-3 !py-1.5 inline-flex items-center gap-1.5 cursor-pointer" title="导入简历文件">
                 <input type="file" accept=".txt,.docx,.pdf" className="hidden" onChange={handleImportResume} />
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>导入
               </label>
-              <button onClick={() => { setImportText(''); setShowTextImport(true) }} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors" title="粘贴文本导入">
+              <button onClick={() => { setImportText(''); setShowTextImport(true) }} className="btn-pill primary !text-xs !px-3 !py-1.5 inline-flex items-center gap-1.5" title="粘贴文本导入">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>粘贴
               </button>
               {resumes.length > 0 && <button onClick={() => { setResumeDeleteMode(!resumeDeleteMode); setSelectedResumes([]) }} className={`text-xs px-2 py-1 rounded transition-colors ${resumeDeleteMode ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-gray-600'}`}>{resumeDeleteMode ? '完成' : '批量删除'}</button>}

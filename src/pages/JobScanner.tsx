@@ -270,7 +270,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   />
                   <button
                     onClick={handleManualImport}
-                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
+                    className="btn-pill primary w-full"
                   >
                     导入职位
                   </button>
@@ -313,7 +313,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   </div>
                   <button
                     onClick={handleUrlImport}
-                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
+                    className="btn-pill primary w-full"
                   >
                     导入链接
                   </button>
@@ -334,7 +334,7 @@ export default function JobScanner({ onPageChange }: JobScannerProps) {
                   />
                   <button
                     onClick={handleBatchImport}
-                    className="w-full py-2.5 bg-[#D4875E] hover:bg-[#E09A72] text-white text-sm font-medium rounded-lg transition-colors"
+                    className="btn-pill primary w-full"
                   >
                     批量导入
                   </button>
