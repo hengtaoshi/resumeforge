@@ -11,11 +11,11 @@ async function testConnectionIPC(opts: { provider: string; apiKey: string; model
 import toast from '@/lib/toast';
 
 const Toggle: React.FC<{ active: boolean; onClick: () => void }> = ({ active, onClick }) => (
-  <label className="rocker rocker-small" onClick={onClick} style={{ cursor: 'pointer', margin: 0 }}>
+  <span className="rocker rocker-small" onClick={onClick} style={{ cursor: 'pointer', margin: 0 }}>
     <input type="checkbox" checked={active} readOnly />
     <span className="switch-left">开</span>
     <span className="switch-right">关</span>
-  </label>
+  </span>
 );
 
 const PROVIDER_LABELS: Record<string, string> = {
