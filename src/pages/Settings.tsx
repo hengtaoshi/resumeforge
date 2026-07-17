@@ -54,6 +54,7 @@ const Settings: React.FC = () => {
     setApiKey, setProvider, setModel, toggleTheme, setLanguage, setDefaultTemplate, setAutoSave, setExportLimit } = useSettingsStore();
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [showAllProviders, setShowAllProviders] = useState(false);
   const currentKey = apiKeys[aiProvider];
 
   // Apply dark mode class to html element
@@ -88,19 +89,49 @@ const Settings: React.FC = () => {
           </h2>
           {(() => {
             const COMMON = ['openai', 'anthropic', 'deepseek', 'qwen']
-            const [showAll, setShowAll] = useState(false)
-            const visible = showAll ? providerOrder : providerOrder.filter(p => COMMON.includes(p))
+            const all = providerOrder.map((p, i) => ({ p, i, hidden: !showAllProviders && !COMMON.includes(p) }))
+            const total = all.length
+            const selectedIdx = providerOrder.indexOf(aiProvider)
             return <>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {visible.map(p => (
-                  <button key={p} onClick={() => setProvider(p)}
-                    className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
-                      aiProvider === p ? 'bg-[#D4875E] text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
-                    }`}>{PROVIDER_LABELS[p]}</button>
+              <style>{`
+                .radio-glider {
+                  position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+                  background: linear-gradient(0deg,transparent 0%,rgba(0,0,0,0.08) 50%,transparent 100%);
+                }
+                .dark .radio-glider {
+                  background: linear-gradient(0deg,transparent 0%,rgba(255,255,255,0.08) 50%,transparent 100%);
+                }
+                .radio-glider-inner {
+                  height: calc(100% / ${total}); width: 100%;
+                  background: linear-gradient(0deg,transparent 0%,#D4875E 50%,transparent 100%);
+                  transition: transform 0.5s cubic-bezier(0.37,1.95,0.66,0.56);
+                  transform: translateY(${selectedIdx * 100}%);
+                  position: relative;
+                }
+                .radio-glider-inner::before {
+                  content: ''; position: absolute; height: 60%; width: 300%; top: 50%;
+                  transform: translateY(-50%); background: #D4875E; filter: blur(10px);
+                }
+                .radio-glider-inner::after {
+                  content: ''; position: absolute; left: 0; height: 100%; width: 150px;
+                  background: linear-gradient(90deg,rgba(212,135,94,0.12) 0%,transparent 100%);
+                }
+                .radio-item input:checked + span { color: #D4875E; font-weight: 600; }
+              `}</style>
+              <div className="relative pl-5">
+                <div className="radio-glider"><div className="radio-glider-inner" /></div>
+                {all.map(({ p, i, hidden }) => (
+                  <label key={p} className={`radio-item flex items-center gap-2 py-1.5 ${hidden ? 'hidden' : ''}`}>
+                    <input type="radio" name="ai-provider" checked={aiProvider === p}
+                      onChange={() => setProvider(p)} className="hidden" />
+                    <span className="text-sm text-slate-500 dark:text-slate-400 transition-all duration-300 cursor-pointer">
+                      {PROVIDER_LABELS[p]}
+                    </span>
+                  </label>
                 ))}
-                {!showAll && providerOrder.length > COMMON.length && (
-                  <button onClick={() => setShowAll(true)}
-                    className="px-2.5 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-slate-600 border border-dashed border-slate-200 hover:border-slate-300">
+                {!showAllProviders && providerOrder.length > COMMON.length && (
+                  <button onClick={() => setShowAllProviders(true)}
+                    className="text-xs text-slate-400 hover:text-slate-600 mt-1">
                     +{providerOrder.length - COMMON.length} 更多
                   </button>
                 )}
