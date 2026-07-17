@@ -102,7 +102,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
         .ul-error { font-size: 10px; color: #D4875E; }
       `}</style>
 
-      <label className="ul-label" onClick={handleClick} style={{ pointerEvents: status === 'checking' || status === 'downloading' ? 'none' : 'auto' }}>
+      <span className="ul-label" onClick={handleClick} style={{ pointerEvents: status === 'checking' || status === 'downloading' ? 'none' : 'auto' }}>
         <input type="checkbox" className="ul-input" checked={isOn} readOnly />
         <span className="ul-circle">
           {status === 'checking' && <div className="ul-spinner" />}
@@ -128,7 +128,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
         <span className="ul-title">
           {status === 'downloaded' ? '立即重启' : status === 'available' ? `v${version || ''}` : ''}
         </span>
-      </label>
+      </span>
       {status === 'error' && <span className="ul-error">失败，点击重试</span>}
     </div>
   )
