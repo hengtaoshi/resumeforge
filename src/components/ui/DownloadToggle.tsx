@@ -43,12 +43,15 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
           transition: all .35s ease;
           position: absolute;
           right: 10px;
-          bottom: 8px;
+          bottom: 9px;
           text-align: center;
           white-space: nowrap;
           font-weight: 500;
+          line-height: 1;
+          font-family: inherit;
         }
         .ul-title:last-child { opacity: ${isOn ? 1 : 0}; visibility: ${isOn ? 'visible' : 'hidden'}; }
+        ${isInstalling ? '.ul-title { opacity: 0; visibility: hidden; }' : ''}
 
         .ul-circle {
           height: 26px; width: 26px;
@@ -79,12 +82,12 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
         }
         .ul-circle::before {
           content: "";
-          position: absolute; left: 0; top: 0;
-          background-color: rgba(0,0,0,.15);
-          width: 100%; height: 0;
-          transition: all .35s ease;
+          position: absolute; left: 0; bottom: 0;
+          background-color: rgba(0,0,0,.18);
+          width: 100%; height: ${isInstalling ? (percent ?? 0) : 0}%;
+          transition: height .3s ease;
         }
-        ${isInstalling ? `.ul-circle::before { animation: installing 3s ease-in-out forwards; }
+        ${isInstalling ? `.ul-circle { animation: pulse 1s forwards; rotate: 180deg; }
         .ul-circle .icon { opacity: 0; visibility: hidden; }
         .ul-circle .square { opacity: 1; visibility: visible; }` : ''}
 
@@ -106,7 +109,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
         <input type="checkbox" className="ul-input" checked={isOn} readOnly />
         <span className="ul-circle">
           {status === 'checking' && <div className="ul-spinner" />}
-          {status === 'downloading' && <><div className="ul-spinner" /><span className="ul-percent">{percent || 0}%</span></>}
+          {status === 'downloading' && <span className="ul-percent">{percent || 0}%</span>}
           {status === 'idle' && (
             <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 14-4-4m4 4 4-4" />

@@ -268,8 +268,7 @@ const AIChat: React.FC = () => {
   // ---------------------------------------------------------------------------
   return (
     <div
-      className="flex-1 p-8 overflow-y-auto flex gap-6"
-      style={{ backgroundColor: '#F4F2ED' }}
+      className="flex-1 p-8 overflow-y-auto flex gap-6 bg-[#F4F2ED] dark:bg-slate-900"
     >
 
       {/* ── Interview Panel ── */}

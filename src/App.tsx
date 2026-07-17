@@ -22,7 +22,7 @@ export default function App() {
     checkAuth().finally(() => setInitDone(true))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!initDone) return <div className="h-full" style={{ backgroundColor: '#F4F2ED' }} />
+  if (!initDone) return <div className="h-full bg-[#F4F2ED] dark:bg-slate-900" />
 
   if (!user) return <LoginPage />
 

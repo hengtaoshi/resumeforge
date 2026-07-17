@@ -36,7 +36,7 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
   }, []);
 
   return (
-    <nav className="flex flex-col w-44 h-full py-4 gap-2 px-2.5" style={{ backgroundColor: '#FAF9F6', borderRight: '1px solid rgba(0,0,0,0.06)' }}>
+    <nav className="flex flex-col w-44 h-full py-4 gap-2 px-2.5 bg-[#FAF9F6] dark:bg-slate-900" style={{ borderRight: '1px solid rgba(0,0,0,0.06)' }}>
       {Object.entries(ICONS).map(([key, svg]) => {
         const isActive = activePage === key;
         return (

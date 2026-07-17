@@ -49,7 +49,7 @@ export default function TitleBar() {
 
   return (
     <>
-      <div className="flex items-center justify-between h-[44px] select-none" style={{ backgroundColor: '#FAF9F6', borderBottom: '1px solid rgba(0,0,0,0.06)', WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      <div className="flex items-center justify-between h-[44px] select-none bg-[#FAF9F6] dark:bg-slate-900" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)', WebkitAppRegion: 'drag' } as React.CSSProperties}>
         <div className="flex items-center gap-3 pl-4">
           <div className="flex items-center gap-[6px]" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
             {trafficLights.map((light) => (

@@ -104,7 +104,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto" style={{ backgroundColor: '#F4F2ED' }}>
+    <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900">
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">

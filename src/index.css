@@ -243,6 +243,11 @@ body {
 .dark .text-gray-500 { color: #94a3b8 !important; }
 .dark .text-gray-400 { color: #64748b !important; }
 .dark .text-gray-800 { color: #f1f5f9 !important; }
+.dark .text-gray-900 { color: #f1f5f9 !important; }
+.dark [style*="color: #1C1814"],
+.dark [style*="color:#1C1814"],
+.dark [style*="color: #1E293B"],
+.dark [style*="color:#1E293B"] { color: #e2e8f0 !important; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 4px; }
