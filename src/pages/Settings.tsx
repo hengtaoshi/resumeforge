@@ -95,7 +95,7 @@ const Settings: React.FC = () => {
                 {visible.map(p => (
                   <button key={p} onClick={() => setProvider(p)}
                     className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
-                      aiProvider === p ? 'bg-accent text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
+                      aiProvider === p ? 'bg-[#D4875E] text-white shadow-sm' : 'bg-slate-50 text-slate-500 dark:text-slate-400 border border-slate-200 hover:bg-slate-100'
                     }`}>{PROVIDER_LABELS[p]}</button>
                 ))}
                 {!showAll && providerOrder.length > COMMON.length && (
@@ -116,7 +116,7 @@ const Settings: React.FC = () => {
               <input type={showKey ? 'text' : 'password'} value={currentKey || ''}
                 onChange={e => setApiKey(aiProvider, e.target.value)}
                 placeholder={`输入 ${PROVIDER_LABELS[aiProvider]} API Key`}
-                className="w-full text-sm px-2.5 py-1.5 rounded-md border border-slate-200 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none focus:border-brand-300"/>
+                className="w-full text-sm px-2.5 py-1.5 pr-8 rounded-md border border-slate-200 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none focus:border-brand-300"/>
               <button onClick={() => setShowKey(!showKey)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 dark:text-slate-400">
                 <i className={`ph-light text-sm ${showKey ? 'ph-eye-slash' : 'ph-eye'}`} />
               </button>
