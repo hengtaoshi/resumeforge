@@ -34,7 +34,7 @@ export default function LoginPage() {
     const e = email.trim()
     if (!n) return
     if (e && !/^[^\s@]+@[^\s@]+$/.test(e)) return
-    const avatarPath = selectedAvatar ? `/avatars/users/${selectedAvatar}` : ''
+    const avatarPath = selectedAvatar ? `avatars/users/${selectedAvatar}` : ''
     setLocalUser(n || '用户', e || 'local@user.com', avatarPath)
   }
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
                         isSelected ? 'border-[#D4875E] ring-2 ring-[#D4875E]/30 scale-105' : `${border} hover:border-slate-300`
                       }`}
                     >
-                      <img src={`/avatars/users/${a.file}`} alt="avatar" className="w-full h-full object-cover" />
+                      <img src={`avatars/users/${a.file}`} alt="avatar" className="w-full h-full object-cover" />
                     </button>
                   );
                 })}
