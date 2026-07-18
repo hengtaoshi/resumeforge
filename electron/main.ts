@@ -48,8 +48,19 @@ function setupAutoUpdater() {
   })
 }
 
-ipcMain.handle('update:check', () => {
-  autoUpdater.checkForUpdates()
+ipcMain.handle('update:check', async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates()
+    if (result?.updateInfo) {
+      sendUpdateStatus('available', {
+        version: result.updateInfo.version,
+        releaseNotes: result.updateInfo.releaseNotes,
+        releaseDate: result.updateInfo.releaseDate,
+      })
+    }
+  } catch (err: any) {
+    sendUpdateStatus('error', { message: err?.message ?? String(err) })
+  }
 })
 
 ipcMain.handle('update:download', () => {
