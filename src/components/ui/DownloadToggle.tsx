@@ -140,7 +140,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
           <div className="dl-square" />
         </span>
         <span className="dl-title">
-          {status === 'checking' ? '检查中' : status === 'idle' ? '检查更新' : status === 'available' ? '下载' : downloading ? '下载中' : '已就绪'}
+          {status === 'checking' ? '检查中' : status === 'idle' ? '检查更新' : status === 'available' ? '下载' : ''}
         </span>
         <span className="dl-title">
           {done ? '立即重启' : ''}
