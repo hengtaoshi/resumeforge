@@ -64,7 +64,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
           opacity: ${downloading ? 0 : 1};
           visibility: ${downloading ? 'hidden' : 'visible'};
         }
-        .dl-label .dl-title:last-child { opacity: ${done ? 1 : 0}; visibility: ${done ? 'visible' : 'hidden'}; right: ${done ? 32 : 10}px; color: ${done ? '#5A7A5A' : '#6B6560'}; }
+        .dl-label .dl-title:last-child { opacity: ${done ? 1 : 0}; visibility: ${done ? 'visible' : 'hidden'}; right: ${done ? 10 : 10}px; color: ${done ? '#D4875E' : '#6B6560'}; ${done ? 'left:0;right:0;text-align:center;' : ''} }
         .dl-label .dl-circle {
           height: 26px; width: 26px;
           border-radius: 50%;
@@ -138,7 +138,6 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
           )}
           <div className="dl-square" />
         </span>
-        {downloading && <span style={{ color: '#D4875E', fontSize: 10, fontWeight: 600, marginLeft: 6, whiteSpace: 'nowrap' }}>{pct}%</span>}
         <span className="dl-title">
           {status === 'checking' ? '检查中' : status === 'idle' ? '检查更新' : status === 'available' ? '下载' : ''}
         </span>
