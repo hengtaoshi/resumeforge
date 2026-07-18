@@ -105,6 +105,43 @@ const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
 
   return (
     <div className="flex-1 p-8 overflow-y-auto bg-[#F4F2ED] dark:bg-slate-900">
+      {/* AI Guide Hero — 主功能入口 */}
+      <div
+        className="rounded-2xl p-6 mb-8 cursor-pointer transition-all duration-300 hover:shadow-xl group relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #D4875E 0%, #B8656F 50%, #A0607A 100%)' }}
+        onClick={() => onPageChange?.('tiers')}
+      >
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.4) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)'
+        }} />
+        <div className="relative z-10 flex items-center gap-6">
+          <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-white/20 backdrop-blur items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2.5a.5.5 0 01.5.5v2.5h2.5a.5.5 0 01.35.85l-2.5 2.5a.5.5 0 01-.85-.35V6h-2.5a.5.5 0 01-.35-.85l2.5-2.5A.5.5 0 0114.5 2.5zM18 14a.5.5 0 01.5.5V17h2.5a.5.5 0 01.35.85l-2.5 2.5A.5.5 0 0118 20v-2.5h-2.5a.5.5 0 01-.35-.85l2.5-2.5A.5.5 0 0118 14zM8 16a4 4 0 01-4-4V5a2 2 0 012-2h6v2H6v7a2 2 0 004 0v-1h2v1a4 4 0 01-4 4z"/>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-white/90 bg-white/15 backdrop-blur">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                主功能
+              </span>
+              <span className="text-[11px] text-white/60">点击开始 AI 引导</span>
+            </div>
+            <h2 className="text-xl font-bold text-white mb-1">AI 引导生成简历</h2>
+            <p className="text-sm text-white/80 max-w-lg">
+              与 AI 职业顾问对话，一步步帮你打造一份量身定制的专业简历。从行业到经历，从技能到故事，每个细节都精心打磨。
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-white/80 group-hover:translate-x-1 transition-transform">
+            <span className="text-sm font-medium">开始</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+        </div>
+        {/* 底部装饰线 */}
+        <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-600 mb-3">

@@ -17,8 +17,8 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
-  setLocalUser: (name: string, email: string) => void
-  updateLocalUser: (name: string, email: string) => void
+  setLocalUser: (name: string, email: string, avatar?: string) => void
+  updateLocalUser: (name: string, email: string, avatar?: string) => void
 }
 
 function cleanError(err: any): string {
@@ -76,8 +76,8 @@ export const useAuthStore = create<AuthState>()(
           throw new Error(cleanError(e))
         }
       },
-      setLocalUser: (name, email) => set({ user: { id: 'local', email, nickname: name, avatar: '' } }),
-  updateLocalUser: (name, email) => set((s) => ({ user: s.user ? { ...s.user, nickname: name, email } : null })),
+      setLocalUser: (name, email, avatar = '') => set({ user: { id: 'local', email, nickname: name, avatar } }),
+  updateLocalUser: (name, email, avatar) => set((s) => ({ user: s.user ? { ...s.user, nickname: name, email, ...(avatar !== undefined && { avatar }) } : null })),
     }),
     { name: 'resumeforge-auth', partialize: (s) => ({ user: s.user }) },
   ),

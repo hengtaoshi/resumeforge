@@ -20,8 +20,9 @@ export type {
 export { buildGrammarCheckPrompt, buildTranslationPrompt } from './prompts/grammar';
 export type { GrammarIssue, GrammarCheckResult } from './prompts/grammar';
 export { buildInterviewPrompt } from './prompts/interview';
-export { buildGuidedPrompt } from './prompts/interview';
+export { buildGuidedPrompt, getRandomWelcomeMessage, ADVISOR_PERSONAS } from './prompts/interview';
 export type { InterviewRole, InterviewResponse } from './prompts/interview';
+export type { AdvisorPersona } from './prompts/interview';
 export {
   INTERVIEW_ROLES,
   ROLE_LABELS,

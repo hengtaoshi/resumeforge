@@ -62,9 +62,14 @@ body {
 }
 .nav-btn.active {
   --btn-text: #fff;
-  --btn-bg: var(--accent);
-  --btn-bg-hover: var(--accent-hover);
+  --btn-bg: transparent;
+  --btn-bg-hover: transparent;
   --btn-outline: rgba(212,135,94,0.35);
+  background: linear-gradient(135deg, #D4875E 0%, #B8656F 100%);
+  box-shadow: 0 0 0.8em 0 rgba(212,135,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.nav-btn.active .nav-icon {
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
 }
 .nav-btn .nav-icon {
   width: 1.15em; height: 1.15em;

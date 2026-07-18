@@ -1,7 +1,7 @@
 {
   "name": "resumeforge",
   "version": "1.9.9",
-  "description": "ResumeForge - \u7ee0\udc80\u9358\u55d5\u7d2d\u9356\u6826\u7b0c\u59f9\u509d\u4eb4\u6748\u546d\u59ea\u5997\u5c84\u6f70\u6434\u65c2\u6564",
+  "description": "ResumeForge - 绠\udc80鍘嗕紭鍖栦笌姹傝亴杈呭姪妗岄潰搴旂敤",
   "author": "hengtaoshi",
   "private": true,
   "main": "dist-electron/main.js",
@@ -12,6 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dicebear/adventurer": "^9.2.0",
+    "@dicebear/core": "^9.2.0",
     "@dnd-kit/core": "^6.3.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.0",

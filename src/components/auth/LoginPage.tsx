@@ -3,17 +3,39 @@ import { useAuthStore } from '@/stores/authStore'
 import AnimatedCharacters from '@/components/ui/AnimatedCharacters'
 import HoverButton from '@/components/ui/HoverButton'
 
+// 16 个可选的用户头像（7 女 + 9 男）
+const USER_AVATARS = [
+  { file: 'f_v2seed_1003.svg', gender: 'female' },
+  { file: 'f_v2seed_1005.svg', gender: 'female' },
+  { file: 'f_v2seed_1020.svg', gender: 'female' },
+  { file: 'f_v2seed_1049.svg', gender: 'female' },
+  { file: 'f_v2seed_1066.svg', gender: 'female' },
+  { file: 'f_v2seed_1099.svg', gender: 'female' },
+  { file: 'f_v2seed_1113.svg', gender: 'female' },
+  { file: 'm_v2seed_1004.svg', gender: 'male' },
+  { file: 'm_v2seed_1006.svg', gender: 'male' },
+  { file: 'm_v2seed_1013.svg', gender: 'male' },
+  { file: 'm_v2seed_1019.svg', gender: 'male' },
+  { file: 'm_v2seed_1029.svg', gender: 'male' },
+  { file: 'm_v2seed_1088.svg', gender: 'male' },
+  { file: 'm_v2seed_1110.svg', gender: 'male' },
+  { file: 'm_v2seed_1114.svg', gender: 'male' },
+  { file: 'm_v2seed_1116.svg', gender: 'male' },
+]
+
 export default function LoginPage() {
   const setLocalUser = useAuthStore((s) => s.setLocalUser)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [selectedAvatar, setSelectedAvatar] = useState('')
 
   const handleSubmit = () => {
     const n = name.trim()
     const e = email.trim()
     if (!n) return
     if (e && !/^[^\s@]+@[^\s@]+$/.test(e)) return
-    setLocalUser(n || '用户', e || 'local@user.com')
+    const avatarPath = selectedAvatar ? `/avatars/users/${selectedAvatar}` : ''
+    setLocalUser(n || '用户', e || 'local@user.com', avatarPath)
   }
 
   return (
@@ -55,6 +77,32 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 className="w-full h-11 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm outline-none focus:border-[#D4875E] transition-colors" />
             </div>
+
+            {/* ── 头像选择 ── */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                选择头像 <span className="text-slate-400 font-normal text-xs">（可选）</span>
+              </label>
+              <div className="grid grid-cols-8 gap-2 max-h-[160px] overflow-y-auto py-1">
+                {USER_AVATARS.map((a) => {
+                  const isSelected = selectedAvatar === a.file;
+                  const border = a.gender === 'female'
+                    ? 'border-pink-200 dark:border-pink-800'
+                    : 'border-blue-200 dark:border-blue-800';
+                  return (
+                    <button key={a.file} type="button"
+                      onClick={() => setSelectedAvatar(isSelected ? '' : a.file)}
+                      className={`w-full aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                        isSelected ? 'border-[#D4875E] ring-2 ring-[#D4875E]/30 scale-105' : `${border} hover:border-slate-300`
+                      }`}
+                    >
+                      <img src={`/avatars/users/${a.file}`} alt="avatar" className="w-full h-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <HoverButton text="开始使用"
               onClick={handleSubmit} disabled={!name.trim()}
               className="w-full h-11 text-base" />
