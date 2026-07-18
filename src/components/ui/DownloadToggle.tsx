@@ -131,7 +131,6 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
           )}
-          {downloading && <span style={{ color: '#fff', fontSize: 14, fontWeight: 600, zIndex: 2, position: 'relative' }}>{pct}%</span>}
           {done && (
             <svg className="dl-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
               <polyline points="20 6 9 17 4 12" />
@@ -139,6 +138,7 @@ export default function DownloadToggle({ status, version, percent, onCheck, onDo
           )}
           <div className="dl-square" />
         </span>
+        {downloading && <span style={{ color: '#D4875E', fontSize: 10, fontWeight: 600, marginLeft: 6, whiteSpace: 'nowrap' }}>{pct}%</span>}
         <span className="dl-title">
           {status === 'checking' ? '检查中' : status === 'idle' ? '检查更新' : status === 'available' ? '下载' : ''}
         </span>
