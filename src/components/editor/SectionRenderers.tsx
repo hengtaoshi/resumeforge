@@ -192,6 +192,6 @@ export const EmptyState = ({ onCreate }: { onCreate: () => void }) => (
   <div className="flex flex-col items-center justify-center h-full text-gray-400">
     <i className="ph-light ph-file-text text-6xl mb-4"></i>
     <p className="text-lg mb-4">还没有选择简历</p>
-    <button onClick={onCreate} className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors">创建新简历</button>
+    <button onClick={onCreate} className="btn-pill primary">创建新简历</button>
   </div>
 )

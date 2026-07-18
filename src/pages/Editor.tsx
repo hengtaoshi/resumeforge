@@ -8,7 +8,7 @@ import toast from '@/lib/toast'
 import ImportReviewModal, { type ParsedResumeData } from '@/components/editor/ImportReviewModal'
 import EditorSidebar from '@/components/editor/EditorSidebar'
 import EditorCenter from '@/components/editor/EditorCenter'
-import EditorProperties from '@/components/editor/EditorProperties'
+import PropertiesModal from '@/components/editor/PropertiesModal'
 import { EmptyState } from '@/components/editor/SectionRenderers'
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
@@ -40,8 +40,8 @@ const Editor = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [showAddDropdown, setShowAddDropdown] = useState(false)
+  const [showProps, setShowProps] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(260)
-  const [propsWidth, setPropsWidth] = useState(280)
 
   const useDivider = (onChange: (d: number) => void) => {
     const ref = useRef<HTMLDivElement>(null); const [drag, setDrag] = useState(false)
@@ -57,7 +57,6 @@ const Editor = () => {
     return { ref, drag }
   }
   const leftDiv = useDivider(d => setSidebarWidth(w => Math.max(160, Math.min(400, w + d))))
-  const rightDiv = useDivider(d => setPropsWidth(w => Math.max(200, Math.min(400, w - d))))
   const [importReviewData, setImportReviewData] = useState<ParsedResumeData | null>(null)
   const [importLoading, setImportLoading] = useState(false)
   const [importStatus, setImportStatus] = useState('')
@@ -307,11 +306,20 @@ const Editor = () => {
         toggleSelectForDelete={toggleSelectForDelete} handleToggleVisibility={handleToggleVisibility}
         handleDeleteSelected={handleDeleteSelected} addSection={addSection} />
       <div ref={leftDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-[#D4875E] active:bg-[#D4875E] transition-colors ${leftDiv.drag ? 'bg-[#D4875E]' : 'bg-gray-200'}`} />
-      <EditorCenter activeResume={activeResume} sortedSections={sortedSections}
-        updateSectionContent={updateSectionContent} />
-      <div ref={rightDiv.ref} className={`w-1 shrink-0 cursor-col-resize hover:bg-[#D4875E] active:bg-[#D4875E] transition-colors ${rightDiv.drag ? 'bg-[#D4875E]' : 'bg-gray-200'}`} />
-      <EditorProperties width={propsWidth} activeResume={activeResume} templateOptions={templateOptions} updateResume={updateResume}
-        handleExport={handleExport} />
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex items-center justify-between px-4 py-2 border-b bg-white shrink-0">
+          <span className="text-sm font-medium text-gray-700">{activeResume.title}</span>
+          <button onClick={() => setShowProps(true)} className="btn-pill primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            保存简历
+          </button>
+        </div>
+        <EditorCenter activeResume={activeResume} sortedSections={sortedSections}
+          updateSectionContent={updateSectionContent}
+          onTemplateChange={(id) => updateResume(activeResume.id, { template: id })} />
+      </div>
+      {showProps && <PropertiesModal activeResume={activeResume} templateOptions={templateOptions}
+        updateResume={updateResume} handleExport={handleExport} onClose={() => setShowProps(false)} />}
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDeleteConfirm(false)}>

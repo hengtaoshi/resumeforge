@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { Resume as EditorResume } from '@/types/resume'
 import { convertResumeForTemplate } from '@/lib/resume-converter'
-import { initTemplates, getTemplate } from './template-registry'
+import { initTemplates, getRegisteredTemplates, getTemplate } from './template-registry'
 
 interface Props {
   resume: EditorResume
+  onTemplateChange?: (templateId: string) => void
 }
 
-export default function ResumePreview({ resume }: Props) {
+export default function ResumePreview({ resume, onTemplateChange }: Props) {
   const [loaded, setLoaded] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -16,7 +18,6 @@ export default function ResumePreview({ resume }: Props) {
     initTemplates().then(() => setLoaded(true))
   }, [])
 
-  // Calculate scale to fit A4 width inside container
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -28,6 +29,7 @@ export default function ResumePreview({ resume }: Props) {
     return () => observer.disconnect()
   }, [])
 
+  const allTemplates = getRegisteredTemplates()
   const selectedId = resume.template || 'classic'
   const templateDef = getTemplate(selectedId)
   const templateData = convertResumeForTemplate(resume)
@@ -44,8 +46,29 @@ export default function ResumePreview({ resume }: Props) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-3 py-2 border-b text-xs text-gray-500">
-        当前模板: <span className="font-medium text-gray-700">{templateDef?.name || selectedId}</span>
+      <div className="flex items-center justify-between px-3 py-2 border-b">
+        <span className="text-xs text-gray-500">
+          模板: <span className="font-medium text-gray-700">{templateDef?.name || selectedId}</span>
+        </span>
+        <div className="relative">
+          <button onClick={() => setShowPicker(!showPicker)}
+            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors">
+            切换
+          </button>
+          {showPicker && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
+              <div className="absolute right-0 top-full mt-1 bg-white border rounded-lg shadow-lg z-20 overflow-y-auto" style={{ maxHeight: 300, width: 180 }}>
+                {allTemplates.map(t => (
+                  <button key={t.id} onClick={() => { onTemplateChange?.(t.id); setShowPicker(false) }}
+                    className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${(resume.template || 'classic') === t.id ? 'text-[#D4875E] font-medium bg-[rgba(212,135,94,0.08)]' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* A4 preview area */}

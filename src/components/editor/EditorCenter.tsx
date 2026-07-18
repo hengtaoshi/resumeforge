@@ -6,9 +6,10 @@ import { SectionContentEditor, SECTION_ICONS, SECTION_LABELS, SECTION_BG_COLORS 
 interface CenterProps {
   activeResume: Resume; sortedSections: ResumeSection[]
   updateSectionContent: (id: string, content: Record<string, any>) => void
+  onTemplateChange?: (templateId: string) => void
 }
 
-export default function EditorCenter({ activeResume, sortedSections, updateSectionContent }: CenterProps) {
+export default function EditorCenter({ activeResume, sortedSections, updateSectionContent, onTemplateChange }: CenterProps) {
   return (
     <div className="flex flex-1 min-w-0">
       <div className="flex-1 overflow-y-auto bg-gray-50">
@@ -40,7 +41,7 @@ export default function EditorCenter({ activeResume, sortedSections, updateSecti
         </div>
       </div>
       <div className="flex-1 overflow-auto bg-gray-100 border-l">
-        <ResumePreview resume={activeResume} />
+        <ResumePreview resume={activeResume} onTemplateChange={onTemplateChange} />
       </div>
     </div>
   )
