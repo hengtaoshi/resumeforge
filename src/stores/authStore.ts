@@ -18,6 +18,7 @@ interface AuthState {
   logout: () => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
   setLocalUser: (name: string, email: string) => void
+  updateLocalUser: (name: string, email: string) => void
 }
 
 function cleanError(err: any): string {
@@ -76,6 +77,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       setLocalUser: (name, email) => set({ user: { id: 'local', email, nickname: name, avatar: '' } }),
+  updateLocalUser: (name, email) => set((s) => ({ user: s.user ? { ...s.user, nickname: name, email } : null })),
     }),
     { name: 'resumeforge-auth', partialize: (s) => ({ user: s.user }) },
   ),

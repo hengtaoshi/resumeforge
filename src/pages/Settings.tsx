@@ -212,7 +212,7 @@ const Settings: React.FC = () => {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
-            账户安全
+            个人信息
           </h2>
           <ChangePassword />
         </div>
@@ -222,48 +222,38 @@ const Settings: React.FC = () => {
 };
 
 function ChangePassword() {
-  const { changePassword } = useAuthStore()
-  const [oldPw, setOldPw] = useState('')
-  const [newPw, setNewPw] = useState('')
-  const [confirmPw, setConfirmPw] = useState('')
+  const user = useAuthStore((s) => s.user)
+  const updateLocalUser = useAuthStore((s) => s.updateLocalUser)
+  const [name, setName] = useState(user?.nickname || '')
+  const [email, setEmail] = useState(user?.email || '')
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
 
   const handleSave = async () => {
-    if (!oldPw) { setMsg('请输入当前密码'); return }
-    if (newPw.length < 8 || !/[a-zA-Z]/.test(newPw) || !/[0-9]/.test(newPw)) { setMsg('新密码需至少8位，包含字母和数字'); return }
-    if (newPw !== confirmPw) { setMsg('两次密码不一致'); return }
+    if (!name.trim()) { setMsg('昵称不能为空'); return }
+    if (email.trim() && !/^[^\s@]+@[^\s@]+$/.test(email.trim())) { setMsg('请输入有效邮箱'); return }
     setSaving(true); setMsg('')
-    try {
-      await changePassword(oldPw, newPw)
-      setMsg('密码修改成功')
-      setOldPw(''); setNewPw(''); setConfirmPw('')
-    } catch (e: any) { setMsg(e?.message || '修改失败') }
+    updateLocalUser(name.trim(), email.trim() || 'local@user.com')
+    setMsg('保存成功')
     setSaving(false)
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-xs text-slate-500 mb-1">当前密码</label>
-        <input type="password" value={oldPw} onChange={e => setOldPw(e.target.value)}
+        <label className="block text-xs text-slate-500 mb-1">昵称</label>
+        <input type="text" value={name} onChange={e => setName(e.target.value)}
           className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
       </div>
       <div>
-        <label className="block text-xs text-slate-500 mb-1">新密码</label>
-        <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
-        <p className="text-[11px] text-slate-400 mt-1">至少8位，需包含字母和数字</p>
-      </div>
-      <div>
-        <label className="block text-xs text-slate-500 mb-1">确认新密码</label>
-        <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+        <label className="block text-xs text-slate-500 mb-1">邮箱</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
           className="w-full max-w-xs px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(212,135,94,0.30)] focus:border-[#D4875E]" />
       </div>
       {msg && <p className={`text-xs ${msg.includes('成功') ? 'text-green-600' : 'text-red-500'}`}>{msg}</p>}
       <button onClick={handleSave} disabled={saving}
         className="btn-pill primary disabled:opacity-50">
-        {saving ? '修改中...' : '修改密码'}
+        {saving ? '保存中...' : '保存'}
       </button>
     </div>
   )
