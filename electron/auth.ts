@@ -2,7 +2,7 @@ import { ipcMain } from 'electron'
 
 export function registerAuthHandlers() {
   ipcMain.handle('auth:sendCode', async () => {
-    throw new Error('注册功能已移至本地')
+    return { success: true }
   })
   ipcMain.handle('auth:register', async (_e, _email: string, _code: string, _password: string) => {
     return { id: 'local', email: _email, nickname: _email.split('@')[0], avatar: '' }

@@ -191,23 +191,6 @@ const Settings: React.FC = () => {
               <DarkModeToggle active={theme === 'dark'} onClick={toggleTheme} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-300">界面语言</span>
-              <select value={language} onChange={e => setLanguage(e.target.value)}
-                className="text-sm px-2 py-1 rounded-md border border-slate-200 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 dark:text-slate-300">
-                <option value="zh-CN">简体中文</option>
-                <option value="en-US">English</option>
-              </select>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-300">默认模板</span>
-              <select value={defaultTemplate} onChange={e => setDefaultTemplate(e.target.value)}
-                className="text-sm px-2 py-1 rounded-md border border-slate-200 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 dark:text-slate-300">
-                <option value="modern">现代简约</option>
-                <option value="classic">经典商务</option>
-                <option value="minimal">极简风格</option>
-              </select>
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-sm text-slate-600 dark:text-slate-300">自动保存</span>
               <Toggle active={autoSave} onClick={() => setAutoSave(!autoSave)} />
             </div>
