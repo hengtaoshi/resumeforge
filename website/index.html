@@ -192,7 +192,7 @@ footer a:hover { color: var(--accent); }
   <div class="actions">
     <a href="https://github.com/hengtaoshi/resumeforge/releases/latest" class="btn btn-primary" target="_blank">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      下载 Windows 版
+      下载最新版
     </a>
     <a href="#features" class="btn btn-secondary">功能介绍</a>
   </div>
@@ -235,10 +235,13 @@ footer a:hover { color: var(--accent); }
 </footer>
 
 <script>
+const dlBtn = document.querySelector('.btn-primary')
 fetch('/updates/latest.yml').then(r => r.text()).then(t => {
   const vm = t.match(/^version:\s*(.+)/m)
   if (vm) {
-    document.getElementById('version-text').textContent = 'v' + vm[1].trim()
+    const v = vm[1].trim()
+    document.getElementById('version-text').textContent = 'v' + v
+    dlBtn.href = 'https://github.com/hengtaoshi/resumeforge/releases/download/v' + v + '/ResumeForge-' + v + '-Setup.exe'
   }
 }).catch(() => {})
 </script>
