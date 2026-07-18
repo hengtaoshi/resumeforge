@@ -399,13 +399,13 @@ const TierGenerate: React.FC = () => {
             {guidedMessages.map((msg) => (
               <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  msg.role === 'ai' ? 'bg-teal-50 text-teal-500' : 'bg-[rgba(212,135,94,0.10)] text-[#D4875E]'
-                }`}>
+                  msg.role === 'ai' ? 'bg-teal-50 text-teal-500' : 'text-[#D4875E]'
+                }`} style={msg.role !== 'ai' ? { backgroundColor: 'rgba(212,135,94,0.10)' } : undefined}>
                   <i className={`ph-light text-sm ${msg.role === 'ai' ? 'ph-robot' : 'ph-user-circle'}`} />
                 </div>
                 <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                  msg.role === 'ai' ? 'bg-teal-50 text-slate-700 rounded-tl-sm' : 'bg-[rgba(212,135,94,0.10)] text-slate-700 rounded-tr-sm'
-                }`} style={{ whiteSpace: 'pre-wrap' }}>
+                  msg.role === 'ai' ? 'bg-teal-50 text-slate-700 rounded-tl-sm' : 'text-slate-700 rounded-tr-sm'
+                }`} style={{ whiteSpace: 'pre-wrap', ...msg.role !== 'ai' ? { backgroundColor: 'rgba(212,135,94,0.10)' } : {} }}>
                   {msg.content.split('\n').map((line, i) => (
                     <React.Fragment key={i}>
                       {i > 0 && <br />}

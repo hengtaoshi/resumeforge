@@ -216,6 +216,28 @@ body {
 .dark .bg-gray-50 { background: #1e293b !important; }
 .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
 
+/* Additional dark mode overrides for specific component patterns */
+.dark .bg-violet-50 { background-color: #2e1065 !important; }
+.dark .bg-amber-50 { background-color: #3b2f00 !important; }
+.dark .bg-emerald-50 { background-color: #0d3328 !important; }
+.dark .bg-sky-50 { background-color: #0c334b !important; }
+.dark .bg-rose-50 { background-color: #4a0e2b !important; }
+.dark .bg-teal-50 { background-color: #0d3328 !important; }
+.dark .text-slate-900 { color: #f1f5f9 !important; }
+.dark .text-gray-900 { color: #f1f5f9 !important; }
+.dark .bg-gray-100 { background-color: #334155 !important; }
+
+/* White icon backgrounds in stat cards etc */
+.dark .text-violet-500 { color: #a78bfa !important; }
+.dark .text-amber-500 { color: #fbbf24 !important; }
+.dark .text-emerald-500 { color: #34d399 !important; }
+.dark .text-rose-500 { color: #fb7185 !important; }
+.dark .text-teal-500 { color: #2dd4bf !important; }
+.dark .text-sky-500 { color: #38bdf8 !important; }
+.dark [style*="background-color: rgba(212,135,94,0.10)"],
+.dark [style*="background-color:rgba(212,135,94,0.10)"] { background-color: rgba(212,135,94,0.20) !important; }
+.dark .bg-\[\#F4F2ED\] { background: #0f172a !important; }
+
 /* Editor section colors */
 .dark .bg-blue-50 { background-color: #1e3a5f !important; }
 .dark .bg-green-50 { background-color: #0f3d2e !important; }
