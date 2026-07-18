@@ -25,15 +25,6 @@
 - **🔒 本地优先** — 数据存储本地，支持云同步（需登录）
 - **📤 导出** — 支持 PDF / HTML 格式导出简历
 
-## 🖥 截图
-
-| 概览 | 简历编辑 | 模板预览 |
-|------|---------|---------|
-| ![dashboard](https://via.placeholder.com/400x250?text=Dashboard) | ![editor](https://via.placeholder.com/400x250?text=Editor) | ![templates](https://via.placeholder.com/400x250?text=Templates) |
-
-| JD 匹配 | 求职看板 | AI 助手 |
-|---------|---------|--------|
-| ![jd-match](https://via.placeholder.com/400x250?text=JD+Match) | ![kanban](https://via.placeholder.com/400x250?text=Kanban) | ![ai-chat](https://via.placeholder.com/400x250?text=AI+Chat) |
 
 ## 🚀 快速开始
 
