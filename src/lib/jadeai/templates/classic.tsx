@@ -22,7 +22,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
   const pi = (personalInfo?.content || {}) as PersonalInfoContent;
 
   return (
-    <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="mx-auto max-w-[210mm] bg-white shadow-lg flex flex-col flex-1" style={{ fontFamily: 'Inter, sans-serif', minHeight: 0 }}>
       {/* Header */}
       <div className="mb-3 border-b-2 border-zinc-800 pb-2">
         <div className="flex items-center justify-center gap-2">
@@ -52,16 +52,19 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
       </div>
 
       {/* Sections */}
-      {resume.sections
-        .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
-        .map((section) => (
-          <div key={section.id} className="mb-3" data-section>
-            <h2 className="mb-1 border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
-              {section.title}
-            </h2>
-            <SectionContent section={section} lang={resume.language} />
-          </div>
-        ))}
+      <div className="flex flex-col flex-1 justify-between">
+        {resume.sections
+          .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
+          .map((section) => (
+            <div key={section.id} className="mb-3" data-section>
+              <h2 className="mb-1 border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
+                {section.title}
+              </h2>
+              <SectionContent section={section} lang={resume.language} />
+            </div>
+          ))}
+        <div className="flex-1" />
+      </div>
     </div>
   );
 }

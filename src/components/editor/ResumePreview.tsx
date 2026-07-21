@@ -80,8 +80,10 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
               transformOrigin: 'top center',
               width: '210mm',
               minHeight: '297mm',
+              display: 'flex',
+              flexDirection: 'column',
             }}
-            className="shadow-xl bg-white p-6 relative"
+            className="bg-white p-8 relative shadow-sm"
           >
             {TemplateComponent && <TemplateComponent resume={templateData} />}
             {avatarUrl && (
