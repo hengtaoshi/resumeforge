@@ -283,9 +283,9 @@ function renderFallbackHTML(resume: AppResume, avatarUrl: string = ''): string {
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;background:#e5e7eb;padding:40px}
 .page{max-width:700px;margin:0 auto;background:#fff;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.1)}
-.section{margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0}
+.section{margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
 .section:last-child{border-bottom:none}
-h3{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase}
+h3{font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:2px}
 @media print{body{padding:0}.page{box-shadow:none}}
 </style></head>
 <body><div class="page" style="position:relative;min-height:297mm">
