@@ -87,7 +87,7 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
             }}
             className="bg-white p-8 relative" 
           >
-            {TemplateComponent && <TemplateComponent resume={templateData} />}
+            {TemplateComponent && <><TemplateComponent resume={templateData} /><EducationFixer data={templateData} /></>}
             {avatarUrl && (
               <div className="absolute top-6 right-6 z-10 w-[96px] h-[120px] border border-gray-200 shadow-sm overflow-hidden rounded-sm">
                 <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
