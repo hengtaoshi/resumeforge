@@ -37,6 +37,11 @@ function toJadeaiSectionType(t: string): string {
   return map[t] || t
 }
 
+const SECTION_TITLE: Record<string, string> = {
+  personal: '个人信息', summary: '个人简介', experience: '工作经历',
+  education: '教育背景', skills: '专业技能', projects: '项目经历', certifications: '证书',
+}
+
 function convertPersonalContent(c: Record<string, any>): PersonalInfoContent {
   return {
     fullName: c.name || '',
@@ -134,7 +139,7 @@ function convertSection(s: AppSection): JadeSection {
   return {
     id: s.id,
     type: toJadeaiSectionType(s.type),
-    title: '',
+    title: SECTION_TITLE[s.type] || '',
     sortOrder: s.sortOrder,
     visible: s.isVisible,
     content: convertSectionContent(s),
@@ -276,7 +281,7 @@ function renderFallbackHTML(resume: AppResume, avatarUrl: string = ''): string {
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;background:#e5e7eb;padding:40px}
 .page{max-width:700px;margin:0 auto;background:#fff;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.1)}
-.section{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
+.section{margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0}
 .section:last-child{border-bottom:none}
 h3{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase}
 @media print{body{padding:0}.page{box-shadow:none}}

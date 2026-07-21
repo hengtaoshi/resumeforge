@@ -24,7 +24,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
   return (
     <div className="mx-auto max-w-[210mm] bg-white flex flex-col flex-1" style={{ fontFamily: 'Inter, sans-serif', minHeight: 0 }}>
       {/* Header */}
-      <div className="mb-2 border-b-2 border-zinc-800 pb-1.5">
+      <div className="mb-2 border-b-2 border-zinc-800 pb-1">
         <div className="flex items-center justify-center gap-2">
           {pi.avatar && (
             <AvatarImage src={pi.avatar} avatarStyle={resume.themeConfig?.avatarStyle} size={64} className="shrink-0" />
@@ -56,7 +56,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
         {resume.sections
           .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
           .map((section) => (
-            <div key={section.id} className="mb-1.5" data-section>
+            <div key={section.id} className="mb-1" data-section>
               <h2 className="mb-1 border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
                 {section.title}
               </h2>
