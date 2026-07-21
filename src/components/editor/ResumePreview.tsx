@@ -83,7 +83,7 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
               display: 'flex',
               flexDirection: 'column',
             }}
-            className="bg-white p-8 relative shadow-sm"
+            className="bg-white p-8 relative"
           >
             {TemplateComponent && <TemplateComponent resume={templateData} />}
             {avatarUrl && (

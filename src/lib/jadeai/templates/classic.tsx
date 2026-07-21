@@ -22,7 +22,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
   const pi = (personalInfo?.content || {}) as PersonalInfoContent;
 
   return (
-    <div className="mx-auto max-w-[210mm] bg-white shadow-lg flex flex-col flex-1" style={{ fontFamily: 'Inter, sans-serif', minHeight: 0 }}>
+    <div className="mx-auto max-w-[210mm] bg-white flex flex-col flex-1" style={{ fontFamily: 'Inter, sans-serif', minHeight: 0 }}>
       {/* Header */}
       <div className="mb-3 border-b-2 border-zinc-800 pb-2">
         <div className="flex items-center justify-center gap-2">
@@ -52,7 +52,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
       </div>
 
       {/* Sections */}
-      <div className="flex flex-col flex-1 justify-between">
+      <div className="flex flex-col flex-1 justify-between" style={{ minHeight: 0 }}>
         {resume.sections
           .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
           .map((section) => (
