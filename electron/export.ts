@@ -117,8 +117,8 @@ async function doExport(data: ResumeData): Promise<{ success: boolean; filePath?
     await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
     const pdfBuffer = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
     win.close()
-    fs.writeFileSync(result.filePath, pdfBuffer)
-    return { success: true, filePath: result.filePath }
+    const actualPath = writeFileSafe(result.filePath, pdfBuffer)
+    return { success: true, filePath: actualPath }
   } catch (err: any) {
     return { success: false, error: err.message }
   }
@@ -127,6 +127,23 @@ async function doExport(data: ResumeData): Promise<{ success: boolean; filePath?
 ipcMain.handle('export:pdf', async (_event, data: ResumeData) => doExport(data))
 
 // ── Styled export (receives pre-rendered HTML from renderer) ─────────────────
+
+function writeFileSafe(filePath: string, data: Buffer | string, encoding?: BufferEncoding): string {
+  try {
+    fs.writeFileSync(filePath, data, encoding as any);
+    return filePath;
+  } catch (err: any) {
+    if (err.code === 'EBUSY' || err.code === 'EPERM' || err.code === 'EACCES') {
+      const dir = path.dirname(filePath);
+      const ext = path.extname(filePath);
+      const base = path.basename(filePath, ext);
+      const altPath = path.join(dir, `${base}-${Date.now()}${ext}`);
+      fs.writeFileSync(altPath, data, encoding as any);
+      return altPath;
+    }
+    throw err;
+  }
+}
 
 async function doStyledExport(
   html: string,
@@ -146,8 +163,8 @@ async function doStyledExport(
     if (result.canceled || !result.filePath) return { success: false, canceled: true }
 
     if (format === 'html') {
-      fs.writeFileSync(result.filePath, html, 'utf-8')
-      return { success: true, filePath: result.filePath }
+      const actualPath = writeFileSafe(result.filePath, html, 'utf-8');
+      return { success: true, filePath: actualPath }
     }
 
     // PDF — render in headless BrowserWindow
@@ -166,8 +183,8 @@ async function doStyledExport(
     win.close()
     try { fs.unlinkSync(tmpFile) } catch {}
     try { fs.unlinkSync(result.filePath) } catch {}
-    fs.writeFileSync(result.filePath, pdfBuffer)
-    return { success: true, filePath: result.filePath }
+    const actualPath = writeFileSafe(result.filePath, pdfBuffer);
+    return { success: true, filePath: actualPath }
   } catch (err: any) {
     return { success: false, error: err.message }
   }
