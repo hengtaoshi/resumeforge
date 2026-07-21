@@ -104,3 +104,28 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
     </div>
   )
 }
+
+function EducationFixer({ data }: { data: any }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    const container = ref.current.closest('[style]');
+    if (!container) return;
+    const sections = container.querySelectorAll('[data-section]');
+    for (const s of sections) {
+      const h2 = s.querySelector('h2');
+      if (!h2 || !(h2.textContent?.includes('教育背景') || h2.textContent?.includes('EDUCATION'))) continue;
+      const items = data.sections.find((sec: any) => sec.type === 'education')?.content?.items || [];
+      const txt = items.length > 0
+        ? items.map((item: any) => {
+            const deg = [item.degree, item.field || item.major].filter(Boolean).join(' - ');
+            const school = item.institution || item.school || '';
+            const dates = [item.startDate || '', item.endDate || ''].filter(Boolean).join(' - ');
+            return [deg, school, dates].filter(Boolean).join(' | ');
+          }).join(' | ')
+        : '-';
+      s.innerHTML = '<p style="font-size:0.875rem;color:#52525b;margin:0">' + txt + '</p>';
+    }
+  }, [data]);
+  return <div ref={ref} style={{display:'none'}} />;
+}
