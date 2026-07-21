@@ -11,7 +11,9 @@ export interface RegisteredTemplate {
 const registry: RegisteredTemplate[] = []
 
 export function registerTemplate(t: RegisteredTemplate): void {
-  if (!registry.find((r) => r.id === t.id)) registry.push(t)
+  const idx = registry.findIndex((r) => r.id === t.id);
+  if (idx >= 0) registry[idx] = t;
+  else registry.push(t);
 }
 
 export function getRegisteredTemplates(): RegisteredTemplate[] {

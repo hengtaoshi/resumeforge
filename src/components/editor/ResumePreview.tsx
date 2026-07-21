@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import type { Resume as EditorResume } from '@/types/resume'
 import { convertResumeForTemplate } from '@/lib/resume-converter'
 import { initTemplates, getRegisteredTemplates, getTemplate } from './template-registry'
+import { ClassicTemplate } from '@/lib/jadeai/templates/classic'
 
 interface Props {
   resume: EditorResume
@@ -31,7 +32,7 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
 
   const allTemplates = getRegisteredTemplates()
   const selectedId = resume.template || 'classic'
-  const templateDef = getTemplate(selectedId)
+  const templateDef = selectedId === "classic" ? { id: "classic", component: ClassicTemplate, name: "经典", description: "" } : (getTemplate(selectedId) || { id: selectedId, component: ClassicTemplate, name: selectedId, description: selectedId })
   const templateData = convertResumeForTemplate(resume)
   const TemplateComponent = templateDef?.component
   const avatarUrl = resume.sections.find(s => s.type === 'personal')?.content?.avatar || ''
@@ -82,8 +83,9 @@ export default function ResumePreview({ resume, onTemplateChange }: Props) {
               minHeight: '297mm',
               display: 'flex',
               flexDirection: 'column',
+
             }}
-            className="bg-white p-8 relative"
+            className="bg-white p-8 relative" 
           >
             {TemplateComponent && <TemplateComponent resume={templateData} />}
             {avatarUrl && (
