@@ -161,8 +161,9 @@ const PAGE_CSS = `
 @page { margin: 0; size: A4; }
 @media print {
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  [data-section] { margin-bottom: 8px !important; }
-  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 5px !important; }
+  [data-section] { margin-bottom: 5px !important; }
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px !important; }
+  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 2px !important; }
 }
 * { box-sizing: border-box; }
 body {
