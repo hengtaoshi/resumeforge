@@ -110,15 +110,18 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
 
   if (section.type === 'education') {
     const items = (content as EducationContent).items || [];
+    if (items.length === 0 && content && (content as any).school) items.push(content as any);
     return (
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
         {items.map((item: any) => (
-          <span key={item.id}>
-            <span className="font-semibold text-zinc-800">{degreeField(item.degree, item.field)}</span>
+          <span key={item.id || 'edu'}>
+            <span className="font-semibold text-zinc-800">{degreeField(item.degree, item.field || item.major)}</span>
             {item.institution && <span className="text-zinc-500"> - {item.institution}</span>}
-            <span className="text-zinc-400"> | {item.startDate}{item.endDate ? ` - ${item.endDate}` : ''}</span>
+            {!item.institution && item.school && <span className="text-zinc-500"> - {item.school}</span>}
+            <span className="text-zinc-400"> | {item.startDate || ''}{item.endDate ? ` - ${item.endDate}` : ''}</span>
           </span>
         ))}
+        {items.length === 0 && <span className="text-zinc-400">-</span>}
       </div>
     );
   }
