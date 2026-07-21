@@ -56,8 +56,8 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
         {resume.sections
           .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
           .map((section) => (
-            <div key={section.id} className="mb-1" data-section>
-              <h2 className="border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
+            <div key={section.id} style={{ marginBottom: 3 }} data-section>
+              <h2 className="border-b border-zinc-300 text-xs font-bold uppercase tracking-wider text-zinc-800" style={{ marginBottom: 0, paddingBottom: 1 }}>
                 {section.title}
               </h2>
               <SectionContent section={section} lang={resume.language} />
@@ -111,26 +111,13 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   if (section.type === 'education') {
     const items = (content as EducationContent).items || [];
     return (
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
         {items.map((item: any) => (
-          <div key={item.id}>
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="font-semibold text-zinc-800 text-sm">{degreeField(item.degree, item.field)}</span>
-                {item.institution && <span className="text-sm text-zinc-600"> - {item.institution}</span>}
-                {item.location && <span className="text-sm text-zinc-400"> , {item.location}</span>}
-              </div>
-              <span className="text-xs text-zinc-400">{item.startDate} - {item.endDate || (lang === 'zh' ? '至今' : 'Present')}</span>
-            </div>
-            {item.gpa && <p className="text-sm text-zinc-500">GPA: {item.gpa}</p>}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1 list-disc pl-4">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(h) }} />
-                ))}
-              </ul>
-            )}
-          </div>
+          <span key={item.id}>
+            <span className="font-semibold text-zinc-800">{degreeField(item.degree, item.field)}</span>
+            {item.institution && <span className="text-zinc-500"> - {item.institution}</span>}
+            <span className="text-zinc-400"> | {item.startDate}{item.endDate ? ` - ${item.endDate}` : ''}</span>
+          </span>
         ))}
       </div>
     );
