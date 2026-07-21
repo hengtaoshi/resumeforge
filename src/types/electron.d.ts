@@ -138,6 +138,11 @@ interface ElectronAPI {
   // ── PDF extraction (main process avoids Vite bundling issues) ──
   extractPdfText: (buffer: ArrayBuffer) => Promise<string>
 
+  // ── Chat sessions ──
+  saveChatSession: (session: { id: string; resumeId?: string; personaName: string; messages: { role: string; content: string }[] }) => Promise<{ success: boolean }>
+  getChatSessions: () => Promise<Array<{ id: string; resume_id: string | null; created_at: string; updated_at: string }>>
+  getChatMessages: (sessionId: string) => Promise<Array<{ id: string; session_id: string; role: string; content: string; created_at: string }>>
+
   // ── Dashboard tracking ──
   getTrackingStats: () => Promise<{ atsScore: number | null; deliveryCount: number; interviewCount: number }>
   saveATS: (score: number) => Promise<{ ok: boolean }>

@@ -44,11 +44,11 @@ function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-const defaultSectionTypes: { type: SectionType; label: string }[] = [
+// Sections that always get an empty fallback if AI didn't provide them
+const coreSectionTypes: { type: SectionType; label: string }[] = [
   { type: 'personal', label: '个人信息' }, { type: 'summary', label: '个人简介' },
   { type: 'experience', label: '工作经历' }, { type: 'education', label: '教育背景' },
-  { type: 'skills', label: '专业技能' }, { type: 'projects', label: '项目/作品经验' },
-  { type: 'certifications', label: '证书资质' },
+  { type: 'skills', label: '专业技能' },
 ];
 
 const PERSONA_COLORS: Record<string, string> = {
@@ -107,6 +107,8 @@ const TierGenerate: React.FC = () => {
   const [guidedStreamingContent, setGuidedStreamingContent] = useState('');
   const [generatedResumeId, setGeneratedResumeId] = useState<string | null>(null);
   const guidedEndRef = useRef<HTMLDivElement>(null);
+  const chatSessionIdRef = useRef<string | null>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
 
   // ── Tier state ──
   const [selectedTier, setSelectedTier] = useState<ResumeVersion | null>(null);
@@ -125,12 +127,20 @@ const TierGenerate: React.FC = () => {
     guidedEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [guidedMessages, guidedStreamingContent]);
 
+  useEffect(() => {
+    if (window.electronAPI?.getChatSessions) {
+      window.electronAPI.getChatSessions().then(setSessions).catch(() => {});
+    }
+  }, []);
+
   // ═══════════════════════════════════════════════════════════
   // Persona Selection
   // ═══════════════════════════════════════════════════════════
 
   const selectPersona = useCallback((p: AdvisorPersona) => {
     if (!isAIConfigured()) { toast.warning('请先在「设置」页面配置 AI 提供商和 API 密钥。'); return; }
+    const sid = genId();
+    chatSessionIdRef.current = sid;
     setPersona(p);
     setGeneratedResumeId(null);
     setGuidedMessages([{
@@ -145,7 +155,36 @@ const TierGenerate: React.FC = () => {
     setPersona(null);
     setGuidedMessages([]);
     setGeneratedResumeId(null);
+    chatSessionIdRef.current = null;
     setViewMode('pick');
+    if (window.electronAPI?.getChatSessions) {
+      window.electronAPI.getChatSessions().then(setSessions).catch(() => {});
+    }
+  }, []);
+
+  const restoreSession = useCallback(async (sessionId: string, personaName: string) => {
+    const persona = ADVISOR_PERSONAS.find(p => p.name === personaName);
+    if (!persona) { toast.error('找不到对应的顾问'); return; }
+    try {
+      const msgs: any[] = await window.electronAPI!.getChatMessages(sessionId);
+      const chatMsgs: ChatMsg[] = msgs.map((m, i) => ({
+        role: m.role === 'assistant' ? 'ai' : (m.role as 'ai' | 'user'),
+        content: m.content,
+        id: `${sessionId}-${i}`,
+      }));
+      chatSessionIdRef.current = sessionId;
+      setPersona(persona);
+      setGuidedMessages(chatMsgs);
+      const hasJson = chatMsgs.some(m => m.content.includes('[RESUME_JSON]'));
+      if (hasJson) {
+        const resumeMsgs = chatMsgs.filter(m => m.role === 'ai' && m.content.includes('[RESUME_JSON]'));
+        for (const msg of resumeMsgs) {
+          const jsonPart = msg.content.slice(msg.content.indexOf('[RESUME_JSON]') + '[RESUME_JSON]'.length).trim();
+          if (jsonPart) tryCreateResume(jsonPart);
+        }
+      }
+      setViewMode('chat');
+    } catch { toast.error('恢复对话失败'); }
   }, []);
 
   // ═══════════════════════════════════════════════════════════
@@ -185,10 +224,19 @@ const TierGenerate: React.FC = () => {
           tryCreateResume(jsonPart);
         }
 
-        setGuidedMessages((prev) => [...prev, { role: 'ai', id: aiId, content: cleanText }]);
+        const aiMsg: ChatMsg = { role: 'ai', id: aiId, content: cleanText };
+        const allMsgs = [...updatedMessages, aiMsg];
+        setGuidedMessages(allMsgs);
         setGuidedStreamingId(null);
         setGuidedStreamingContent('');
         setGuidedSending(false);
+        if (window.electronAPI?.saveChatSession && chatSessionIdRef.current) {
+          window.electronAPI.saveChatSession({
+            id: chatSessionIdRef.current,
+            personaName: personaRef.current?.name || '',
+            messages: allMsgs.map(m => ({ role: m.role, content: m.content })),
+          }).catch(() => {});
+        }
       },
       onError: (err) => {
         setGuidedMessages((prev) => [...prev, { role: 'ai', id: aiId, content: `抱歉，遇到了一点问题：${err.message}。请重试一下？` }]);
@@ -199,16 +247,86 @@ const TierGenerate: React.FC = () => {
     });
   }, [guidedInput, guidedSending, guidedMessages]);
 
-  function normalizeContent(type: SectionType, content: Record<string, any>): Record<string, any> {
+  function normDate(d: string): string {
+    if (!d) return '';
+    if (/至今|现在|当前|present|now/i.test(d)) return '';
+    // "2020年1月" or "2020年01月" → "2020-01"
+    const m = d.match(/(\d{4})\s*[年/-]\s*(\d{1,2})/);
+    if (m) return `${m[1]}-${m[2].padStart(2, '0')}`;
+    // "2020年" → "2020-01"
+    const y = d.match(/(\d{4})\s*年/);
+    if (y) return `${y[1]}-01`;
+    // "2020-01" or "2020/01" — already partial date
+    const p = d.match(/^(\d{4})[\/-](\d{1,2})$/);
+    if (p) return `${p[1]}-${p[2].padStart(2, '0')}`;
+    // full YYYY-MM-DD — keep as-is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+    return d;
+  }
+
+  function normalizeAIContent(type: SectionType, content: Record<string, any>): Record<string, any> {
     switch (type) {
-      case 'summary': return content.text !== undefined && content.summary === undefined ? { ...content, summary: content.text } : content;
-      case 'education': return (!content.items || content.items.length === 0) && (content.school || content.degree || content.major) ? { items: [{ ...content }] } : content;
-      default: return content;
+      case 'personal':
+        return {
+          name: content.name || content.fullName || content.userName || '',
+          title: content.title || content.jobTitle || content.position || content.求职意向 || '',
+          email: content.email || content.mail || '',
+          phone: content.phone || content.tel || content.mobile || '',
+          location: content.location || content.address || content.city || '',
+        };
+      case 'summary': {
+        const text = content.text || content.summary || content.about || '';
+        return { text, summary: text };
+      }
+      case 'experience': {
+        const items = (content.items || content.experiences || []).map((item: any) => ({
+          company: item.company || item.employer || '',
+          role: item.role || item.position || item.title || item.职位 || '',
+          startDate: normDate(item.startDate || item.start_date || item.from || ''),
+          endDate: normDate(item.endDate || item.end_date || item.to || ''),
+          description: item.description || item.desc || item.responsibilities || item.achievements || item.工作描述 || '',
+        }));
+        return { items };
+      }
+      case 'education': {
+        const items = (content.items || content.educations || []).map((item: any) => ({
+          school: item.school || item.institution || item.university || item.schoolName || '',
+          degree: item.degree || item.education || item.学历 || '',
+          major: item.major || item.field || item.fieldOfStudy || item.专业 || '',
+          startDate: normDate(item.startDate || item.start_date || item.from || ''),
+          endDate: normDate(item.endDate || item.end_date || item.to || ''),
+        }));
+        return { items };
+      }
+      case 'skills':
+        return { skills: content.skills || content.技能 || content.technologies || [] };
+      case 'projects': {
+        const items = (content.items || content.projects || []).map((item: any) => ({
+          name: item.name || item.projectName || item.project || '',
+          role: item.role || item.position || '',
+          tech: item.tech || item.technologies || item.technology || item.技术 || '',
+          description: item.description || item.desc || item.项目描述 || '',
+          startDate: normDate(item.startDate || ''),
+          endDate: normDate(item.endDate || ''),
+        }));
+        return { items };
+      }
+      case 'certifications': {
+        const items = (content.items || content.certifications || content.certs || []).map((item: any) => ({
+          name: item.name || item.certName || item.title || '',
+          issuer: item.issuer || item.organization || item.颁发机构 || '',
+          date: normDate(item.date || item.obtainedDate || item.获得日期 || ''),
+        }));
+        return { items };
+      }
+      default:
+        return content;
     }
   }
 
   function tryCreateResume(jsonStr: string) {
-    const data = extractJSON<{ title?: string; sections?: { sectionType: string; content: Record<string, any> }[] }>(jsonStr);
+    const data = extractJSON<{ title?: string; version?: string; sections?: { sectionType: string; content: Record<string, any> }[] }>(jsonStr);
+    console.log('[DEBUG] tryCreateResume data:', JSON.stringify(data, null, 2));
     if (!data?.sections?.length) {
       toast.warning('简历信息好像不太完整，我们继续聊一聊把细节补全吧？');
       return;
@@ -224,31 +342,42 @@ const TierGenerate: React.FC = () => {
     const existingTypes = new Set<SectionType>();
 
     for (const s of data.sections) {
-      const type = sectionTypeMap[s.sectionType];
+      let type = sectionTypeMap[s.sectionType] || sectionTypeMap[s.type];
+      if (!type) {
+        const key = Object.keys(s).find(k => sectionTypeMap[k]);
+        if (key) type = sectionTypeMap[key];
+      }
       if (type) {
         existingTypes.add(type);
-        sections.push({ id: genId(), type, sortOrder: sections.length, content: normalizeContent(type, s.content || {}), isVisible: true });
+        sections.push({ id: genId(), type, sortOrder: sections.length, content: normalizeAIContent(type, s.content || {}), isVisible: true });
       }
     }
 
-    for (const dt of defaultSectionTypes) {
+    for (const dt of coreSectionTypes) {
       if (!existingTypes.has(dt.type)) {
         sections.push({ id: genId(), type: dt.type, sortOrder: sections.length, content: {}, isVisible: true });
       }
     }
 
+    const version = (['big', 'mid', 'small'] as const).includes(data.version as any)
+      ? (data.version as ResumeVersion)
+      : 'general' as ResumeVersion;
+
     const resume: Resume = {
       id: genId(), title: data.title || `${personaRef.current?.name || 'AI'}·引导简历`,
       createdAt: now, updatedAt: now,
       theme: { primary: '#D4875E', font: 'Noto Sans SC' },
-      version: 'general', sections,
+      version, sections,
     };
+    console.log('[DEBUG] resume to save:', JSON.stringify(resume, null, 2));
+    console.log('[DEBUG] sections count:', sections.length, 'first section content:', JSON.stringify(sections[0]?.content));
 
     window.electronAPI?.saveResume(resume).then(() => {
       fetchResumes().then(() => {
         setActiveResume(resume.id);
         setGeneratedResumeId(resume.id);
-        toast.success('🎉 简历已生成！可以去编辑器调整，也可以回到这里生成各版本简历。');
+        const versionLabel = version === 'big' ? '大厂版' : version === 'mid' ? '中厂版' : version === 'small' ? '小厂版' : '通用版';
+        toast.success(`🎉 ${versionLabel}简历已生成！可以去编辑器查看和调整。`);
       });
     }).catch(() => {
       toast.error('保存简历失败，请重试。');
@@ -374,6 +503,39 @@ const TierGenerate: React.FC = () => {
                 </button>
               );
             })}
+          </div>
+
+          {/* Chat History */}
+          <div className="mt-10 max-w-lg mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <span className="text-xs font-medium text-slate-400">历史对话</span>
+            </div>
+            {sessions.length > 0 ? (
+              <div className="space-y-1.5">
+                {sessions.map((s: any) => {
+                  const persona = ADVISOR_PERSONAS.find(p => p.name === s.persona_name);
+                  const date = s.updated_at ? new Date(s.updated_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+                  return (
+                    <button key={s.id} onClick={() => restoreSession(s.id, s.persona_name)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-sm transition-all text-left">
+                      {persona ? (
+                        <img src={persona.avatarUrl} alt="" className="w-8 h-8 rounded-full shrink-0 bg-slate-100 dark:bg-slate-700" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{s.persona_name || '未知顾问'}</div>
+                        <div className="text-[11px] text-slate-400">{date}</div>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-300"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">暂无对话记录，完成一次引导对话后将出现在这里</p>
+            )}
           </div>
 
           <div className="mt-8 text-center">
@@ -525,15 +687,20 @@ const TierGenerate: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="max-w-3xl mx-auto p-4 flex items-center gap-3">
-            <input
-              type="text"
+          <div className="max-w-3xl mx-auto p-4 flex items-end gap-3">
+            <textarea
               value={guidedInput}
               onChange={(e) => setGuidedInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendGuidedMessage(); } }}
               placeholder={generatedResumeId ? '继续补充或修改简历信息...' : `回答${persona.name}的问题...`}
-              className="flex-1 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#D4875E]/20 dark:focus:ring-[#D4875E]/40 focus:border-[#D4875E] transition-all bg-[#F4F2ED] dark:bg-slate-700 dark:text-slate-200"
-              style={{ color: '#1E293B' }}
+              rows={1}
+              className="flex-1 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-600 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#D4875E]/20 dark:focus:ring-[#D4875E]/40 focus:border-[#D4875E] transition-all bg-[#F4F2ED] dark:bg-slate-700 dark:text-slate-200 resize-none overflow-y-auto"
+              style={{ color: '#1E293B', minHeight: 44, maxHeight: 150 }}
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = 'auto';
+                el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+              }}
             />
             <button
               onClick={sendGuidedMessage}

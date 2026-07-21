@@ -153,6 +153,56 @@ ipcMain.handle('pdf:extractText', async (_e, buffer: ArrayBuffer) => {
   return pages.filter(Boolean).join('\n')
 })
 
+// ── Chat session persistence ──
+ipcMain.handle('db:saveChatSession', async (_e, session: { id: string; resumeId?: string; personaName?: string; messages: { role: string; content: string }[] }) => {
+  const db = getDB()
+  const now = new Date().toISOString()
+  const existing = db.prepare('SELECT id FROM chat_sessions WHERE id = ?')
+  existing.bind([session.id])
+  const hasExisting = existing.step()
+  existing.free()
+  if (hasExisting) {
+    db.run('UPDATE chat_sessions SET updated_at=?, persona_name=? WHERE id=?', [now, session.personaName || null, session.id])
+  } else {
+    db.run('INSERT INTO chat_sessions (id, resume_id, persona_name, created_at, updated_at) VALUES (?,?,?,?,?)',
+      [session.id, session.resumeId || null, session.personaName || null, now, now])
+  }
+  // update resume_id if provided (without touching messages)
+  if (session.resumeId) {
+    db.run('UPDATE chat_sessions SET resume_id=? WHERE id=?', [session.resumeId, session.id])
+  }
+  // only replace messages when explicitly provided
+  if (session.messages && session.messages.length > 0) {
+    db.run('DELETE FROM chat_messages WHERE session_id=?', [session.id])
+    for (let i = 0; i < session.messages.length; i++) {
+      const m = session.messages[i]
+      db.run('INSERT INTO chat_messages (id, session_id, role, content, created_at) VALUES (?,?,?,?,?)',
+        [`${session.id}-${i}`, session.id, m.role, m.content, now])
+    }
+  }
+  persistDB()
+  return { success: true }
+})
+
+ipcMain.handle('db:getChatSessions', async () => {
+  const db = getDB()
+  const stmt = db.prepare('SELECT * FROM chat_sessions ORDER BY updated_at DESC')
+  const sessions: any[] = []
+  while (stmt.step()) sessions.push(stmt.getAsObject())
+  stmt.free()
+  return sessions
+})
+
+ipcMain.handle('db:getChatMessages', async (_e, sessionId: string) => {
+  const db = getDB()
+  const stmt = db.prepare('SELECT * FROM chat_messages WHERE session_id=? ORDER BY created_at ASC')
+  stmt.bind([sessionId])
+  const messages: any[] = []
+  while (stmt.step()) messages.push(stmt.getAsObject())
+  stmt.free()
+  return messages
+})
+
 // ── Resume CRUD — local only ──
 ipcMain.handle('db:getResumes', async () => {
   const db = getDB()

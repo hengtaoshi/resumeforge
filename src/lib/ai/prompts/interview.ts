@@ -383,12 +383,19 @@ const GUIDED_INTERVIEW_DETAIL_INSTRUCTIONS = `
 - 如果用户回答了某个信息但不够清晰，可以换个角度再问一次
 
 ## 输出格式
-当信息收集完毕时，在回答末尾添加：
+当信息收集完毕时，在回答末尾添加（不要用 markdown 包裹，纯文本 JSON 即可）：
 [RESUME_JSON]
-{"title":"姓名 - 简历标题","sections":[...]}
-（不要用 markdown 包裹，纯文本 JSON 即可）
+{"title":"姓名 - 简历标题","sections":[
+  {"sectionType":"personal","content":{"name":"姓名","title":"求职意向","email":"邮箱","phone":"电话","location":"城市"}},
+  {"sectionType":"summary","content":{"text":"个人简介文字"}},
+  {"sectionType":"experience","content":{"items":[{"company":"公司","role":"职位","startDate":"开始时间","endDate":"结束时间","description":"工作描述"}]}},
+  {"sectionType":"education","content":{"items":[{"school":"学校","degree":"学历","major":"专业","startDate":"开始时间","endDate":"结束时间"}]}},
+  {"sectionType":"skills","content":{"skills":["技能1","技能2"]}},
+  {"sectionType":"projects","content":{"items":[{"name":"项目名","role":"角色","tech":"技术","description":"项目描述"}]}},
+  {"sectionType":"certifications","content":{"items":[{"name":"证书名","issuer":"颁发机构","date":"获得日期"}]}}
+]}
+⚠️ 注意：每个 section 必须有 "sectionType" 字段，值是 personal / summary / experience / education / skills / projects / certifications 之一，大小写一致。不要用 "type" 或其他字段名。
 `
-
 /**
  * Build the system prompt for the guided resume interview,
  * using a randomly selected advisor persona for variety.

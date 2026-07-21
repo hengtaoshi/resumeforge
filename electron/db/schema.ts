@@ -114,6 +114,12 @@ export async function initDB(): Promise<void> {
     db.run('ALTER TABLE deliveries ADD COLUMN note TEXT')
   }
 
+  // ── Migrate chat_sessions: add persona_name for history display ──
+  const csCols = db.exec('PRAGMA table_info(chat_sessions)')[0]?.values.map((v: any) => v[1]) || []
+  if (!csCols.includes('persona_name')) {
+    db.run('ALTER TABLE chat_sessions ADD COLUMN persona_name TEXT')
+  }
+
   saveDB()
 }
 

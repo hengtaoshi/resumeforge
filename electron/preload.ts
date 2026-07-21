@@ -151,6 +151,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // ── PDF extraction ────────────────────────────────────────
   extractPdfText: (buffer: ArrayBuffer) => ipcRenderer.invoke('pdf:extractText', buffer),
 
+  // ── Chat sessions ──────────────────────────────────────────
+  saveChatSession: (session: { id: string; resumeId?: string; personaName: string; messages: { role: string; content: string }[] }) =>
+    ipcRenderer.invoke('db:saveChatSession', session),
+  getChatSessions: () => ipcRenderer.invoke('db:getChatSessions'),
+  getChatMessages: (sessionId: string) => ipcRenderer.invoke('db:getChatMessages', sessionId),
+
   // ── Dashboard tracking ─────────────────────────────────────
   getTrackingStats: () => ipcRenderer.invoke('tracking:getStats'),
   saveATS: (score: number) => ipcRenderer.invoke('tracking:saveATS', score),

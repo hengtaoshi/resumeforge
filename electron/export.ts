@@ -44,7 +44,7 @@ function buildResumeHTML(data: ResumeData): string {
     let content = renderContent(section)
     if (!content) return ''
 
-    return `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e2e8f0">
+    return `<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e2e8f0">
       <div style="${section.type === 'personal' ? 'padding-top:40px;' : ''}margin-bottom:${section.type === 'personal' ? '58px' : '12px'}">
         <h4 style="margin:0;font-size:16px;font-weight:700;color:#1e293b;letter-spacing:0.5px">${label}</h4>
       </div>
@@ -53,7 +53,7 @@ function buildResumeHTML(data: ResumeData): string {
   }).filter(Boolean).join('\n')
 
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;color:#1e293b;background:#fff;font-size:11pt;line-height:1.6;padding:40px}.resume{max-width:700px;margin:0 auto}@media print{body{padding:0}}</style></head>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;color:#1e293b;background:#fff;font-size:11pt;line-height:1.6;padding:24px}.resume{max-width:700px;margin:0 auto}@media print{body{padding:0}}</style></head>
 <body><div class="resume">${photoHtml}${sectionsHTML}</div></body></html>`
 }
 
