@@ -166,9 +166,14 @@ const PAGE_CSS = `
 @page { margin: 0; size: A4; }
 @media print {
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  [data-section] { margin-bottom: 5px !important; }
-  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px !important; }
-  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 2px !important; }
+  [data-section] { margin-bottom: 3px !important; }
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 2px !important; }
+  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 1px !important; }
+  .mb-1 { margin-bottom: 2px !important; }
+  .mt-1 { margin-top: 2px !important; }
+  .mt-0\\.5 { margin-top: 1px !important; }
+  .pb-0\\.5 { padding-bottom: 1px !important; }
+  p { margin: 0 !important; }
 }
 * { box-sizing: border-box; }
 body {
@@ -217,7 +222,7 @@ ${TAILWIND_INLINE}
 </head>
 <body>
 <div style="position:relative;width:210mm;margin:0 auto;min-height:297mm;display:flex;flex-direction:column">
-<div style="padding:16px;flex:1;display:flex;flex-direction:column">
+<div style="padding:12px;flex:1;display:flex;flex-direction:column">
 ${content}
 </div>
 ${avatarOverlayHTML(avatarUrl)}

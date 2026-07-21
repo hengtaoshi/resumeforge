@@ -57,7 +57,7 @@ export function ClassicTemplate({ resume }: { resume: Resume }) {
           .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
           .map((section) => (
             <div key={section.id} className="mb-1" data-section>
-              <h2 className="mb-1 border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
+              <h2 className="border-b border-zinc-300 pb-0.5 text-xs font-bold uppercase tracking-wider text-zinc-800">
                 {section.title}
               </h2>
               <SectionContent section={section} lang={resume.language} />
