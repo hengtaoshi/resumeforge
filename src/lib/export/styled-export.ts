@@ -162,14 +162,11 @@ export function convertResume(r: AppResume): JadeResume {
 
 const TAILWIND_INLINE = `<style>${TAILWIND_CSS}</style>`
 
-const PRINT_CSS = `<style>
-@media print {
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  [data-section] { margin-bottom: 3px !important; }
-  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 2px !important; }
-  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 1px !important; }
-  p { margin: 0 !important; }
-}
+const COMPRESS_CSS = `<style>
+[data-section] { margin-bottom: 2px !important; }
+.space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 1px !important; }
+.space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 1px !important; }
+p { margin: 0 !important; }
 </style>`
 
 const PAGE_CSS = `
@@ -218,7 +215,7 @@ export function renderStyledHTML(resume: AppResume, templateId: string = 'classi
 <title>${escapeHtml(resume.title || 'Resume')}</title>
 <style>${PAGE_CSS}</style>
 ${TAILWIND_INLINE}
-  ${PRINT_CSS}
+  ${COMPRESS_CSS}
 </head>
 <body>
 <div style="position:relative;width:210mm;margin:0 auto;min-height:297mm;display:flex;flex-direction:column">
