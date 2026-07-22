@@ -134,13 +134,26 @@ export function convertResumeForTemplate(editorResume: EditorResume): TemplateRe
     .map((s) => {
       const templateType = SECTION_TYPE_MAP[s.type] || s.type
       const mapper = CONTENT_MAPPERS[s.type]
+      let content = mapper ? mapper(s.content) : (s.content as any)
+      if (s.type === 'education' && content) {
+        const items = content.items || []
+        if (items.length > 0) {
+          const parts = items.map((item: any) => {
+            const deg = [item.degree, item.field].filter(Boolean).join(' - ')
+            const name = item.institution || ''
+            const dates = [item.startDate || '', item.endDate || ''].filter(Boolean).join(' - ')
+            return [deg, name, dates].filter(Boolean).join(' | ')
+          })
+          content = { text: parts.join(' | '), items }
+        }
+      }
       return {
         id: s.id,
         type: templateType,
         title: SECTION_TITLE_MAP[s.type] || '',
         sortOrder: s.sortOrder,
         visible: true,
-        content: mapper ? mapper(s.content) : (s.content as any),
+        content,
       }
     })
     .sort((a, b) => a.sortOrder - b.sortOrder)

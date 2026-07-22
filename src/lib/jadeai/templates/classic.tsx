@@ -73,42 +73,8 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
   const content = section.content;
   if (!content) return null;
 
-  if (section.type === 'summary') {
-    return <p className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md((content as SummaryContent).text) }} />;
-  }
-
-  if (section.type === 'work_experience') {
-    const items = (content as WorkExperienceContent).items || [];
-    return (
-      <div className="space-y-2">
-        {items.map((item: any) => (
-          <div key={item.id}>
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="font-semibold text-zinc-800 text-sm">{item.position}</span>
-                {item.company && <span className="text-sm text-zinc-600"> at {item.company}</span>}
-                {item.location && <span className="text-sm text-zinc-400"> , {item.location}</span>}
-              </div>
-              <span className="text-xs text-zinc-400">{item.startDate} - {item.endDate || (item.current ? (lang === 'zh' ? '至今' : 'Present') : '')}</span>
-            </div>
-            {item.description && <p className="mt-1 text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(item.description) }} />}
-            {item.technologies?.length > 0 && (
-              <p className="mt-0.5 text-xs text-zinc-400">{lang === 'zh' ? '技术栈' : 'Tech'}: {item.technologies.join(', ')}</p>
-            )}
-            {item.highlights?.length > 0 && (
-              <ul className="mt-1 list-disc pl-4">
-                {item.highlights.map((h: string, i: number) => (
-                  <li key={i} className="text-sm text-zinc-600" dangerouslySetInnerHTML={{ __html: md(h) }} />
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   if (section.type === 'education') {
+    if ((content as any).text) return <p className="text-sm text-zinc-700">{(content as any).text}</p>;
     const items = (content as EducationContent).items || [];
     const parts: string[] = items.map((item: any) => {
       const deg = degreeField(item.degree, item.field || item.major);
@@ -116,7 +82,7 @@ function SectionContent({ section, lang }: { section: any; lang?: string }) {
       const dates = [item.startDate || '', item.endDate || ''].filter(Boolean).join(' - ');
       return [deg, school, dates].filter(Boolean).join(' | ');
     });
-    return <p className="text-sm text-zinc-700">{(content as any).school && !items.length ? `${degreeField((content as any).degree, (content as any).major)} | ${(content as any).school} ${[(content as any).startDate, (content as any).endDate].filter(Boolean).join(' - ')}` : (parts.join(' | ') || '-')}</p>;
+    return <p className="text-sm text-zinc-700">{parts.join(' | ') || '-'}</p>;
   }
 
   if (section.type === 'skills') {
